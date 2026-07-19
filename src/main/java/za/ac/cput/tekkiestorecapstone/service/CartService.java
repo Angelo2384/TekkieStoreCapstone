@@ -23,7 +23,10 @@ public class CartService implements ICartService {
     public Cart update(Cart cart) {return this.repo.save(cart);}
 
     @Override
-    public boolean delete(String s) {return this.repo.existsById(s);}
+    public boolean delete(String s) {
+        this.repo.deleteById(s);
+        return true;
+    }
 
     @Override
     public List<Cart> getAll() {return this.repo.findAll();}

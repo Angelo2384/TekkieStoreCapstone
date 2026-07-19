@@ -23,7 +23,10 @@ public class CustomerService implements ICustomerService {
     public Customer update(Customer customer) {return this.repo.save(customer);}
 
     @Override
-    public boolean delete(String s) {return this.repo.existsById(s);}
+    public boolean delete(String s) {
+        this.repo.deleteById(s);
+        return true;
+    }
 
     @Override
     public List<Customer> getAll() {return this.repo.findAll();}
