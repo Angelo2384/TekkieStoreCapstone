@@ -1,3 +1,10 @@
+/*
+DeliveryDetails.java
+Author: Rameez Karriem
+Student Number: 222357320
+Date: 18 July 2026
+ */
+
 package za.ac.cput.tekkiestorecapstone.domain;
 
 import java.util.Date;
