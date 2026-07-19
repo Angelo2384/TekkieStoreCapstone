@@ -1,5 +1,11 @@
 package za.ac.cput.tekkiestorecapstone.domain;
 
+/* OrderItem.java
+OrderItem model class
+Author: Qaasim Isaacs(222544422)
+Date: 19 july 2026
+*/
+
 // Represents an item in an order.
 public class OrderItem {
 

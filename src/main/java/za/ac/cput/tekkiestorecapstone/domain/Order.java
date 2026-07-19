@@ -1,5 +1,11 @@
 package za.ac.cput.tekkiestorecapstone.domain;
 
+/* Order.java
+Order model class
+Author: Qaasim Isaacs(222544422)
+Date: 19 july 2026
+*/
+
 import java.util.Date;
 
 public class Order {
