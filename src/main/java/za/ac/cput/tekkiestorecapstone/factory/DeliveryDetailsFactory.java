@@ -1,0 +1,33 @@
+package za.ac.cput.tekkiestorecapstone.factory;
+
+import za.ac.cput.tekkiestorecapstone.domain.Address;
+import za.ac.cput.tekkiestorecapstone.domain.DeliveryDetails;
+import za.ac.cput.tekkiestorecapstone.util.Helper;
+
+import java.util.Date;
+
+public class DeliveryDetailsFactory {
+    public static DeliveryDetails createDeliveryDetails(String deliveryId, Address address, String courier, String trackingNumber, Date estimatedDeliveryDate) {
+        if (Helper.isNullOrEmpty(deliveryId)
+                || Helper.isNullOrEmpty(courier)
+                || Helper.isNullOrEmpty(trackingNumber)) {
+            return null;
+        }
+
+        if (address == null) {
+            return null;
+        }
+
+        if (estimatedDeliveryDate == null) {
+            return null;
+        }
+
+        return new DeliveryDetails.Builder()
+                .setDeliveryId(deliveryId)
+                .setAddress(address)
+                .setCourier(courier)
+                .setTrackingNumber(trackingNumber)
+                .setEstimatedDeliveryDate(estimatedDeliveryDate)
+                .build();
+    }
+}
