@@ -7,5 +7,4 @@ public interface IService <T, ID>{
     T read(ID id);
     T update(T t);
     boolean delete(ID id);
-    //gello
 }
