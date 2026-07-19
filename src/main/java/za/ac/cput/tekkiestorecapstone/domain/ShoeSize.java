@@ -1,3 +1,10 @@
+
+/* ShoeSize.java
+Domain Layer of the ShoeSize Entity
+Author: Redah Gamieldien(222641681)
+Date: 18 July 2026
+*/
+
 package za.ac.cput.tekkiestorecapstone.domain;
 
 public class ShoeSize {
