@@ -34,7 +34,8 @@ public class ShoeVariantService implements IShoeVariantService {
 
     @Override
     public boolean delete(String variantId) {
-        return this.repo.existsById(variantId);
+        this.repo.deleteById(variantId);
+        return true;
     }
 
     @Override
