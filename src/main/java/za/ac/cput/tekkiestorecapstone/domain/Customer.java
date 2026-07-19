@@ -93,7 +93,7 @@ public class Customer {
            this.email= customer.email;
            this.name= customer.name;
            this.mobileNumber=customer.mobileNumber;
-           this.name= customer.name;
+           this.address=customer.address;
            return this;
        }
        public Customer build(){return new Customer(this);}

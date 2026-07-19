@@ -7,7 +7,8 @@ public class Cart {
     protected Cart(){}
 
     private Cart(Builder builder){
-
+        this.cartId= builder.cartId;
+        this.totalAmount= builder.totalAmount;
     }
 
     public String getCartId() {

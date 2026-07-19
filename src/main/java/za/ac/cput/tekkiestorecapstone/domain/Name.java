@@ -8,7 +8,9 @@ public class Name {
     protected Name(){}
 
     private Name(Builder build){
-
+        this.firstName= build.firstName;
+        this.middleName= build.middleName;
+        this.lastName= build.lastName;
     }
 
     public String getFirstName() {
