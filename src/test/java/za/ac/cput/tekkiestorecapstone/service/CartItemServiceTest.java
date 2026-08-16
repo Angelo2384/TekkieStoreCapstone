@@ -3,6 +3,7 @@ package za.ac.cput.tekkiestorecapstone.service;
  CartItemServiceTest.java
  CartItemServiceTest model class
  Author: Angelo Adams
+ Student Number: 230450431
  Date: 19 July 2026
 */
 
@@ -40,7 +41,7 @@ class CartItemServiceTest {
 
     @BeforeEach
     void setUp() {
-        cartItem = CartItemFactory.createCartItem("CI001", 2, 150.00);
+        cartItem = CartItemFactory.createCartItem("DD01", 2, 900.00);
     }
 
     @Test

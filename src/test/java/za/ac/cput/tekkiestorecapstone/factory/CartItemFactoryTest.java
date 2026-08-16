@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
     @Test
     @Order(1)
     public void createCartItem(){
-        CartItem cartItem = CartItemFactory.createCartItem("DD01", 2, 900);
+        CartItem cartItem = CartItemFactory.createCartItem("DD01", 2, 900.00);
         assertNotNull(cartItem);
         System.out.print(cartItem.toString());
 
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
     @Test
     @Order(2)
     public void createCartItemWithInvalidQuantity(){
-        CartItem cartItem = CartItemFactory.createCartItem("DD01", 0, 900);
+        CartItem cartItem = CartItemFactory.createCartItem("DD01", 0, 900.00);
         assertNotNull(cartItem);
 
     }
