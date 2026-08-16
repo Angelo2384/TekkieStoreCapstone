@@ -10,10 +10,10 @@ import za.ac.cput.tekkiestorecapstone.domain.Address;
 import za.ac.cput.tekkiestorecapstone.domain.DeliveryDetails;
 import za.ac.cput.tekkiestorecapstone.util.Helper;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class DeliveryDetailsFactory {
-    public static DeliveryDetails createDeliveryDetails(String deliveryId, Address address, String courier, String trackingNumber, Date estimatedDeliveryDate) {
+    public static DeliveryDetails createDeliveryDetails(String deliveryId, Address address, String courier, String trackingNumber, LocalDate estimatedDeliveryDate) {
         if (Helper.isNullOrEmpty(deliveryId)
                 || Helper.isNullOrEmpty(courier)
                 || Helper.isNullOrEmpty(trackingNumber)) {

@@ -7,14 +7,14 @@ Date: 18 July 2026
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 public class DeliveryDetails {
     private String deliveryId;
     private Address address;
     private String courier;
     private String trackingNumber;
-    private Date estimatedDeliveryDate;
+    private LocalDate estimatedDeliveryDate;
 
     protected DeliveryDetails(){}
 
@@ -42,7 +42,7 @@ public class DeliveryDetails {
         return trackingNumber;
     }
 
-    public Date getEstimatedDeliveryDate() {
+    public LocalDate getEstimatedDeliveryDate() {
         return estimatedDeliveryDate;
     }
 
@@ -62,7 +62,7 @@ public class DeliveryDetails {
         private Address address;
         private String courier;
         private String trackingNumber;
-        private Date estimatedDeliveryDate;
+        private LocalDate estimatedDeliveryDate;
 
         public Builder setDeliveryId(String deliveryId) {
             this.deliveryId = deliveryId;
@@ -84,7 +84,7 @@ public class DeliveryDetails {
             return this;
         }
 
-        public Builder setEstimatedDeliveryDate(Date estimatedDeliveryDate) {
+        public Builder setEstimatedDeliveryDate(LocalDate estimatedDeliveryDate) {
             this.estimatedDeliveryDate = estimatedDeliveryDate;
             return this;
         }
