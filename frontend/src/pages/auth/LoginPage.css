@@ -1,0 +1,114 @@
+/* ─── Login Page Wrapper ─────────────────────────────────────── */
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+  background: var(--color-bg);
+}
+
+/* ─── Card ───────────────────────────────────────────────────── */
+.login-container {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  padding: 2.5rem 2.75rem;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+/* ─── Header ─────────────────────────────────────────────────── */
+.login-header {
+  text-align: center;
+}
+
+.login-header h1 {
+  margin: 0 0 0.4rem;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+  letter-spacing: -0.5px;
+}
+
+.login-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+/* ─── Form ───────────────────────────────────────────────────── */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Password field + forgot link wrapper */
+.password-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.forgot-password {
+  align-self: flex-end;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.forgot-password:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+/* ─── Login Button ───────────────────────────────────────────── */
+.login-btn {
+  width: 100%;
+  margin-top: 0.25rem;
+  border-radius: 50px !important;   /* pill shape */
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* ─── Footer ─────────────────────────────────────────────────── */
+.login-footer {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+.login-footer p {
+  margin: 0;
+}
+
+.signup-link {
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.signup-link:hover {
+  opacity: 0.75;
+  text-decoration: underline;
+}
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .login-header h1 {
+    font-size: 1.6rem;
+  }
+}
