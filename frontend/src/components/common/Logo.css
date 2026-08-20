@@ -1,0 +1,17 @@
+.logo {
+  display: inline-flex;
+  align-items: center;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.05em;
+  text-transform: uppercase;
+}
+
+.logo-text {
+  color: var(--color-text-heading);
+}
+
+.logo-accent {
+  color: var(--color-primary);
+}
