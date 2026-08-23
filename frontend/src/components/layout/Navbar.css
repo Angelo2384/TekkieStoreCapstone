@@ -3,7 +3,7 @@
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 100;
 }
 
 .navbar-container {
@@ -19,7 +19,8 @@
 .navbar-left {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xxl);
+  gap: var(--spacing-xl);
+  flex-shrink: 0;
 }
 
 .navbar-brand {
@@ -30,67 +31,324 @@
 .navbar-links {
   list-style: none;
   display: none;
-  gap: var(--spacing-lg);
+  gap: 1.75rem;
   margin: 0;
   padding: 0;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 860px) {
   .navbar-links {
     display: flex;
   }
 }
 
 .nav-link {
-  color: var(--color-text-heading);
+  color: var(--color-text-muted);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
   position: relative;
   padding: 0.5rem 0;
   transition: color 0.2s ease;
+  white-space: nowrap;
 }
 
 .nav-link:hover {
-  color: var(--color-primary);
+  color: var(--color-text-heading);
 }
 
 .nav-link::after {
   content: '';
   position: absolute;
-  bottom: 0;
+  bottom: -4px;
   left: 0;
   width: 0;
-  height: 2px;
+  height: 2.5px;
   background-color: var(--color-primary);
   transition: width 0.2s ease;
+  border-radius: 2px;
+}
+
+.nav-link.active {
+  color: var(--color-text-heading);
+  font-weight: 800;
 }
 
 .nav-link.active::after {
   width: 100%;
 }
 
-.nav-link.active {
-  color: var(--color-primary);
-}
-
+/* ------------------------------------------------
+   Navbar Right Section
+   ------------------------------------------------ */
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
+/* ------------------------------------------------
+   Search Container — hidden on small screens
+   ------------------------------------------------ */
 .navbar-search {
+  position: relative;
   display: none;
+  width: 260px;
+  flex-shrink: 0;
 }
 
 @media (min-width: 1024px) {
   .navbar-search {
     display: block;
-    width: 250px;
   }
 }
 
+/* ------------------------------------------------
+   Search Form
+   ------------------------------------------------ */
+.search-form {
+  width: 100%;
+}
+
+/* ------------------------------------------------
+   Search Input Wrapper
+   — must be position:relative so the absolute icon
+     stays inside it, NOT relative to the viewport.
+   ------------------------------------------------ */
+.navbar-search .search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 42px;
+}
+
+/* ------------------------------------------------
+   Search Icon (magnifying glass)
+   — constrained to 18×18, absolutely inside wrapper.
+   — NEVER grows beyond this size.
+   ------------------------------------------------ */
+.navbar-search .search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  /* Hard limits — icon must never become large */
+  min-width: 18px;
+  max-width: 18px;
+  min-height: 18px;
+  max-height: 18px;
+}
+
+/* ------------------------------------------------
+   Search Text Input
+   ------------------------------------------------ */
+.navbar-search .search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 40px 0 44px; /* left space for icon, right space for clear btn */
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-bg-alt);
+  color: var(--color-text);
+  font-size: 0.88rem;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  /* Remove browser default search cancel button */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.navbar-search .search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.navbar-search .search-input:focus {
+  border-color: var(--color-primary);
+  background-color: var(--color-bg-card);
+  box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.1);
+}
+
+/* Remove WebKit search cancel button */
+.navbar-search .search-input::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* ------------------------------------------------
+   Clear Search Button (×)
+   ------------------------------------------------ */
+.navbar-search .search-clear-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  border-radius: 50%;
+  transition: color 0.15s ease;
+}
+
+.navbar-search .search-clear-btn:hover {
+  color: var(--color-text-heading);
+}
+
+/* ------------------------------------------------
+   Search Dropdown Menu
+   — positioned below the search input using
+     position:absolute relative to .navbar-search.
+   — z-index high enough to overlay page content.
+   ------------------------------------------------ */
+.search-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 320px;
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+  overflow: hidden;
+  animation: navSearchDropdownIn 0.18s ease forwards;
+}
+
+@keyframes navSearchDropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------------------------
+   Search Results List
+   ------------------------------------------------ */
+.search-results-list {
+  display: flex;
+  flex-direction: column;
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background-color: var(--color-bg-alt);
+}
+
+.search-result-thumb {
+  width: 46px;
+  height: 46px;
+  background-color: #f3f2ee;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.search-result-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.search-result-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+
+.search-result-brand {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.search-result-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.search-result-price {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+/* ------------------------------------------------
+   View All Row
+   ------------------------------------------------ */
+.search-view-all {
+  padding: 0.7rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: center;
+  background-color: var(--color-bg-alt);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  border-top: 1px solid var(--color-border);
+}
+
+.search-view-all:hover {
+  background-color: #ebe9e3;
+}
+
+/* ------------------------------------------------
+   No Results
+   ------------------------------------------------ */
+.search-no-results {
+  padding: 1.5rem 1rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+}
+
+/* ------------------------------------------------
+   Navbar Actions (Wishlist, Cart, Avatar)
+   ------------------------------------------------ */
 .navbar-actions {
   display: flex;
   align-items: center;

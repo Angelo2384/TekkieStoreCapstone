@@ -5,7 +5,16 @@ interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onSearch?: (query: string) => void;
 }
 
-const SearchInput: React.FC<SearchInputProps> = ({ className = '', onSearch, ...rest }) => {
+const SearchInput: React.FC<SearchInputProps> = ({ className = '', onSearch, onKeyDown, ...rest }) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onSearch) {
+      onSearch((e.target as HTMLInputElement).value);
+    }
+    if (onKeyDown) {
+      onKeyDown(e);
+    }
+  };
+
   return (
     <div className={`search-input-wrapper ${className}`}>
       <svg
@@ -24,6 +33,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ className = '', onSearch, ...
         type="search"
         className="search-input"
         placeholder="Search..."
+        onKeyDown={handleKeyDown}
         {...rest}
       />
     </div>
