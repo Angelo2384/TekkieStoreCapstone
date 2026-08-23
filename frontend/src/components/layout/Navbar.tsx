@@ -245,7 +245,7 @@ const Navbar: React.FC = () => {
             <div className="action-item">
               <IconButton
                 aria-label="Cart"
-                onClick={() => navigate('/catalogue')}
+                onClick={() => navigate('/cart')}
                 icon={
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
@@ -254,7 +254,9 @@ const Navbar: React.FC = () => {
                   </svg>
                 }
               />
-              <NotificationBadge count={cartCount} className="cart-badge" />
+              {cartCount > 0 && (
+                <NotificationBadge count={cartCount} className="cart-badge" />
+              )}
             </div>
 
             <NavLink to="/login" className="profile-link" aria-label="Account profile">

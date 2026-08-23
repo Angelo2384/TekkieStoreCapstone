@@ -26,7 +26,6 @@ const ProductDetailsPage: React.FC = () => {
   const [selectedColor, setSelectedColor] = useState<string>(product?.colors[0]?.name || 'Default');
   const [selectedSize, setSelectedSize] = useState<number | null>(product?.defaultSize ?? product?.sizes[0] ?? null);
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState<boolean>(false);
-  const [isAdded, setIsAdded] = useState<boolean>(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [sizeError, setSizeError] = useState<boolean>(false);
 
@@ -47,15 +46,8 @@ const ProductDetailsPage: React.FC = () => {
 
     setSizeError(false);
     addToCart(product, selectedSize, selectedColor);
-    setIsAdded(true);
-    setToastMessage(`Added ${product.name} (Size ${selectedSize}) to bag!`);
-
-    setTimeout(() => {
-      setIsAdded(false);
-    }, 1000);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
+    setToastMessage(`Added ${product.name} (Size UK ${selectedSize}) to bag!`);
+    setTimeout(() => setToastMessage(null), 2500);
   };
 
   // Handle Buy It Now
@@ -69,10 +61,7 @@ const ProductDetailsPage: React.FC = () => {
     }
 
     addToCart(product, selectedSize, selectedColor);
-    setToastMessage(`Proceeding to checkout with ${product.name}...`);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
+    navigate('/cart');
   };
 
   // Product not found state
@@ -292,7 +281,7 @@ const ProductDetailsPage: React.FC = () => {
             <div className="product-action-buttons">
               <button 
                 type="button" 
-                className={`add-to-cart-btn ${isAdded ? 'is-success' : ''}`}
+                className="add-to-cart-btn"
                 onClick={handleAddToCart}
               >
                 <span>ADD TO CART</span>
