@@ -1,0 +1,960 @@
+/* ===================================================
+   Tekkies Store - Delivery Details Page Styling
+   =================================================== */
+
+.delivery-page {
+  background-color: var(--color-bg);
+  min-height: 100vh;
+  padding: 1.5rem 0 5rem;
+}
+
+.delivery-container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ---------------------------------------------------
+   1. Breadcrumbs
+   --------------------------------------------------- */
+.delivery-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.75rem;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.delivery-breadcrumb a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.delivery-breadcrumb a:hover {
+  color: var(--color-primary);
+}
+
+.delivery-breadcrumb .breadcrumb-divider {
+  color: var(--color-border-dark);
+}
+
+.delivery-breadcrumb .breadcrumb-current {
+  color: var(--color-text-heading);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------
+   2. Main Layout Grid (Sidebar + Content)
+   --------------------------------------------------- */
+.delivery-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+/* ---------------------------------------------------
+   3. Account Sidebar
+   --------------------------------------------------- */
+.delivery-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 90px;
+}
+
+.account-user-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-avatar-wrap {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.sidebar-avatar {
+  width: 84px !important;
+  height: 84px !important;
+  font-size: 1.8rem !important;
+  border: 3px solid #f6f5f2;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.verified-badge-pill {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #10b981;
+  color: #ffffff;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #ffffff;
+}
+
+.user-meta-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.user-full-name {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--color-text-heading);
+}
+
+.user-email {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.membership-tier-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(255, 69, 0, 0.1);
+  color: var(--color-primary);
+  border: 1px solid rgba(255, 69, 0, 0.25);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  margin-top: 0.5rem;
+  text-transform: uppercase;
+}
+
+.membership-tier-tag svg {
+  width: 13px;
+  height: 13px;
+}
+
+.sidebar-loyalty-meter {
+  width: 100%;
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.loyalty-meter-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.loyalty-meter-header strong {
+  color: var(--color-primary-dark);
+  font-weight: 800;
+}
+
+.loyalty-bar-track {
+  width: 100%;
+  height: 6px;
+  background-color: #f1f0eb;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.loyalty-bar-progress {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6a33, #ff4500);
+  border-radius: 9999px;
+}
+
+.loyalty-subtext {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+/* Sidebar Menu */
+.account-nav-menu {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.account-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.account-nav-item svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.account-nav-item:hover {
+  background-color: #f6f5f2;
+  color: var(--color-text-heading);
+}
+
+.account-nav-item.is-active {
+  background-color: #111111;
+  color: #ffffff;
+}
+
+.nav-item-badge {
+  margin-left: auto;
+  background: #f1f0eb;
+  color: var(--color-text-heading);
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+}
+
+.account-nav-item.is-active .nav-item-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.nav-item-badge.wishlist-count {
+  background: rgba(255, 69, 0, 0.15);
+  color: var(--color-primary);
+}
+
+.nav-menu-divider {
+  height: 1px;
+  background-color: var(--color-border);
+  margin: 0.5rem 0;
+}
+
+.account-nav-item.logout-btn {
+  color: var(--color-danger);
+}
+
+.account-nav-item.logout-btn:hover {
+  background-color: rgba(239, 68, 68, 0.08);
+  color: var(--color-danger);
+}
+
+/* ---------------------------------------------------
+   4. Right Main Area & Header Card
+   --------------------------------------------------- */
+.delivery-main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.delivery-header-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.delivery-header-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.delivery-page-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin: 0 0 0.35rem;
+  color: var(--color-text-heading);
+}
+
+.delivery-page-subtitle {
+  font-size: 0.88rem;
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.delivery-order-tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #f6f5f2;
+  border: 1px solid var(--color-border);
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-sm);
+}
+
+.tag-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+}
+
+.tag-order-id {
+  font-size: 0.92rem;
+  font-weight: 900;
+  color: var(--color-text-heading);
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------------------------------
+   5. Card Common Styles
+   --------------------------------------------------- */
+.delivery-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 2rem;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 1.15rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.header-icon-title {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.header-icon-title svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--color-text-heading);
+}
+
+/* Status Pill */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-pill.delivered {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.status-pill.in-transit {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.status-pill.processing {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+.status-pill-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ---------------------------------------------------
+   6. Tracking Status (Horizontal Progress Tracker)
+   --------------------------------------------------- */
+.progress-tracker-wrap {
+  position: relative;
+  padding: 1.5rem 0.5rem 0.5rem;
+}
+
+.progress-tracker-bar {
+  position: absolute;
+  top: 38px;
+  left: 36px;
+  right: 36px;
+  height: 4px;
+  background-color: #f1f0eb;
+  border-radius: 9999px;
+  z-index: 1;
+}
+
+.progress-tracker-line-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff6a33, #ff4500);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.progress-steps-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  position: relative;
+  z-index: 2;
+}
+
+.tracker-step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.6rem;
+}
+
+.step-circle-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 3px solid #e6e4df;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.step-circle-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Completed Step State */
+.tracker-step-item.is-done .step-circle-icon {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.35);
+}
+
+/* Active Step State */
+.tracker-step-item.is-active .step-circle-icon {
+  background: #ffffff;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.15);
+  animation: pulseActiveStep 2s infinite ease-in-out;
+}
+
+@keyframes pulseActiveStep {
+  0%, 100% {
+    box-shadow: 0 0 0 4px rgba(255, 69, 0, 0.15);
+  }
+  50% {
+    box-shadow: 0 0 0 7px rgba(255, 69, 0, 0.25);
+  }
+}
+
+.step-label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.step-name {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+}
+
+.tracker-step-item.is-active .step-name {
+  color: var(--color-primary-dark);
+}
+
+.step-date {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+/* ---------------------------------------------------
+   7. Two Side-by-Side Cards (Address + Carrier)
+   --------------------------------------------------- */
+.delivery-two-cards-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.country-badge,
+.carrier-verified-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--color-text-muted);
+  background: #f6f5f2;
+  border: 1px solid var(--color-border);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+}
+
+.carrier-verified-badge {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.25);
+}
+
+/* Address Body */
+.address-body-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.recipient-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 0.35rem;
+  color: var(--color-text-heading);
+}
+
+.address-text-line {
+  font-size: 0.92rem;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.address-text-line.country-name {
+  font-weight: 700;
+  margin-top: 0.15rem;
+}
+
+.contact-meta-row {
+  display: flex;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+.meta-label {
+  color: var(--color-text-muted);
+}
+
+.meta-value {
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.delivery-instruction-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: #f9f9f8;
+  border: 1px dashed var(--color-border-dark);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin-top: 1rem;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+}
+
+/* Carrier Body */
+.carrier-body-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.carrier-info-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.info-block-label {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.info-block-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-heading);
+}
+
+.tracking-number-badge-box {
+  background: #f9f9f8;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tracking-label-val {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.tracking-badge-title {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-primary);
+}
+
+.tracking-badge-code {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--color-text-heading);
+  letter-spacing: 0.04em;
+}
+
+.copy-tracking-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-heading);
+  padding: 0.45rem 0.8rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.copy-tracking-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
+.copy-tracking-btn:hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #111111;
+}
+
+.carrier-status-note {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 0.65rem 0.9rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: #059669;
+  font-weight: 600;
+}
+
+.note-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------
+   8. Items in Shipment Card
+   --------------------------------------------------- */
+.order-placed-meta {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.shipment-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shipment-item-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: #f9f9f8;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: background-color 0.15s ease;
+}
+
+.shipment-item-row:hover {
+  background: #f4f3ef;
+}
+
+.item-image-wrapper {
+  width: 80px;
+  height: 80px;
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.item-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.item-brand-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.item-product-name {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-text-heading);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.item-specs-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.spec-badge {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+}
+
+.spec-badge strong {
+  color: var(--color-text-heading);
+  font-weight: 700;
+}
+
+.item-status-price-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.item-shipped-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.shipped-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.item-price-val {
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--color-text-heading);
+}
+
+/* ---------------------------------------------------
+   9. Empty State
+   --------------------------------------------------- */
+.delivery-empty-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 4rem 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.browse-drops-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #111111;
+  color: #ffffff;
+  padding: 0.85rem 1.75rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+  margin-top: 0.5rem;
+}
+
+.browse-drops-btn:hover {
+  background: var(--color-primary);
+}
+
+/* ---------------------------------------------------
+   10. Responsive Design
+   --------------------------------------------------- */
+@media (max-width: 1024px) {
+  .delivery-grid {
+    grid-template-columns: 280px 1fr;
+    gap: 1.5rem;
+  }
+
+  .delivery-two-cards-row {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 860px) {
+  .delivery-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .delivery-sidebar {
+    position: static;
+  }
+
+  .progress-tracker-bar {
+    left: 24px;
+    right: 24px;
+  }
+
+  .step-circle-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .step-circle-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .step-name {
+    font-size: 0.78rem;
+  }
+
+  .step-date {
+    font-size: 0.65rem;
+  }
+
+  .shipment-item-row {
+    grid-template-columns: 70px 1fr;
+    gap: 1rem;
+  }
+
+  .item-status-price-col {
+    grid-column: span 2;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--color-border);
+    padding-top: 0.75rem;
+    margin-top: 0.25rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .delivery-container {
+    padding: 0 1rem;
+  }
+
+  .delivery-header-card,
+  .delivery-card {
+    padding: 1.25rem;
+  }
+
+  .progress-steps-row {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 1.5rem;
+  }
+
+  .progress-tracker-bar {
+    display: none;
+  }
+}
