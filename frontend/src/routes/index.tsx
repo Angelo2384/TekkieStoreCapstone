@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { LoginPage, LandingPage, SignUpPage, CataloguePage, ProductDetailsPage, CartPage, ProfilePage } from '../pages';
+import { LoginPage, LandingPage, SignUpPage, CataloguePage, ProductDetailsPage, CartPage, ProfilePage, OrderHistoryPage, DeliveryPage, WishlistPage } from '../pages';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -10,6 +10,9 @@ const AppRoutes: React.FC = () => {
       <Route path="/product/:productId" element={<ProductDetailsPage />} />
       <Route path="/cart" element={<CartPage />} />
       <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/order-history" element={<OrderHistoryPage />} />
+      <Route path="/delivery" element={<DeliveryPage />} />
+      <Route path="/wishlist" element={<WishlistPage />} />
       <Route path="/new-drops" element={<CataloguePage />} />
       <Route path="/men" element={<CataloguePage />} />
       <Route path="/women" element={<CataloguePage />} />

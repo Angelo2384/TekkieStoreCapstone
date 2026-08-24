@@ -6,10 +6,19 @@ import './ProfilePage.css';
 
 const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
-  const { user, orders, updateProfile, updateAddress, logout, wishlist } = useShop();
+  const { user, orders, updateProfile, updateAddress, logout } = useShop();
 
   // Active Sidebar Tab
-  const [activeTab, setActiveTab] = useState<'personal' | 'address' | 'orders' | 'security'>('personal');
+  const [activeTab, setActiveTab] = useState<'personal' | 'orders'>('personal');
+
+  const handleSelectTab = (tab: 'personal' | 'orders') => {
+    setActiveTab(tab);
+    const targetId = tab === 'personal' ? 'personal-info' : 'recent-orders';
+    const el = document.getElementById(targetId);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // Edit Mode States
   const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
@@ -136,37 +145,24 @@ const ProfilePage: React.FC = () => {
                 <span className="loyalty-subtext">550 pts away from VIP Tier 4</span>
               </div>
             </div>
-
             {/* Sidebar Navigation Menu */}
             <nav className="profile-nav-menu" aria-label="Account navigation">
               <button
                 type="button"
                 className={`profile-nav-item ${activeTab === 'personal' ? 'is-active' : ''}`}
-                onClick={() => setActiveTab('personal')}
+                onClick={() => handleSelectTab('personal')}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
-                <span>Personal Information</span>
-              </button>
-
-              <button
-                type="button"
-                className={`profile-nav-item ${activeTab === 'address' ? 'is-active' : ''}`}
-                onClick={() => setActiveTab('address')}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                  <circle cx="12" cy="10" r="3"></circle>
-                </svg>
-                <span>Default Address</span>
+                <span>Profile</span>
               </button>
 
               <button
                 type="button"
                 className={`profile-nav-item ${activeTab === 'orders' ? 'is-active' : ''}`}
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleSelectTab('orders')}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
@@ -174,31 +170,25 @@ const ProfilePage: React.FC = () => {
                   <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                   <line x1="12" y1="22.08" x2="12" y2="12"></line>
                 </svg>
-                <span>Recent Orders</span>
-                <span className="nav-item-badge">{orders.length}</span>
+                <span>Order History</span>
               </button>
 
-              <Link to="/catalogue" className="profile-nav-item">
+              <Link to="/delivery" className="profile-nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                <span>Delivery</span>
+              </Link>
+
+              <Link to="/wishlist" className="profile-nav-item">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                 </svg>
                 <span>Wishlist</span>
-                {wishlist.size > 0 && (
-                  <span className="nav-item-badge wishlist-count">{wishlist.size}</span>
-                )}
               </Link>
-
-              <button
-                type="button"
-                className={`profile-nav-item ${activeTab === 'security' ? 'is-active' : ''}`}
-                onClick={() => setActiveTab('security')}
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                </svg>
-                <span>Security & Password</span>
-              </button>
 
               <div className="nav-menu-divider"></div>
 
@@ -212,7 +202,7 @@ const ProfilePage: React.FC = () => {
                   <polyline points="16 17 21 12 16 7"></polyline>
                   <line x1="21" y1="12" x2="9" y2="12"></line>
                 </svg>
-                <span>Sign Out</span>
+                <span>Logout</span>
               </button>
             </nav>
           </aside>
@@ -563,8 +553,8 @@ const ProfilePage: React.FC = () => {
                   <h3 className="section-card-title">RECENT ORDERS</h3>
                   <p className="section-card-subtitle">Track deliveries, inspect invoices, and reorder previous drops.</p>
                 </div>
-                <Link to="/catalogue" className="view-all-orders-link">
-                  Browse Drops &rarr;
+                <Link to="/order-history" className="view-all-orders-link">
+                  View Full Order History &rarr;
                 </Link>
               </div>
 
