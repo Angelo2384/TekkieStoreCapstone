@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { LoginPage, LandingPage, SignUpPage, CataloguePage, ProductDetailsPage, CartPage, ProfilePage } from '../pages';
+import { LoginPage, LandingPage, SignUpPage, CataloguePage, ProductDetailsPage, CartPage, ProfilePage, CheckoutPage, OrderConfirmationPage } from '../pages';
 
 const AppRoutes: React.FC = () => {
   return (
@@ -16,6 +16,8 @@ const AppRoutes: React.FC = () => {
       <Route path="/limited-edition" element={<CataloguePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<SignUpPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
     </Routes>
   );
 };

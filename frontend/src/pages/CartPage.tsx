@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useShop, type CartItem } from '../context/ShopContext';
 import { PRODUCTS, type Product } from '../data/products';
 import './CartPage.css';
@@ -25,6 +25,8 @@ const CartPage: React.FC = () => {
     isWishlisted,
     addToCart
   } = useShop();
+
+  const navigate = useNavigate();
 
   const [inputPromo, setInputPromo] = useState<string>('');
   const [promoMessage, setPromoMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -92,7 +94,7 @@ const CartPage: React.FC = () => {
 
   // Handle Checkout
   const handleProceedToCheckout = () => {
-    setIsCheckingOut(true);
+    navigate('/checkout');
   };
 
   // Curated recommended items for empty state & cross-sell
