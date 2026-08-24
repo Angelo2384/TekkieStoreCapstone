@@ -7,3 +7,5 @@ export { default as ProfilePage } from './ProfilePage';
 export { default as OrderHistoryPage } from './OrderHistoryPage';
 export { default as DeliveryPage } from './DeliveryPage';
 export { default as WishlistPage } from './WishlistPage';
+export { default as CheckoutPage } from './CheckoutPage';
+export { default as OrderConfirmationPage } from './OrderConfirmationPage';
