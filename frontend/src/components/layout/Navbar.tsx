@@ -259,7 +259,7 @@ const Navbar: React.FC = () => {
               )}
             </div>
 
-            <NavLink to="/login" className="profile-link" aria-label="Account profile">
+            <NavLink to="/profile" className="profile-link" aria-label="Account profile">
               <Avatar alt="User Profile" initials="JD" size="sm" />
             </NavLink>
           </div>
