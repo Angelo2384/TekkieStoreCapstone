@@ -100,15 +100,16 @@
 }
 
 /* Main Grid Layout */
-.order-main-grid {
+.order-conf-page .order-main-grid {
   display: flex;
   gap: 22px;
   margin-bottom: 22px;
 }
 
-.summary-card {
+.order-conf-page .summary-card {
   width: 545px;
-  height: 335px;
+  min-height: 335px;
+  height: auto;
   background-color: #ffffff;
   border: 1px solid #dedede;
   border-radius: 6px;
@@ -116,9 +117,10 @@
   box-sizing: border-box;
 }
 
-.delivery-card {
+.order-conf-page .delivery-card {
   width: 260px;
-  height: 287px;
+  min-height: 287px;
+  height: auto;
   background-color: #ffffff;
   border: 1px solid #dedede;
   border-radius: 6px;
@@ -126,7 +128,7 @@
   box-sizing: border-box;
 }
 
-.card-title {
+.order-conf-page .card-title {
   font-size: 20px;
   font-weight: 700;
   text-transform: uppercase;
@@ -134,20 +136,20 @@
   color: #1a1a1a;
 }
 
-.card-divider {
+.order-conf-page .card-divider {
   border: none;
   border-top: 1px solid #dedede;
   margin: 0 0 24px 0;
 }
 
 /* Product Row */
-.product-row {
+.order-conf-page .product-row {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
-.product-image-box {
+.order-conf-page .product-image-box {
   width: 73px;
   height: 73px;
   background-color: #f5f5f5;
@@ -159,19 +161,19 @@
   flex-shrink: 0;
 }
 
-.product-image-box img {
+.order-conf-page .product-image-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.product-details {
+.order-conf-page .product-details {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
-.product-name {
+.order-conf-page .product-name {
   font-size: 13px;
   font-weight: 700;
   text-transform: uppercase;
@@ -179,12 +181,12 @@
   color: #1a1a1a;
 }
 
-.product-meta {
+.order-conf-page .product-meta {
   font-size: 14px;
   color: #6d5b53;
 }
 
-.product-price {
+.order-conf-page .product-price {
   font-size: 14px;
   font-weight: 700;
   color: #1a1a1a;
@@ -192,17 +194,17 @@
 }
 
 /* Delivery Details */
-.delivery-section {
+.order-conf-page .delivery-section {
   margin-bottom: 24px;
   display: flex;
   flex-direction: column;
 }
 
-.shipping-section {
+.order-conf-page .shipping-section {
   margin-bottom: 0;
 }
 
-.delivery-label {
+.order-conf-page .delivery-label {
   font-size: 11px;
   text-transform: uppercase;
   color: #6d5b53;
@@ -211,25 +213,25 @@
   letter-spacing: 0.5px;
 }
 
-.delivery-date {
+.order-conf-page .delivery-date {
   font-size: 18px;
   font-weight: 700;
   color: #1a1a1a;
 }
 
-.delivery-address p {
+.order-conf-page .delivery-address p {
   margin: 0 0 4px 0;
   font-size: 14px;
   line-height: 1.5;
   color: #1a1a1a;
 }
 
-.delivery-address p:last-child {
+.order-conf-page .delivery-address p:last-child {
   margin-bottom: 0;
 }
 
 /* Action Buttons */
-.order-actions {
+.order-conf-page .order-actions {
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -237,8 +239,8 @@
   margin-left: auto;
 }
 
-.btn-track,
-.btn-continue {
+.order-conf-page .btn-track,
+.order-conf-page .btn-continue {
   width: 100%;
   height: 48px;
   border: none;
@@ -254,23 +256,23 @@
   font-family: inherit;
 }
 
-.btn-track:hover,
-.btn-continue:hover {
+.order-conf-page .btn-track:hover,
+.order-conf-page .btn-continue:hover {
   opacity: 0.9;
 }
 
-.btn-track {
+.order-conf-page .btn-track {
   background-color: #111111;
   color: #ffffff;
   gap: 8px;
 }
 
-.truck-icon {
+.order-conf-page .truck-icon {
   width: 16px;
   height: 16px;
 }
 
-.btn-continue {
+.order-conf-page .btn-continue {
   background-color: #ff542d;
   color: #ffffff;
 }
@@ -326,17 +328,17 @@
 
 /* Responsive Layout */
 @media (max-width: 1024px) {
-  .order-main-grid {
+  .order-conf-page .order-main-grid {
     flex-direction: column;
   }
 
-  .summary-card,
-  .delivery-card {
+  .order-conf-page .summary-card,
+  .order-conf-page .delivery-card {
     width: 100%;
     height: auto;
   }
 
-  .order-actions {
+  .order-conf-page .order-actions {
     width: 100%;
     margin-left: 0;
   }
@@ -366,12 +368,12 @@
     padding-bottom: 0;
   }
 
-  .product-row {
+  .order-conf-page .product-row {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .product-price {
+  .order-conf-page .product-price {
     align-self: flex-start;
     margin-top: 10px;
   }

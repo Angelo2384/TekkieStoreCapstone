@@ -6,42 +6,51 @@
   background-color: var(--color-bg);
   min-height: 100vh;
   padding: 1.5rem 0 5rem;
+  overflow-x: hidden;
+  overflow-y: visible;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.delivery-container {
+.delivery-page .delivery-container {
   max-width: 1440px;
   margin: 0 auto;
   padding: 0 2rem;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
 }
 
 /* ---------------------------------------------------
    1. Breadcrumbs
    --------------------------------------------------- */
-.delivery-breadcrumb {
+.delivery-page .delivery-breadcrumb {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.6rem;
   margin-bottom: 1.75rem;
   font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
-.delivery-breadcrumb a {
+.delivery-page .delivery-breadcrumb a {
   color: var(--color-text-muted);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
-.delivery-breadcrumb a:hover {
+.delivery-page .delivery-breadcrumb a:hover {
   color: var(--color-primary);
 }
 
-.delivery-breadcrumb .breadcrumb-divider {
+.delivery-page .delivery-breadcrumb .breadcrumb-divider {
   color: var(--color-border-dark);
 }
 
-.delivery-breadcrumb .breadcrumb-current {
+.delivery-page .delivery-breadcrumb .breadcrumb-current {
   color: var(--color-text-heading);
   font-weight: 700;
   text-transform: uppercase;
@@ -50,25 +59,31 @@
 /* ---------------------------------------------------
    2. Main Layout Grid (Sidebar + Content)
    --------------------------------------------------- */
-.delivery-grid {
+.delivery-page .delivery-grid {
   display: grid;
-  grid-template-columns: 340px 1fr;
-  gap: 2.5rem;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 2rem;
   align-items: start;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* ---------------------------------------------------
    3. Account Sidebar
    --------------------------------------------------- */
-.delivery-sidebar {
+.delivery-page .delivery-sidebar {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   position: sticky;
   top: 90px;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.account-user-card {
+.delivery-page .account-user-card {
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -78,14 +93,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.user-avatar-wrap {
+.delivery-page .user-avatar-wrap {
   position: relative;
   margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 
-.sidebar-avatar {
+.delivery-page .sidebar-avatar {
   width: 84px !important;
   height: 84px !important;
   font-size: 1.8rem !important;
@@ -93,7 +113,7 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.verified-badge-pill {
+.delivery-page .verified-badge-pill {
   position: absolute;
   bottom: 0;
   right: 0;
@@ -110,27 +130,37 @@
   border: 2px solid #ffffff;
 }
 
-.user-meta-info {
+.delivery-page .user-meta-info {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.25rem;
+  width: 100%;
+  min-width: 0;
 }
 
-.user-full-name {
-  font-size: 1.35rem;
+.delivery-page .user-full-name {
+  font-size: 1.3rem;
   font-weight: 800;
   letter-spacing: -0.01em;
   margin: 0;
   color: var(--color-text-heading);
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  max-width: 100%;
 }
 
-.user-email {
+.delivery-page .user-email {
   font-size: 0.85rem;
   color: var(--color-text-muted);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  text-align: center;
+  max-width: 100%;
 }
 
-.membership-tier-tag {
+.delivery-page .membership-tier-tag {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -146,12 +176,13 @@
   text-transform: uppercase;
 }
 
-.membership-tier-tag svg {
+.delivery-page .membership-tier-tag svg {
   width: 13px;
   height: 13px;
+  flex-shrink: 0;
 }
 
-.sidebar-loyalty-meter {
+.delivery-page .sidebar-loyalty-meter {
   width: 100%;
   margin-top: 1.5rem;
   padding-top: 1.25rem;
@@ -159,21 +190,25 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  box-sizing: border-box;
 }
 
-.loyalty-meter-header {
+.delivery-page .loyalty-meter-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.78rem;
   color: var(--color-text-muted);
+  gap: 0.5rem;
 }
 
-.loyalty-meter-header strong {
+.delivery-page .loyalty-meter-header strong {
   color: var(--color-primary-dark);
   font-weight: 800;
+  white-space: nowrap;
 }
 
-.loyalty-bar-track {
+.delivery-page .loyalty-bar-track {
   width: 100%;
   height: 6px;
   background-color: #f1f0eb;
@@ -181,20 +216,20 @@
   overflow: hidden;
 }
 
-.loyalty-bar-progress {
+.delivery-page .loyalty-bar-progress {
   height: 100%;
   background: linear-gradient(90deg, #ff6a33, #ff4500);
   border-radius: 9999px;
 }
 
-.loyalty-subtext {
+.delivery-page .loyalty-subtext {
   font-size: 0.7rem;
   color: var(--color-text-muted);
   text-align: left;
 }
 
 /* Sidebar Menu */
-.account-nav-menu {
+.delivery-page .account-nav-menu {
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -203,9 +238,12 @@
   flex-direction: column;
   gap: 0.25rem;
   box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.account-nav-item {
+.delivery-page .account-nav-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -221,25 +259,27 @@
   text-decoration: none;
   transition: all 0.2s ease;
   width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.account-nav-item svg {
+.delivery-page .account-nav-item svg {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
 }
 
-.account-nav-item:hover {
+.delivery-page .account-nav-item:hover {
   background-color: #f6f5f2;
   color: var(--color-text-heading);
 }
 
-.account-nav-item.is-active {
+.delivery-page .account-nav-item.is-active {
   background-color: #111111;
   color: #ffffff;
 }
 
-.nav-item-badge {
+.delivery-page .nav-item-badge {
   margin-left: auto;
   background: #f1f0eb;
   color: var(--color-text-heading);
@@ -247,29 +287,31 @@
   font-weight: 800;
   padding: 0.15rem 0.5rem;
   border-radius: 9999px;
+  flex-shrink: 0;
 }
 
-.account-nav-item.is-active .nav-item-badge {
+.delivery-page .account-nav-item.is-active .nav-item-badge {
   background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
 }
 
-.nav-item-badge.wishlist-count {
+.delivery-page .nav-item-badge.wishlist-count {
   background: rgba(255, 69, 0, 0.15);
   color: var(--color-primary);
 }
 
-.nav-menu-divider {
+.delivery-page .nav-menu-divider {
   height: 1px;
   background-color: var(--color-border);
   margin: 0.5rem 0;
+  width: 100%;
 }
 
-.account-nav-item.logout-btn {
+.delivery-page .account-nav-item.logout-btn {
   color: var(--color-danger);
 }
 
-.account-nav-item.logout-btn:hover {
+.delivery-page .account-nav-item.logout-btn:hover {
   background-color: rgba(239, 68, 68, 0.08);
   color: var(--color-danger);
 }
@@ -277,45 +319,60 @@
 /* ---------------------------------------------------
    4. Right Main Area & Header Card
    --------------------------------------------------- */
-.delivery-main-content {
+.delivery-page .delivery-main-content {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.75rem;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.delivery-header-card {
+.delivery-page .delivery-header-card {
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 1.75rem 2rem;
   box-shadow: var(--shadow-sm);
+  width: 100% !important;
+  max-width: 100%;
+  height: auto !important;
+  min-height: auto;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.delivery-header-title-row {
+.delivery-page .delivery-header-title-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   gap: 1rem;
+  min-width: 0;
+  width: 100%;
 }
 
-.delivery-page-title {
+.delivery-page .delivery-page-title {
   font-size: 1.5rem;
   font-weight: 900;
   letter-spacing: -0.02em;
   text-transform: uppercase;
   margin: 0 0 0.35rem;
   color: var(--color-text-heading);
+  word-break: break-word;
 }
 
-.delivery-page-subtitle {
+.delivery-page .delivery-page-subtitle {
   font-size: 0.88rem;
   color: var(--color-text-muted);
   margin: 0;
   line-height: 1.5;
+  word-break: break-word;
+  max-width: 700px;
 }
 
-.delivery-order-tag-pill {
+.delivery-page .delivery-order-tag-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -323,16 +380,17 @@
   border: 1px solid var(--color-border);
   padding: 0.45rem 0.9rem;
   border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
-.tag-label {
+.delivery-page .tag-label {
   font-size: 0.72rem;
   font-weight: 800;
   color: var(--color-text-muted);
   text-transform: uppercase;
 }
 
-.tag-order-id {
+.delivery-page .tag-order-id {
   font-size: 0.92rem;
   font-weight: 900;
   color: var(--color-text-heading);
@@ -342,15 +400,23 @@
 /* ---------------------------------------------------
    5. Card Common Styles
    --------------------------------------------------- */
-.delivery-card {
+.delivery-page .delivery-card {
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   padding: 1.75rem 2rem;
   box-shadow: var(--shadow-sm);
+  width: 100% !important;
+  max-width: 100%;
+  height: auto !important;
+  min-height: auto !important;
+  box-sizing: border-box;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
 }
 
-.card-section-header {
+.delivery-page .card-section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -359,31 +425,36 @@
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.header-icon-title {
+.delivery-page .header-icon-title {
   display: flex;
   align-items: center;
   gap: 0.6rem;
+  min-width: 0;
 }
 
-.header-icon-title svg {
+.delivery-page .header-icon-title svg {
   width: 20px;
   height: 20px;
   color: var(--color-primary);
+  flex-shrink: 0;
 }
 
-.section-title {
+.delivery-page .section-title {
   font-size: 1.15rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: -0.01em;
   margin: 0;
   color: var(--color-text-heading);
+  word-break: break-word;
 }
 
 /* Status Pill */
-.status-pill {
+.delivery-page .status-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -393,77 +464,94 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  flex-shrink: 0;
 }
 
-.status-pill.delivered {
+.delivery-page .status-pill.delivered {
   background: rgba(16, 185, 129, 0.12);
   color: #059669;
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
-.status-pill.in-transit {
+.delivery-page .status-pill.in-transit {
   background: rgba(245, 158, 11, 0.12);
   color: #d97706;
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
-.status-pill.processing {
+.delivery-page .status-pill.processing {
   background: rgba(59, 130, 246, 0.12);
   color: #2563eb;
   border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
-.status-pill-dot {
+.delivery-page .status-pill-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: currentColor;
+  flex-shrink: 0;
 }
 
 /* ---------------------------------------------------
    6. Tracking Status (Horizontal Progress Tracker)
    --------------------------------------------------- */
-.progress-tracker-wrap {
+.delivery-page .progress-tracker-wrap {
   position: relative;
-  padding: 1.5rem 0.5rem 0.5rem;
+  padding: 0.5rem 0 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.progress-tracker-bar {
+.delivery-page .progress-steps-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  padding-top: 1rem;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+/* Progress bar connects step icon centers */
+.delivery-page .progress-tracker-bar {
   position: absolute;
-  top: 38px;
-  left: 36px;
-  right: 36px;
+  top: calc(1rem + 22px); /* 1rem row padding + half 44px icon height */
+  left: 12.5%;
+  right: 12.5%;
   height: 4px;
   background-color: #f1f0eb;
   border-radius: 9999px;
   z-index: 1;
+  transform: translateY(-50%);
 }
 
-.progress-tracker-line-fill {
+.delivery-page .progress-tracker-line-fill {
   height: 100%;
   background: linear-gradient(90deg, #ff6a33, #ff4500);
   border-radius: 9999px;
   transition: width 0.4s ease;
 }
 
-.progress-steps-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  position: relative;
-  z-index: 2;
-}
-
-.tracker-step-item {
+.delivery-page .tracker-step-item {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   gap: 0.6rem;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 0.25rem;
 }
 
-.step-circle-icon {
+.delivery-page .step-circle-icon {
   width: 44px;
   height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 50%;
   background: #ffffff;
   border: 3px solid #e6e4df;
@@ -473,15 +561,18 @@
   justify-content: center;
   transition: all 0.25s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  flex-shrink: 0;
+  z-index: 3;
 }
 
-.step-circle-icon svg {
+.delivery-page .step-circle-icon svg {
   width: 20px;
   height: 20px;
+  flex-shrink: 0;
 }
 
 /* Completed Step State */
-.tracker-step-item.is-done .step-circle-icon {
+.delivery-page .tracker-step-item.is-done .step-circle-icon {
   background: #10b981;
   border-color: #10b981;
   color: #ffffff;
@@ -489,7 +580,7 @@
 }
 
 /* Active Step State */
-.tracker-step-item.is-active .step-circle-icon {
+.delivery-page .tracker-step-item.is-active .step-circle-icon {
   background: #ffffff;
   border-color: var(--color-primary);
   color: var(--color-primary);
@@ -506,38 +597,64 @@
   }
 }
 
-.step-label-group {
+.delivery-page .step-label-group {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  align-items: center;
+  gap: 0.25rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-.step-name {
+.delivery-page .step-name {
   font-size: 0.88rem;
   font-weight: 800;
   color: var(--color-text-heading);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.3;
+  text-align: center;
 }
 
-.tracker-step-item.is-active .step-name {
+.delivery-page .tracker-step-item.is-active .step-name {
   color: var(--color-primary-dark);
 }
 
-.step-date {
+.delivery-page .step-date {
   font-size: 0.72rem;
   color: var(--color-text-muted);
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.3;
+  text-align: center;
 }
 
 /* ---------------------------------------------------
    7. Two Side-by-Side Cards (Address + Carrier)
    --------------------------------------------------- */
-.delivery-two-cards-row {
+.delivery-page .delivery-two-cards-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.75rem;
+  width: 100%;
+  align-items: stretch;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.country-badge,
-.carrier-verified-badge {
+.delivery-page .delivery-two-cards-row .info-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.delivery-page .country-badge,
+.delivery-page .carrier-verified-badge {
   font-size: 0.75rem;
   font-weight: 800;
   color: var(--color-text-muted);
@@ -545,56 +662,64 @@
   border: 1px solid var(--color-border);
   padding: 0.25rem 0.6rem;
   border-radius: var(--radius-sm);
+  flex-shrink: 0;
 }
 
-.carrier-verified-badge {
+.delivery-page .carrier-verified-badge {
   background: rgba(16, 185, 129, 0.1);
   color: #059669;
   border-color: rgba(16, 185, 129, 0.25);
 }
 
 /* Address Body */
-.address-body-content {
+.delivery-page .address-body-content {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.recipient-name {
+.delivery-page .recipient-name {
   font-size: 1.15rem;
   font-weight: 800;
   margin: 0 0 0.35rem;
   color: var(--color-text-heading);
+  word-break: break-word;
 }
 
-.address-text-line {
+.delivery-page .address-text-line {
   font-size: 0.92rem;
   color: var(--color-text);
   margin: 0;
+  line-height: 1.45;
+  word-break: break-word;
 }
 
-.address-text-line.country-name {
+.delivery-page .address-text-line.country-name {
   font-weight: 700;
   margin-top: 0.15rem;
 }
 
-.contact-meta-row {
+.delivery-page .contact-meta-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.4rem;
   font-size: 0.85rem;
   margin-top: 0.75rem;
 }
 
-.meta-label {
+.delivery-page .meta-label {
   color: var(--color-text-muted);
 }
 
-.meta-value {
+.delivery-page .meta-value {
   font-weight: 700;
   color: var(--color-text-heading);
+  word-break: break-all;
 }
 
-.delivery-instruction-card {
+.delivery-page .delivery-instruction-card {
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
@@ -605,22 +730,38 @@
   margin-top: 1rem;
   font-size: 0.82rem;
   color: var(--color-text-muted);
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+}
+
+.delivery-page .pin-icon {
+  flex-shrink: 0;
+}
+
+.delivery-page .instruction-msg {
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.4;
 }
 
 /* Carrier Body */
-.carrier-body-content {
+.delivery-page .carrier-body-content {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  flex: 1;
+  min-width: 0;
 }
 
-.carrier-info-block {
+.delivery-page .carrier-info-block {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 0;
 }
 
-.info-block-label {
+.delivery-page .info-block-label {
   font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -628,13 +769,15 @@
   letter-spacing: 0.05em;
 }
 
-.info-block-value {
+.delivery-page .info-block-value {
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--color-text-heading);
+  word-break: break-word;
+  line-height: 1.4;
 }
 
-.tracking-number-badge-box {
+.delivery-page .tracking-number-badge-box {
   background: #f9f9f8;
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-sm);
@@ -642,16 +785,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
-.tracking-label-val {
+.delivery-page .tracking-label-val {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
-.tracking-badge-title {
+.delivery-page .tracking-badge-title {
   font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -659,14 +807,16 @@
   color: var(--color-primary);
 }
 
-.tracking-badge-code {
+.delivery-page .tracking-badge-code {
   font-size: 1.05rem;
   font-weight: 900;
   color: var(--color-text-heading);
   letter-spacing: 0.04em;
+  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 
-.copy-tracking-btn {
+.delivery-page .copy-tracking-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -679,22 +829,24 @@
   font-weight: 800;
   cursor: pointer;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
-.copy-tracking-btn svg {
+.delivery-page .copy-tracking-btn svg {
   width: 14px;
   height: 14px;
+  flex-shrink: 0;
 }
 
-.copy-tracking-btn:hover {
+.delivery-page .copy-tracking-btn:hover {
   background: #111111;
   color: #ffffff;
   border-color: #111111;
 }
 
-.carrier-status-note {
+.delivery-page .carrier-status-note {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   background: rgba(16, 185, 129, 0.08);
   border: 1px solid rgba(16, 185, 129, 0.2);
@@ -703,48 +855,63 @@
   font-size: 0.8rem;
   color: #059669;
   font-weight: 600;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
 }
 
-.note-dot {
+.delivery-page .note-dot {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: #10b981;
   flex-shrink: 0;
+  margin-top: 5px;
+}
+
+.delivery-page .note-text {
+  word-break: break-word;
+  line-height: 1.4;
 }
 
 /* ---------------------------------------------------
    8. Items in Shipment Card
    --------------------------------------------------- */
-.order-placed-meta {
+.delivery-page .order-placed-meta {
   font-size: 0.82rem;
   color: var(--color-text-muted);
   font-weight: 600;
+  flex-shrink: 0;
 }
 
-.shipment-items-list {
+.delivery-page .shipment-items-list {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.shipment-item-row {
+.delivery-page .shipment-item-row {
   display: grid;
-  grid-template-columns: 80px 1fr auto;
-  gap: 1.5rem;
+  grid-template-columns: 80px minmax(0, 1fr) auto;
+  gap: 1.25rem;
   align-items: center;
   padding: 1rem 1.25rem;
   background: #f9f9f8;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
   transition: background-color 0.15s ease;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
 }
 
-.shipment-item-row:hover {
+.delivery-page .shipment-item-row:hover {
   background: #f4f3ef;
 }
 
-.item-image-wrapper {
+.delivery-page .item-image-wrapper {
   width: 80px;
   height: 80px;
   background: #ffffff;
@@ -754,21 +921,24 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
-.item-img {
+.delivery-page .item-img {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
 }
 
-.item-info-col {
+.delivery-page .item-info-col {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
+  min-width: 0;
 }
 
-.item-brand-tag {
+.delivery-page .item-brand-tag {
   font-size: 0.72rem;
   font-weight: 800;
   color: var(--color-primary);
@@ -776,43 +946,48 @@
   letter-spacing: 0.06em;
 }
 
-.item-product-name {
+.delivery-page .item-product-name {
   font-size: 1.05rem;
   font-weight: 800;
   color: var(--color-text-heading);
   margin: 0;
   letter-spacing: -0.01em;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.35;
 }
 
-.item-specs-row {
+.delivery-page .item-specs-row {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
-.spec-badge {
+.delivery-page .spec-badge {
   font-size: 0.75rem;
   color: var(--color-text-muted);
   background: #ffffff;
   border: 1px solid var(--color-border);
   padding: 0.2rem 0.55rem;
   border-radius: var(--radius-sm);
+  white-space: nowrap;
 }
 
-.spec-badge strong {
+.delivery-page .spec-badge strong {
   color: var(--color-text-heading);
   font-weight: 700;
 }
 
-.item-status-price-col {
+.delivery-page .item-status-price-col {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
-.item-shipped-badge {
+.delivery-page .item-shipped-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -824,25 +999,27 @@
   font-size: 0.7rem;
   font-weight: 800;
   letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
-.shipped-dot {
+.delivery-page .shipped-dot {
   width: 5px;
   height: 5px;
   border-radius: 50%;
   background: currentColor;
 }
 
-.item-price-val {
+.delivery-page .item-price-val {
   font-size: 1.15rem;
   font-weight: 900;
   color: var(--color-text-heading);
+  white-space: nowrap;
 }
 
 /* ---------------------------------------------------
    9. Empty State
    --------------------------------------------------- */
-.delivery-empty-card {
+.delivery-page .delivery-empty-card {
   background: #ffffff;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -853,9 +1030,12 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  width: 100% !important;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.browse-drops-btn {
+.delivery-page .browse-drops-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -871,64 +1051,69 @@
   margin-top: 0.5rem;
 }
 
-.browse-drops-btn:hover {
+.delivery-page .browse-drops-btn:hover {
   background: var(--color-primary);
 }
 
 /* ---------------------------------------------------
-   10. Responsive Design
+   10. Responsive Design Across All Breakpoints
    --------------------------------------------------- */
+
+/* ── 1024px (Tablet Landscape / Small Desktop) ─────── */
 @media (max-width: 1024px) {
-  .delivery-grid {
-    grid-template-columns: 280px 1fr;
+  .delivery-page .delivery-grid {
+    grid-template-columns: 280px minmax(0, 1fr);
     gap: 1.5rem;
   }
 
-  .delivery-two-cards-row {
+  .delivery-page .delivery-two-cards-row {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 }
 
+/* ── 860px / 768px (Tablet Portrait) ───────────────── */
 @media (max-width: 860px) {
-  .delivery-grid {
+  .delivery-page .delivery-grid {
     grid-template-columns: 1fr;
-    gap: 2rem;
+    gap: 1.5rem;
   }
 
-  .delivery-sidebar {
+  .delivery-page .delivery-sidebar {
     position: static;
+    width: 100%;
   }
 
-  .progress-tracker-bar {
-    left: 24px;
-    right: 24px;
+  .delivery-page .progress-tracker-bar {
+    top: calc(1rem + 19px);
   }
 
-  .step-circle-icon {
+  .delivery-page .step-circle-icon {
     width: 38px;
     height: 38px;
+    min-width: 38px;
+    min-height: 38px;
   }
 
-  .step-circle-icon svg {
+  .delivery-page .step-circle-icon svg {
     width: 16px;
     height: 16px;
   }
 
-  .step-name {
-    font-size: 0.78rem;
+  .delivery-page .step-name {
+    font-size: 0.8rem;
   }
 
-  .step-date {
-    font-size: 0.65rem;
+  .delivery-page .step-date {
+    font-size: 0.68rem;
   }
 
-  .shipment-item-row {
-    grid-template-columns: 70px 1fr;
+  .delivery-page .shipment-item-row {
+    grid-template-columns: 70px minmax(0, 1fr);
     gap: 1rem;
   }
 
-  .item-status-price-col {
+  .delivery-page .item-status-price-col {
     grid-column: span 2;
     flex-direction: row;
     justify-content: space-between;
@@ -936,25 +1121,102 @@
     border-top: 1px solid var(--color-border);
     padding-top: 0.75rem;
     margin-top: 0.25rem;
+    width: 100%;
   }
 }
 
-@media (max-width: 600px) {
-  .delivery-container {
+/* ── 640px (Large Phone) ─────────────────────────── */
+@media (max-width: 640px) {
+  .delivery-page {
+    padding-top: 1rem;
+    padding-bottom: 3.5rem;
+  }
+
+  .delivery-page .delivery-container {
     padding: 0 1rem;
   }
 
-  .delivery-header-card,
-  .delivery-card {
+  .delivery-page .delivery-header-card,
+  .delivery-page .delivery-card,
+  .delivery-page .account-user-card,
+  .delivery-page .account-nav-menu {
     padding: 1.25rem;
   }
 
-  .progress-steps-row {
-    grid-template-columns: repeat(2, 1fr);
-    row-gap: 1.5rem;
+  .delivery-page .delivery-header-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
 
-  .progress-tracker-bar {
+  .delivery-page .progress-steps-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 1.5rem;
+    column-gap: 1rem;
+  }
+
+  .delivery-page .progress-tracker-bar {
     display: none;
+  }
+
+  .delivery-page .tracking-number-badge-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .delivery-page .copy-tracking-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ── 375px (Small Mobile) ─────────────────────────── */
+@media (max-width: 375px) {
+  .delivery-page .delivery-container {
+    padding: 0 0.75rem;
+  }
+
+  .delivery-page .delivery-header-card,
+  .delivery-page .delivery-card,
+  .delivery-page .account-user-card,
+  .delivery-page .account-nav-menu {
+    padding: 1rem;
+  }
+
+  .delivery-page .delivery-page-title {
+    font-size: 1.25rem;
+  }
+
+  .delivery-page .delivery-page-subtitle {
+    font-size: 0.82rem;
+  }
+
+  .delivery-page .section-title {
+    font-size: 1rem;
+  }
+
+  .delivery-page .shipment-item-row {
+    grid-template-columns: 55px minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .delivery-page .item-image-wrapper {
+    width: 55px;
+    height: 55px;
+  }
+
+  .delivery-page .item-product-name {
+    font-size: 0.92rem;
+  }
+
+  .delivery-page .tracking-badge-code {
+    font-size: 0.88rem;
+  }
+
+  .delivery-page .spec-badge {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
   }
 }

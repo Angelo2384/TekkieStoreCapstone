@@ -54,8 +54,8 @@ const DeliveryPage: React.FC = () => {
 
   const getProgressLineWidth = (status?: string) => {
     if (!status || status === 'Delivered') return '100%';
-    if (status === 'In Transit') return '66%';
-    if (status === 'Processing') return '33%';
+    if (status === 'In Transit') return '66.66%';
+    if (status === 'Processing') return '33.33%';
     return '0%';
   };
 

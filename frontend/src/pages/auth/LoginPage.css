@@ -4,12 +4,16 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 2rem;
+  padding: 2rem 1rem;
   background: var(--color-bg);
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 /* ─── Card ───────────────────────────────────────────────────── */
-.login-container {
+.login-page .login-container {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: 16px;
@@ -17,98 +21,150 @@
   padding: 2.5rem 2.75rem;
   width: 100%;
   max-width: 440px;
+  height: auto;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
 }
 
 /* ─── Header ─────────────────────────────────────────────────── */
-.login-header {
+.login-page .login-header {
   text-align: center;
+  min-width: 0;
 }
 
-.login-header h1 {
+.login-page .login-header h1 {
   margin: 0 0 0.4rem;
   font-size: 2rem;
   font-weight: 800;
   color: var(--color-text-heading);
   letter-spacing: -0.5px;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
-.login-subtitle {
+.login-page .login-subtitle {
   margin: 0;
   font-size: 0.95rem;
   color: var(--color-text-muted);
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* ─── Form ───────────────────────────────────────────────────── */
-.login-form {
+.login-page .login-form {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* Password field + forgot link wrapper */
-.password-field {
+.login-page .password-field {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
+  width: 100%;
+  min-width: 0;
 }
 
-.forgot-password {
+.login-page .forgot-password {
   align-self: flex-end;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--color-primary);
   text-decoration: none;
   transition: opacity 0.2s;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
-.forgot-password:hover {
+.login-page .forgot-password:hover {
   opacity: 0.75;
   text-decoration: underline;
 }
 
 /* ─── Login Button ───────────────────────────────────────────── */
-.login-btn {
+.login-page .login-btn {
   width: 100%;
   margin-top: 0.25rem;
   border-radius: 50px !important;   /* pill shape */
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.08em;
+  box-sizing: border-box;
 }
 
 /* ─── Footer ─────────────────────────────────────────────────── */
-.login-footer {
+.login-page .login-footer {
   text-align: center;
   font-size: 0.88rem;
   color: var(--color-text-muted);
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
-.login-footer p {
+.login-page .login-footer p {
   margin: 0;
+  min-width: 0;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
-.signup-link {
+.login-page .signup-link {
   color: var(--color-primary);
   font-weight: 600;
   text-decoration: none;
   transition: opacity 0.2s;
 }
 
-.signup-link:hover {
+.login-page .signup-link:hover {
   opacity: 0.75;
   text-decoration: underline;
 }
 
 /* ─── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 480px) {
-  .login-container {
-    padding: 2rem 1.5rem;
+  .login-page {
+    padding: 1.5rem 1rem;
+    align-items: flex-start;
   }
 
-  .login-header h1 {
+  .login-page .login-container {
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
+  }
+
+  .login-page .login-header h1 {
     font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .login-page {
+    padding: 1rem 0.75rem;
+  }
+
+  .login-page .login-container {
+    padding: 1.5rem 1rem;
+    gap: 1.25rem;
+    border-radius: 12px;
+  }
+
+  .login-page .login-header h1 {
+    font-size: 1.45rem;
+  }
+
+  .login-page .login-subtitle {
+    font-size: 0.88rem;
   }
 }

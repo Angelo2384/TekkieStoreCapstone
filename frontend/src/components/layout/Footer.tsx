@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Logo } from '../common';
 import './Footer.css';
 
@@ -27,9 +28,7 @@ const Footer: React.FC = () => {
           <div className="footer-column">
             <h3>SUPPORT</h3>
             <ul>
-              <li><a href="/order-tracking">Order Tracking</a></li>
-              <li><a href="/shipping-returns">Shipping &amp; Returns</a></li>
-              <li><a href="/sizing-guide">Sizing Guide</a></li>
+              <li><Link to="/delivery">Delivery</Link></li>
               <li><a href="/contact">Contact Us</a></li>
             </ul>
           </div>
