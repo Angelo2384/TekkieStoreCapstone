@@ -8,11 +8,21 @@ Date: 19 july 2026
 
 import java.util.Date;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.EnumType;
+
+@Entity
+@Table(name = "orders")
 public class Order {
 
+    @Id
     private String orderId;
     private Date orderDate;
     private double totalAmount;
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
     private String paymentReference;
 

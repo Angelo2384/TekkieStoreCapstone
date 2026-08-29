@@ -6,9 +6,14 @@ Author: Qaasim Isaacs(222544422)
 Date: 19 july 2026
 */
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
 // Represents an item in an order.
+@Entity
 public class OrderItem {
 
+    @Id
     private String orderItemId;
     private int quantity;
     private double unitPrice;

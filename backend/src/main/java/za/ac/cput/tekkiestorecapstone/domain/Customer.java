@@ -7,11 +7,19 @@
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Embedded;
+
+@Entity
 public class Customer {
+    @Id
     private String customerId;
     private String email;
+    @Embedded
     private Name name;
     private String mobileNumber;
+    @Embedded
     private Address address;
 
     protected Customer(){}

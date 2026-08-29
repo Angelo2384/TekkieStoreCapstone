@@ -9,8 +9,15 @@ package za.ac.cput.tekkiestorecapstone.domain;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Embedded;
+
+@Entity
 public class DeliveryDetails {
+    @Id
     private String deliveryId;
+    @Embedded
     private Address address;
     private String courier;
     private String trackingNumber;
