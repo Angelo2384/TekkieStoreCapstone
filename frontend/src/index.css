@@ -1,8 +1,38 @@
 :root {
-  --primary-orange: #FD6701;
+  /* Brand */
+  --brand-orange: #FD6701;
+  --brand-orange-hover: #E55D00;
+  
+  /* Neutrals */
+  --obsidian: #0B0D14;
+  --off-white: #F4F4F5;
+  --pure-white: #FFFFFF;
+
+  /* Typography Colors */
+  --text-main: #2A2A2A;
+  --text-muted: #666666;
+  --text-inverse: #FFFFFF;
 }
 
 body {
   margin: 0;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background-color: var(--off-white);
+  color: var(--text-main);
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin-top: 0;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
 }
