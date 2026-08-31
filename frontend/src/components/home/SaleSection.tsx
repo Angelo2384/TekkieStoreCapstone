@@ -12,7 +12,7 @@ export const SaleSection = () => {
               <span className="highlight">20% OFF</span>
             </h3>
             <p className="sale-description">
-              Use code <strong className="promo-code">TEKKIE20</strong> at checkout. Limited time only.
+              Use code <strong className="sale-promo-code">TEKKIE20</strong> at checkout. Limited time only.
             </p>
             <a href="/shop/sale" className="sale-button">
               Explore Catalogue

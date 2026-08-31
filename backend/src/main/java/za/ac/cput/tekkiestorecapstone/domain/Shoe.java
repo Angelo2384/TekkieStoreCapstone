@@ -20,6 +20,7 @@ public class Shoe {
     private String description;
     private String gender;
     private double basePrice;
+    //private String imageUrl;
 
     //Default constructor
     protected Shoe(){
