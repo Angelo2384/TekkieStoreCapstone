@@ -1,0 +1,139 @@
+.navbar {
+  background-color: var(--pure-white);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  height: 72px;
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navContainer {
+  max-width: 1440px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 3rem;
+  margin: 0 auto;
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 3.5rem;
+  flex-shrink: 0;
+}
+
+.logo img {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
+
+.navLinks {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
+}
+
+.link {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  letter-spacing: 0.04em;
+  padding: 0.35rem 0;
+}
+
+.link:hover, .link.active {
+  color: var(--brand-orange);
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.searchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 260px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+}
+
+.searchInput {
+  width: 100%;
+  height: 42px;
+  padding: 0 40px 0 44px;
+  border: 1px solid #E5E5E5;
+  border-radius: 99px;
+  font-size: 0.88rem;
+  background-color: var(--off-white);
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.searchInput:hover {
+  border-color: var(--brand-orange);
+}
+
+.searchInput:focus {
+  border-color: var(--brand-orange);
+}
+
+.navActions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.actionIcon {
+  width: 22px;
+  height: 22px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.actionIcon:hover {
+  color: var(--brand-orange);
+}
+
+.profileAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--off-white);
+  border: 1px solid #E5E5E5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.profileAvatar:hover {
+  border-color: var(--brand-orange);
+}
+
+.profileAvatar .actionIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+}

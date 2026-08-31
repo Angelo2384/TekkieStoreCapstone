@@ -7,6 +7,9 @@ Date: 18 July 2026
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class ShoeSize {
     private double sizeValue;
     private String sizeRegion;

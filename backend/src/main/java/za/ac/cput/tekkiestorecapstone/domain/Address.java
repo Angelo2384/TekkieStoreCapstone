@@ -6,6 +6,9 @@
  */
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class Address {
     private String streetNumber;
     private String streetName;

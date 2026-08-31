@@ -7,8 +7,15 @@ Date: 18 July 2026
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Embedded;
+
+@Entity
 public class ShoeVariant {
+    @Id
     private String variantId;
+    @Embedded
     private ShoeSize size;
     private String colour;
     private int stockQuantity;

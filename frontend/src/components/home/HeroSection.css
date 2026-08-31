@@ -1,0 +1,149 @@
+.hero-section {
+  position: relative;
+  width: 100%;
+}
+
+.hero-image {
+  width: 100%;
+  height: 750px;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Gradient overlay that fades out to the right */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to right, rgba(11, 13, 20, 0.9) 0%, rgba(11, 13, 20, 0.7) 35%, rgba(11, 13, 20, 0.25) 55%, transparent 75%);
+  display: flex;
+  align-items: center;
+  padding: 0 5rem;
+}
+
+.hero-content {
+  max-width: 650px;
+  color: var(--pure-white);
+}
+
+.hero-eyebrow {
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--pure-white);
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-family: 'Anton', sans-serif;
+  font-size: 5rem;
+  font-weight: 400; /* Anton is naturally bold */
+  line-height: 0.95;
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em; /* Adjusted letter spacing for Anton */
+}
+
+.text-orange {
+  color: var(--brand-orange);
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  font-weight: 400;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 550px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.btn-primary {
+  display: inline-block;
+  background-color: var(--brand-orange);
+  color: var(--pure-white);
+  padding: 1rem 2.75rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  border-radius: 8px; /* Slightly rounded corners */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #E55D00;
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  display: inline-block;
+  background-color: rgba(11, 13, 20, 0.4); /* Semi-transparent obsidian */
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  color: var(--pure-white);
+  padding: 1rem 2.75rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  border-radius: 8px; /* Slightly rounded corners */
+  border: 2px solid transparent; /* Invisible border to prevent layout shift */
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background-color: rgba(11, 13, 20, 0.6); /* Slightly darker on hover */
+  border-color: var(--brand-orange);
+  color: var(--brand-orange);
+  transform: translateY(-1px);
+}
+
+.hero-stats {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-top: 3.5rem;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stat-value {
+  font-family: 'Anton', sans-serif;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--pure-white);
+  letter-spacing: 0.02em;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-divider {
+  width: 1px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.2);
+}

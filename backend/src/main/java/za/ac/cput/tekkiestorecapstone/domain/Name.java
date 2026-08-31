@@ -6,6 +6,9 @@
  */
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class Name {
     private String firstName;
     private String middleName;

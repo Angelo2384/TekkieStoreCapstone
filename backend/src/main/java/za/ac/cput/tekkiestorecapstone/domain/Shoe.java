@@ -6,8 +6,13 @@ Date: 18 July 2026
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
 //represents a shoe entity in the system.
+@Entity
 public class Shoe {
+    @Id
     private String shoeId;
     private String brand;
     private String shoeName;
@@ -15,6 +20,7 @@ public class Shoe {
     private String description;
     private String gender;
     private double basePrice;
+    //private String imageUrl;
 
     //Default constructor
     protected Shoe(){

@@ -6,7 +6,12 @@
  */
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+
+@Entity
 public class Cart {
+    @Id
     private String cartId;
     private double totalAmount;
 

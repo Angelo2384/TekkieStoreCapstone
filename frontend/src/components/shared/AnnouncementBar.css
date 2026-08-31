@@ -1,0 +1,22 @@
+.announcement-bar {
+  background-color: var(--obsidian);
+  color: var(--text-inverse);
+  text-align: center;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  letter-spacing: 0.02em;
+}
+
+.announcement-bar p {
+  margin: 0;
+}
+
+.announcement-promo-code {
+  color: var(--brand-orange);
+  font-weight: 700;
+  text-decoration: underline;
+}
