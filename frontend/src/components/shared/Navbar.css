@@ -186,3 +186,47 @@
     opacity: 1;
   }
 }
+
+/* Auth Buttons in Nav */
+.navAuthGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.navAuthBtn {
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 0.45rem 0.95rem;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navLoginBtn {
+  color: var(--text-main);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.navLoginBtn:hover {
+  color: var(--brand-orange);
+  background-color: var(--off-white);
+}
+
+.navSignupBtn {
+  background-color: var(--brand-orange);
+  color: var(--pure-white);
+  border: 1px solid var(--brand-orange);
+}
+
+.navSignupBtn:hover {
+  background-color: var(--brand-orange-hover);
+  border-color: var(--brand-orange-hover);
+}
+
