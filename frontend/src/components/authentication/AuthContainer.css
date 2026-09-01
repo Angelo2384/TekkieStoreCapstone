@@ -1,0 +1,177 @@
+.authPageWrapper {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--off-white);
+  padding: 2.5rem 1.5rem;
+  box-sizing: border-box;
+}
+
+.authCard {
+  width: 100%;
+  max-width: 450px;
+  background-color: var(--pure-white);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  padding: 3rem 2.5rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+.authHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.authTitle {
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--obsidian);
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.authSubtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.authContent {
+  width: 100%;
+}
+
+.authForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.formLabel {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 16px;
+  width: 18px;
+  height: 18px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.authInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px 0 46px;
+  border: 1px solid #E5E5E5;
+  border-radius: 99px;
+  font-size: 0.92rem;
+  color: var(--text-main);
+  background-color: var(--off-white);
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.authInput::placeholder {
+  color: #9CA3AF;
+}
+
+.authInput:hover {
+  border-color: var(--brand-orange);
+}
+
+.authInput:focus {
+  border-color: var(--brand-orange);
+  background-color: var(--pure-white);
+  box-shadow: 0 0 0 3px rgba(253, 103, 1, 0.15);
+}
+
+.forgotPasswordRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -0.25rem;
+}
+
+.forgotPasswordLink {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brand-orange);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgotPasswordLink:hover {
+  color: var(--brand-orange-hover);
+  text-decoration: underline;
+}
+
+.authSubmitBtn {
+  width: 100%;
+  height: 48px;
+  margin-top: 0.5rem;
+  border-radius: 99px;
+  background-color: var(--brand-orange);
+  color: var(--text-inverse);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  font-family: inherit;
+}
+
+.authSubmitBtn:hover {
+  background-color: var(--brand-orange-hover);
+}
+
+.authSubmitBtn:active {
+  transform: scale(0.99);
+}
+
+.authFooter {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+}
+
+.authFooterLink {
+  color: var(--brand-orange);
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.authFooterLink:hover {
+  color: var(--brand-orange-hover);
+  text-decoration: underline;
+}

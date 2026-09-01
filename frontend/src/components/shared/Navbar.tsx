@@ -57,10 +57,10 @@ export const Navbar = () => {
             {/* Cart Icon */}
             <ShoppingBag className="actionIcon" strokeWidth={1.75} />
 
-            {/* Profile Avatar placeholder */}
-            <div className="profileAvatar">
+            {/* Profile Avatar */}
+            <Link to="/login" className="profileAvatar" aria-label="Account Login">
               <User className="actionIcon" strokeWidth={1.75} />
-            </div>
+            </Link>
           </div>
 
         </div>
