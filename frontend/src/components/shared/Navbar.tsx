@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { NavLink, Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Search, Heart, ShoppingBag, User } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
+import { useAuth } from '../../context/AuthContext';
 import './Navbar.css';
 
 export const Navbar = () => {
@@ -11,6 +12,7 @@ export const Navbar = () => {
   const urlSearch = searchParams.get('search') || '';
   const [localSearch, setLocalSearch] = useState<string | null>(null);
   const { wishlistCount } = useWishlist();
+  const { isAuthenticated } = useAuth();
 
   const searchValue = localSearch !== null ? localSearch : urlSearch;
 
@@ -120,10 +122,21 @@ export const Navbar = () => {
               <ShoppingBag className="actionIcon" strokeWidth={1.75} />
             </button>
 
-            {/* Profile Avatar */}
-            <Link to="/login" className="profileAvatar" aria-label="Account Login" title="Account">
-              <User className="actionIcon" strokeWidth={1.75} />
-            </Link>
+            {/* Conditional Profile Avatar or Log In / Sign Up */}
+            {isAuthenticated ? (
+              <Link to="/profile" className="profileAvatar" aria-label="My Account" title="My Account">
+                <User className="actionIcon" strokeWidth={1.75} />
+              </Link>
+            ) : (
+              <div className="navAuthGroup">
+                <Link to="/login" className="navAuthBtn navLoginBtn">
+                  Log In
+                </Link>
+                <Link to="/signup" className="navAuthBtn navSignupBtn">
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
 
         </div>
@@ -131,3 +144,4 @@ export const Navbar = () => {
     </nav>
   );
 };
+

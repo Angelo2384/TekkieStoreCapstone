@@ -7,6 +7,8 @@ import { Login } from '../pages/Login';
 import { SignUp } from '../pages/SignUp';
 import { ForgotPassword } from '../pages/ForgotPassword';
 
+import { Profile } from '../pages/Profile';
+
 export const router = createBrowserRouter([
   {
     element: <Layout />,
@@ -34,6 +36,10 @@ export const router = createBrowserRouter([
       {
         path: '/wishlist',
         element: <Wishlist />,
+      },
+      {
+        path: '/profile',
+        element: <Profile />,
       },
     ],
   },

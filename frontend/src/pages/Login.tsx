@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { AuthContainer } from '../components/authentication/AuthContainer';
 import { AuthField } from '../components/authentication/AuthField';
+import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -15,6 +17,7 @@ export const Login = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    login(form.email, form.password);
     navigate('/catalogue');
   };
 

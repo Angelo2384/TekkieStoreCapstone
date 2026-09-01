@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, CheckCircle, ArrowRight } from 'lucide-react';
 import { AuthContainer } from '../components/authentication/AuthContainer';
 import { AuthField } from '../components/authentication/AuthField';
+import { useAuth } from '../context/AuthContext';
 
 export const SignUp = () => {
   const navigate = useNavigate();
+  const { signup } = useAuth();
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -27,6 +29,7 @@ export const SignUp = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    signup({ fullName: form.fullName, email: form.email });
     navigate('/catalogue');
   };
 
