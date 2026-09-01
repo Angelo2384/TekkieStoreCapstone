@@ -1,9 +1,12 @@
 import { RouterProvider } from 'react-router-dom';
 import { router } from './routes';
+import { WishlistProvider } from './context/WishlistContext';
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <WishlistProvider>
+      <RouterProvider router={router} />
+    </WishlistProvider>
   );
 }
 

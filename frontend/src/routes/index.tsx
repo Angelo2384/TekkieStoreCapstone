@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { LandingPage } from '../pages/LandingPage';
 import { Layout } from '../components/layout/Layout';
 import { CataloguePage } from '../pages/CataloguePage';
+import { Wishlist } from '../pages/Wishlist';
 import { Login } from '../pages/Login';
 import { SignUp } from '../pages/SignUp';
 import { ForgotPassword } from '../pages/ForgotPassword';
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
       {
         path: '/new-drops',
         element: <CataloguePage />,
+      },
+      {
+        path: '/wishlist',
+        element: <Wishlist />,
       },
     ],
   },

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { NavLink, Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Search, Heart, ShoppingBag, User } from 'lucide-react';
+import { useWishlist } from '../../context/WishlistContext';
 import './Navbar.css';
 
 export const Navbar = () => {
@@ -9,6 +10,7 @@ export const Navbar = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const urlSearch = searchParams.get('search') || '';
   const [localSearch, setLocalSearch] = useState<string | null>(null);
+  const { wishlistCount } = useWishlist();
 
   const searchValue = localSearch !== null ? localSearch : urlSearch;
 
@@ -102,9 +104,16 @@ export const Navbar = () => {
 
           <div className="navActions">
             {/* Wishlist Icon */}
-            <button className="navActionBtn" aria-label="Wishlist" title="Wishlist">
-              <Heart className="actionIcon" strokeWidth={1.75} />
-            </button>
+            <Link to="/wishlist" className="navActionBtn" aria-label={`Wishlist (${wishlistCount} items)`} title="Wishlist">
+              <div className="navBadgeWrapper">
+                <Heart className="actionIcon" strokeWidth={1.75} />
+                {wishlistCount > 0 && (
+                  <span className="navBadge" aria-label={`${wishlistCount} items in wishlist`}>
+                    {wishlistCount}
+                  </span>
+                )}
+              </div>
+            </Link>
             
             {/* Cart Icon */}
             <button className="navActionBtn" aria-label="Cart" title="Cart">
