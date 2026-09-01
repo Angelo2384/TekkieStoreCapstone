@@ -86,7 +86,7 @@
   height: 48px;
   padding: 0 16px 0 46px;
   border: 1px solid #E5E5E5;
-  border-radius: 99px;
+  border-radius: 8px;
   font-size: 0.92rem;
   color: var(--text-main);
   background-color: var(--off-white);
@@ -108,6 +108,28 @@
   border-color: var(--brand-orange);
   background-color: var(--pure-white);
   box-shadow: 0 0 0 3px rgba(253, 103, 1, 0.15);
+}
+
+.authInput.hasToggle {
+  padding-right: 46px;
+}
+
+.passwordToggleBtn {
+  position: absolute;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.passwordToggleBtn:hover {
+  color: var(--brand-orange);
 }
 
 .forgotPasswordRow {
@@ -133,7 +155,7 @@
   width: 100%;
   height: 48px;
   margin-top: 0.5rem;
-  border-radius: 99px;
+  border-radius: 8px;
   background-color: var(--brand-orange);
   color: var(--text-inverse);
   font-weight: 700;

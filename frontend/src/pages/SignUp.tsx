@@ -33,7 +33,7 @@ export const SignUp = () => {
   return (
     <AuthContainer
       title="Create Account"
-      subtitle="Join TekkieStore and start shopping today"
+      subtitle="Join Sole Town and start shopping today"
       footerText="Already have an account?"
       footerLinkText="Log In"
       footerLinkTo="/login"
