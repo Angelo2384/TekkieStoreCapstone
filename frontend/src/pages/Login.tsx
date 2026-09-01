@@ -1,17 +1,20 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { AuthContainer } from '../components/authentication/AuthContainer';
 import { AuthField } from '../components/authentication/AuthField';
 
 export const Login = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const [form, setForm] = useState({ email: '', password: '' });
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    setForm((prev) => ({ ...prev, [id === 'login-email' ? 'email' : 'password']: value }));
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // Auth submission logic
     navigate('/catalogue');
   };
 
@@ -30,8 +33,8 @@ export const Login = () => {
           label="Email Address"
           icon={Mail}
           placeholder="john.doe@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={form.email}
+          onChange={handleChange}
           required
         />
 
@@ -41,8 +44,8 @@ export const Login = () => {
           label="Password"
           icon={Lock}
           placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={form.password}
+          onChange={handleChange}
           required
         />
 

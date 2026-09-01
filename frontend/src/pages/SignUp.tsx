@@ -1,19 +1,32 @@
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, CheckCircle, ArrowRight } from 'lucide-react';
 import { AuthContainer } from '../components/authentication/AuthContainer';
 import { AuthField } from '../components/authentication/AuthField';
 
 export const SignUp = () => {
-  const [fullName, setFullName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const navigate = useNavigate();
+  const [form, setForm] = useState({
+    fullName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const { id, value } = e.target;
+    const fieldMap: Record<string, string> = {
+      'signup-name': 'fullName',
+      'signup-email': 'email',
+      'signup-password': 'password',
+      'signup-confirm-password': 'confirmPassword',
+    };
+    const key = fieldMap[id] || id;
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // Registration logic
     navigate('/catalogue');
   };
 
@@ -32,8 +45,8 @@ export const SignUp = () => {
           label="Full Name"
           icon={User}
           placeholder="John Doe"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
+          value={form.fullName}
+          onChange={handleChange}
           required
         />
 
@@ -43,8 +56,8 @@ export const SignUp = () => {
           label="Email Address"
           icon={Mail}
           placeholder="you@example.com"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={form.email}
+          onChange={handleChange}
           required
         />
 
@@ -54,8 +67,8 @@ export const SignUp = () => {
           label="Password"
           icon={Lock}
           placeholder="••••••••"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          value={form.password}
+          onChange={handleChange}
           required
         />
 
@@ -65,8 +78,8 @@ export const SignUp = () => {
           label="Confirm Password"
           icon={CheckCircle}
           placeholder="••••••••"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          value={form.confirmPassword}
+          onChange={handleChange}
           required
         />
 
