@@ -1,8 +1,56 @@
-import { NavLink, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { NavLink, Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Search, Heart, ShoppingBag, User } from 'lucide-react';
 import './Navbar.css';
 
 export const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const urlSearch = searchParams.get('search') || '';
+  const [localSearch, setLocalSearch] = useState<string | null>(null);
+
+  const searchValue = localSearch !== null ? localSearch : urlSearch;
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const query = searchValue.trim();
+    
+    // Check if currently on a catalogue route
+    const isCatalogueRoute = ['/catalogue', '/men', '/women', '/new-drops'].includes(location.pathname);
+    
+    if (isCatalogueRoute) {
+      if (query) {
+        searchParams.set('search', query);
+      } else {
+        searchParams.delete('search');
+      }
+      setSearchParams(searchParams);
+      setLocalSearch(null);
+    } else {
+      if (query) {
+        navigate(`/catalogue?search=${encodeURIComponent(query)}`);
+      } else {
+        navigate('/catalogue');
+      }
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalSearch(val);
+    
+    const isCatalogueRoute = ['/catalogue', '/men', '/women', '/new-drops'].includes(location.pathname);
+    if (isCatalogueRoute) {
+      if (val.trim()) {
+        searchParams.set('search', val.trim());
+      } else {
+        searchParams.delete('search');
+      }
+      setSearchParams(searchParams, { replace: true });
+    }
+  };
+
   return (
     <nav className="navbar">
       <div className="navContainer">
@@ -10,7 +58,7 @@ export const Navbar = () => {
         {/* LEFT: Logo + Nav Links */}
         <div className="navLeft">
           <Link to="/" className="logo">
-            <img src="/logo.png" alt="Sole Town Logo" />
+            <img src="/logo.png" alt="Tekkies Store Logo" />
           </Link>
 
           <ul className="navLinks">
@@ -30,11 +78,6 @@ export const Navbar = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink to="/limited-edition" className={({ isActive }) => isActive ? 'link active' : 'link'}>
-                LIMITED EDITION
-              </NavLink>
-            </li>
-            <li>
               <NavLink to="/catalogue" className={({ isActive }) => isActive ? 'link active' : 'link'}>
                 CATALOGUE
               </NavLink>
@@ -45,20 +88,31 @@ export const Navbar = () => {
         {/* RIGHT: Search + Actions */}
         <div className="navRight">
           
-          <div className="searchWrapper">
+          <form className="searchWrapper" onSubmit={handleSearchSubmit}>
             <Search className="searchIcon" strokeWidth={1.75} />
-            <input type="text" className="searchInput" placeholder="Search for shoes, brands..." />
-          </div>
+            <input 
+              type="text" 
+              className="searchInput" 
+              placeholder="Search for shoes, brands..."
+              value={searchValue}
+              onChange={handleSearchChange}
+              aria-label="Search shoes and brands"
+            />
+          </form>
 
           <div className="navActions">
             {/* Wishlist Icon */}
-            <Heart className="actionIcon" strokeWidth={1.75} />
+            <button className="navActionBtn" aria-label="Wishlist" title="Wishlist">
+              <Heart className="actionIcon" strokeWidth={1.75} />
+            </button>
             
             {/* Cart Icon */}
-            <ShoppingBag className="actionIcon" strokeWidth={1.75} />
+            <button className="navActionBtn" aria-label="Cart" title="Cart">
+              <ShoppingBag className="actionIcon" strokeWidth={1.75} />
+            </button>
 
             {/* Profile Avatar */}
-            <Link to="/login" className="profileAvatar" aria-label="Account Login">
+            <Link to="/login" className="profileAvatar" aria-label="Account Login" title="Account">
               <User className="actionIcon" strokeWidth={1.75} />
             </Link>
           </div>
