@@ -3,26 +3,25 @@ import { Heart, Check } from 'lucide-react';
 import { ShoeProduct } from '../../types/catalogue';
 import { formatPrice } from '../../utils/formatters';
 import { useWishlist } from '../../context/WishlistContext';
-import './CatalogueProductCard.css';
+import './WishlistCard.css';
 
-interface CatalogueProductCardProps {
+interface WishlistCardProps {
   product: ShoeProduct;
   onQuickAdd?: (product: ShoeProduct) => void;
   onClick?: (product: ShoeProduct) => void;
 }
 
-export const CatalogueProductCard: React.FC<CatalogueProductCardProps> = ({
+export const WishlistCard: React.FC<WishlistCardProps> = ({
   product,
   onQuickAdd,
   onClick,
 }) => {
-  const { isInWishlist, toggleWishlist } = useWishlist();
-  const isWishlisted = isInWishlist(product.id);
+  const { removeFromWishlist } = useWishlist();
   const [addedFeedback, setAddedFeedback] = useState(false);
 
-  const handleWishlistToggle = (e: React.MouseEvent) => {
+  const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleWishlist(product);
+    removeFromWishlist(product.id);
   };
 
   const handleQuickAdd = (e: React.MouseEvent) => {
@@ -41,8 +40,8 @@ export const CatalogueProductCard: React.FC<CatalogueProductCardProps> = ({
   };
 
   return (
-    <div 
-      className="catalogue-product-card" 
+    <div
+      className="wishlist-product-card"
       onClick={handleCardClick}
       role="button"
       tabIndex={0}
@@ -54,51 +53,50 @@ export const CatalogueProductCard: React.FC<CatalogueProductCardProps> = ({
       }}
       aria-label={`View details for ${product.brand} ${product.name}`}
     >
-      <div className="product-image-container">
+      <div className="wishlist-card-image-container">
         {/* Product Tag / Badge */}
         {product.tag && (
-          <span className={`product-tag ${product.tag === 'JUST DROPPED' ? 'tag-orange' : ''}`}>
+          <span className={`wishlist-card-tag ${product.tag === 'JUST DROPPED' ? 'tag-orange' : ''}`}>
             {product.tag}
           </span>
         )}
 
-        {/* Wishlist Button */}
-        <button 
-          className={`wishlist-btn ${isWishlisted ? 'active' : ''}`}
-          onClick={handleWishlistToggle}
-          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-          title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+        {/* Wishlist Active Heart Button */}
+        <button
+          className="wishlist-card-heart-btn active"
+          onClick={handleRemove}
+          aria-label={`Remove ${product.name} from wishlist`}
+          title="Remove from wishlist"
           type="button"
         >
-          <Heart 
-            size={18} 
-            className="wishlist-icon" 
-            fill={isWishlisted ? 'var(--brand-orange)' : 'none'} 
-            color={isWishlisted ? 'var(--brand-orange)' : 'var(--obsidian)'}
+          <Heart
+            size={18}
+            className="wishlist-card-heart-icon"
+            fill="var(--brand-orange)"
+            color="var(--brand-orange)"
           />
         </button>
 
         {/* Product Image */}
-        <img 
-          src={product.image} 
-          alt={`${product.brand} ${product.name} in ${product.colour}`} 
-          className="product-image" 
+        <img
+          src={product.image}
+          alt={`${product.brand} ${product.name} in ${product.colour}`}
+          className="wishlist-card-image"
           loading="lazy"
           onError={(e) => {
-            // Clean fallback in case of loading anomaly
             (e.target as HTMLImageElement).src = '/trending_shoe_1_1788049696433.jpg';
           }}
         />
 
         {/* Quick Add Button */}
-        <button 
-          className={`add-to-cart-btn ${addedFeedback ? 'added' : ''}`}
+        <button
+          className={`wishlist-card-add-btn ${addedFeedback ? 'added' : ''}`}
           onClick={handleQuickAdd}
           aria-label={`Quick add ${product.name} to cart`}
           type="button"
         >
           {addedFeedback ? (
-            <span className="btn-feedback-content">
+            <span className="wishlist-btn-feedback">
               <Check size={16} /> Added
             </span>
           ) : (
@@ -107,14 +105,14 @@ export const CatalogueProductCard: React.FC<CatalogueProductCardProps> = ({
         </button>
       </div>
 
-      <div className="product-info">
-        <div className="product-meta-row">
-          <span className="product-brand">{product.brand}</span>
-          <span className="product-category-pill">{product.category}</span>
+      <div className="wishlist-card-info">
+        <div className="wishlist-card-meta-row">
+          <span className="wishlist-card-brand">{product.brand}</span>
+          <span className="wishlist-card-category-pill">{product.category}</span>
         </div>
-        <h3 className="product-name">{product.name}</h3>
-        <p className="product-colour-text">{product.colour}</p>
-        <span className="product-price">{formatPrice(product.price)}</span>
+        <h3 className="wishlist-card-name">{product.name}</h3>
+        <p className="wishlist-card-colour-text">{product.colour}</p>
+        <span className="wishlist-card-price">{formatPrice(product.price)}</span>
       </div>
     </div>
   );
