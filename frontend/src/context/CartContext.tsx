@@ -4,17 +4,28 @@ import { useAuth } from './AuthContext';
 import { router } from '../routes';
 import cartService, { BackendCartItem } from '../services/cartService';
 
+import { ShoeVariant } from '../types/shoeVariant';
+
 export interface CartItem {
-  cartId: string; // Composite key: `${product.id}-${size}`
+  cartId: string; // Composite key: `${product.id}-${variantId || size}`
   product: ShoeProduct;
   size: string;
   quantity: number;
   addedAt: number;
+  variantId?: string;
+  sizeRegion?: string;
+  colour?: string;
+  variant?: ShoeVariant;
 }
 
 interface CartContextType {
   cart: CartItem[];
-  addToCart: (product: ShoeProduct, size?: string, quantity?: number) => Promise<boolean>;
+  addToCart: (
+    product: ShoeProduct,
+    size?: string,
+    quantity?: number,
+    variant?: ShoeVariant | { variantId?: string; sizeRegion?: string; colour?: string; size?: string }
+  ) => Promise<boolean>;
   removeFromCart: (cartId: string) => Promise<void>;
   updateQuantity: (cartId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -168,7 +179,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addToCart = async (
     product: ShoeProduct,
     size?: string,
-    quantity = 1
+    quantity = 1,
+    variant?: ShoeVariant | { variantId?: string; sizeRegion?: string; colour?: string; size?: string }
   ): Promise<boolean> => {
     // 1. Strict Authentication Check
     if (!isAuthenticated) {
@@ -181,7 +193,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const selectedSize = size || (product.sizes && product.sizes.length > 0 ? product.sizes[0] : 'UK 8');
-    const cartId = `${product.id}-${selectedSize}`;
+    const variantId = variant && 'variantId' in variant ? variant.variantId : undefined;
+    const cartId = variantId ? `${product.id}-${variantId}` : `${product.id}-${selectedSize}`;
     const unitPrice = getEffectivePrice(product);
 
     let newQuantity = quantity;
@@ -189,6 +202,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (existingIndex > -1) {
       newQuantity = cart[existingIndex].quantity + quantity;
     }
+
+    const selectedColour = (variant && 'colour' in variant && variant.colour) ? variant.colour : product.colour;
+    const sizeRegion = (variant && 'size' in variant && variant.size && (variant.size as any).sizeRegion)
+      || (variant as any)?.sizeRegion
+      || 'UK';
 
     // 2. Update local state
     setCart((prev) => {
@@ -198,6 +216,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updated[idx] = {
           ...updated[idx],
           quantity: newQuantity,
+          variantId: variantId || updated[idx].variantId,
+          sizeRegion: sizeRegion || updated[idx].sizeRegion,
+          colour: selectedColour || updated[idx].colour,
         };
         return updated;
       }
@@ -205,8 +226,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...prev,
         {
           cartId,
-          product,
+          product: selectedColour && selectedColour !== product.colour ? { ...product, colour: selectedColour } : product,
           size: selectedSize,
+          sizeRegion,
+          colour: selectedColour,
+          variantId,
+          variant: variant && 'stockQuantity' in variant ? (variant as ShoeVariant) : undefined,
           quantity: newQuantity,
           addedAt: Date.now(),
         },

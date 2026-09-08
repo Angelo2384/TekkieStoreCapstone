@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, SearchX, Sparkles } from 'lucide-react';
 import Skeleton from '@mui/material/Skeleton';
 import { fetchShoeById, fetchAllShoes } from '../services/shoeService';
+import { shoeVariantService, ShoeVariant } from '../services/shoeVariantService';
 import { ShoeProduct } from '../types/catalogue';
 import { useWishlist } from '../context/WishlistContext';
 import { useCart } from '../context/CartContext';
@@ -19,6 +20,12 @@ export const ProductDetails: React.FC = () => {
 
   // Active shoe being viewed
   const [product, setProduct] = useState<ShoeProduct | undefined>(undefined);
+  // Real backend variants belonging to this shoe
+  const [variants, setVariants] = useState<ShoeVariant[]>([]);
+  // Variants loading state
+  const [variantsLoading, setVariantsLoading] = useState<boolean>(true);
+  // Variants fetch error state
+  const [variantsError, setVariantsError] = useState<boolean>(false);
   // Full shoe list for recommendations
   const [allProducts, setAllProducts] = useState<ShoeProduct[]>([]);
   // Selected image thumbnail index in the gallery
@@ -26,11 +33,13 @@ export const ProductDetails: React.FC = () => {
   // Loading state while fetching from cloud database
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Load the selected shoe and catalogue when URL ID changes
+  // Load the selected shoe, catalogue, and variants when URL ID changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setSelectedImageIndex(0);
     setLoading(true);
+    setVariantsLoading(true);
+    setVariantsError(false);
     let isMounted = true;
 
     // GET single shoe by ID from backend
@@ -45,8 +54,27 @@ export const ProductDetails: React.FC = () => {
         .catch(() => {
           if (isMounted) setLoading(false);
         });
+
+      // GET only the variants that belong to this specific shoe
+      shoeVariantService
+        .getVariantsByShoeId(id)
+        .then((fetchedVariants) => {
+          if (isMounted) {
+            setVariants(fetchedVariants);
+            setVariantsLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.warn('[ProductDetails] Failed to load variants from backend API:', err);
+          if (isMounted) {
+            setVariants([]);
+            setVariantsError(true);
+            setVariantsLoading(false);
+          }
+        });
     } else {
       setLoading(false);
+      setVariantsLoading(false);
     }
 
     // GET all shoes for "You might also like" suggestions
@@ -145,12 +173,12 @@ export const ProductDetails: React.FC = () => {
     toggleWishlist(product);
   };
 
-  const handleAddToCart = async (size: string, quantity: number) => {
-    return await addToCart(product, size, quantity);
+  const handleAddToCart = async (size: string, quantity: number, variant?: ShoeVariant) => {
+    return await addToCart(product, size, quantity, variant);
   };
 
-  const handleBuyItNow = async (size: string, quantity: number) => {
-    const success = await addToCart(product, size, quantity);
+  const handleBuyItNow = async (size: string, quantity: number, variant?: ShoeVariant) => {
+    const success = await addToCart(product, size, quantity, variant);
     if (success) {
       navigate('/cart');
     }
@@ -213,6 +241,9 @@ export const ProductDetails: React.FC = () => {
             <div className="product-info-col">
               <ProductInfo
                 product={product}
+                variants={variants}
+                variantsLoading={variantsLoading}
+                variantsError={variantsError}
                 onAddToCart={handleAddToCart}
                 onBuyItNow={handleBuyItNow}
               />

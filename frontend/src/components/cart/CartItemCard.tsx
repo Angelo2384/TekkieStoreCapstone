@@ -63,12 +63,17 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
           <Link to={`/product/${product.id}`}>{product.name}</Link>
         </h3>
 
-        <p className="cart-item-colour">{product.colour}</p>
+        <p className="cart-item-colour">{item.colour || product.colour}</p>
 
         <div className="cart-item-specs">
           <span className="cart-spec-pill">
-            Size: <strong>{size}</strong>
+            Size: <strong>{item.sizeRegion ? `${item.sizeRegion} ${size.replace(new RegExp(`^${item.sizeRegion}\\s*`, 'i'), '')}` : size}</strong>
           </span>
+          {item.variantId && (
+            <span className="cart-spec-pill variant-pill">
+              Variant: <strong>{item.variantId}</strong>
+            </span>
+          )}
           <span className="cart-spec-pill stock-pill">In Stock</span>
         </div>
       </div>
