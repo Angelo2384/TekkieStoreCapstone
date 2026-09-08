@@ -42,7 +42,6 @@ class ShoeVariantDataInitializerTest {
 
     private Shoe menShoe;
     private Shoe womenShoe;
-    private Shoe unisexShoe;
 
     @BeforeEach
     void setUp() {
@@ -66,17 +65,6 @@ class ShoeVariantDataInitializerTest {
                 "Women",
                 1899.00,
                 List.of("https://example.com/adi.jpg")
-        );
-
-        unisexShoe = ShoeFactory.createShoe(
-                "PUM-001",
-                "Puma",
-                "Suede Classic Red",
-                "Streetwear",
-                "Iconic suede",
-                "Unisex",
-                1599.00,
-                List.of("https://example.com/pum.jpg")
         );
     }
 
