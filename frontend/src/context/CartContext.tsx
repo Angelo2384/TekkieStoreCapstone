@@ -7,7 +7,8 @@ import cartService, { BackendCartItem } from '../services/cartService';
 import { ShoeVariant } from '../types/shoeVariant';
 
 export interface CartItem {
-  cartId: string; // Composite key: `${product.id}-${variantId || size}`
+  cartId: string; // Composite key: `${product.id}-${variantId || size}` (frontend line identity)
+  cartItemId: string; // Persistent unique backend CartItem UUID
   product: ShoeProduct;
   size: string;
   quantity: number;
@@ -54,7 +55,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      // Ensure all items loaded from localStorage have a valid cartItemId
+      return parsed.map((item: any) => ({
+        ...item,
+        cartItemId: item.cartItemId || crypto.randomUUID(),
+      }));
     } catch (err) {
       console.error('Failed to load cart from localStorage', err);
       return [];
@@ -83,15 +90,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [cart]);
 
   /**
-   * Helper to format the backend cartItemId using user cart ID + product ID + size
-   */
-  const buildBackendCartItemId = useCallback((cartIdStr: string, cId: string) => {
-    return `${cartIdStr}___${cId}`;
-  }, []);
-
-  /**
    * Refreshes the cart from the backend using Axios.
-   * Reads the user's cart and cart items from Spring Boot.
+   * Reads the user's cart and cart items from Spring Boot while preserving backend cartItemId UUIDs.
    */
   const refreshCart = useCallback(async () => {
     if (!userCartId) return;
@@ -101,58 +101,62 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       // 1. Retrieve cart summary from backend
-      const backendCart = await cartService.getCart(userCartId);
+      await cartService.getCart(userCartId);
 
-      // 2. Retrieve all cart items and filter for this user
+      // 2. Retrieve all cart items from backend
       const allItems = await cartService.getAllCartItems();
-      const userItems = allItems.filter((item) =>
-        item.cartItemId.startsWith(`${userCartId}___`)
-      );
 
-      // If backend has user items, synchronize them with frontend state
-      if (userItems.length > 0) {
-        setCart((prev) => {
-          // Merge backend quantities into existing products or keep local product details
-          const updated: CartItem[] = [];
+      // Synchronize local cart items with backend records
+      setCart((prev) => {
+        const updated: CartItem[] = [];
 
-          userItems.forEach((bItem: BackendCartItem) => {
-            const rawId = bItem.cartItemId.replace(`${userCartId}___`, '');
-            const existing = prev.find((p) => p.cartId === rawId);
+        for (const localItem of prev) {
+          // Check if item exists in backend by cartItemId
+          let backendItem = allItems.find((b) => b.cartItemId === localItem.cartItemId);
 
-            if (existing) {
-              updated.push({
-                ...existing,
-                quantity: bItem.quantity,
-              });
-            }
-          });
+          // Backward compatibility: check if there's a legacy composite item ${userCartId}___${cartId}
+          if (!backendItem) {
+            const legacyBackendId = `${userCartId}___${localItem.cartId}`;
+            backendItem = allItems.find((b) => b.cartItemId === legacyBackendId);
+          }
 
-          // If some items in prev were not in backend, preserve them and push to backend
-          prev.forEach((p) => {
-            if (!updated.some((u) => u.cartId === p.cartId)) {
-              updated.push(p);
-            }
-          });
+          if (backendItem) {
+            // Preserve backend cartItemId and sync quantity
+            updated.push({
+              ...localItem,
+              cartItemId: backendItem.cartItemId,
+              quantity: backendItem.quantity,
+            });
+          } else {
+            // Keep local item with its existing cartItemId
+            updated.push(localItem);
+          }
+        }
 
-          return updated;
-        });
-      } else if (backendCart && backendCart.totalAmount === 0 && cart.length > 0) {
-        // Backend cart exists but has 0 total and no items, sync current local cart to backend
-        for (const item of cart) {
-          const bItemId = buildBackendCartItemId(userCartId, item.cartId);
+        return updated;
+      });
+
+      // Synchronize any local items missing on the backend
+      for (const item of cart) {
+        const exists = allItems.some(
+          (b) => b.cartItemId === item.cartItemId || b.cartItemId === `${userCartId}___${item.cartId}`
+        );
+        if (!exists) {
           const price = getEffectivePrice(item.product);
           await cartService.createCartItem({
-            cartItemId: bItemId,
+            cartItemId: item.cartItemId,
             quantity: item.quantity,
             unitPrice: price,
             subTotal: price * item.quantity,
           });
         }
-        await cartService.updateCart({
-          cartId: userCartId,
-          totalAmount: cartTotal,
-        });
       }
+
+      // Update backend cart total amount
+      await cartService.updateCart({
+        cartId: userCartId,
+        totalAmount: cartTotal,
+      });
     } catch (err: any) {
       if (err?.response?.status === 401 || err?.response?.status === 403) {
         logout();
@@ -163,7 +167,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       setIsLoading(false);
     }
-  }, [userCartId, cart, cartTotal, buildBackendCartItemId, logout]);
+  }, [userCartId, cart, cartTotal, logout]);
 
   // Synchronize cart on initial auth or user change
   useEffect(() => {
@@ -184,10 +188,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<boolean> => {
     // 1. Strict Authentication Check
     if (!isAuthenticated) {
-      // Do NOT add to cart
-      // Do NOT update cart count
-      // Do NOT send Axios request
-      // Immediately redirect to /login
       router.navigate('/login');
       return false;
     }
@@ -197,10 +197,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const cartId = variantId ? `${product.id}-${variantId}` : `${product.id}-${selectedSize}`;
     const unitPrice = getEffectivePrice(product);
 
-    let newQuantity = quantity;
     const existingIndex = cart.findIndex((item) => item.cartId === cartId);
-    if (existingIndex > -1) {
+    const isExisting = existingIndex > -1;
+
+    // Distinguish cart line ID from backend cart item ID (UUID)
+    let targetCartItemId: string;
+    let newQuantity: number;
+
+    if (isExisting) {
+      // Reuse existing cartItemId UUID for quantity changes
+      targetCartItemId = cart[existingIndex].cartItemId;
       newQuantity = cart[existingIndex].quantity + quantity;
+    } else {
+      // Generate collision-safe UUID for brand new CartItem
+      targetCartItemId = crypto.randomUUID();
+      newQuantity = quantity;
     }
 
     const selectedColour = (variant && 'colour' in variant && variant.colour) ? variant.colour : product.colour;
@@ -226,6 +237,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...prev,
         {
           cartId,
+          cartItemId: targetCartItemId,
           product: selectedColour && selectedColour !== product.colour ? { ...product, colour: selectedColour } : product,
           size: selectedSize,
           sizeRegion,
@@ -241,15 +253,25 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // 3. Persist to Spring Boot backend via Axios
     if (userCartId) {
       try {
-        const backendItemId = buildBackendCartItemId(userCartId, cartId);
         const subTotal = unitPrice * newQuantity;
 
-        await cartService.updateCartItem({
-          cartItemId: backendItemId,
-          quantity: newQuantity,
-          unitPrice,
-          subTotal,
-        });
+        if (isExisting) {
+          // EXISTING ITEM: Reuse UUID and POST /cartitem/update
+          await cartService.updateCartItem({
+            cartItemId: targetCartItemId,
+            quantity: newQuantity,
+            unitPrice,
+            subTotal,
+          });
+        } else {
+          // NEW ITEM: Persist newly generated UUID and POST /cartitem/create
+          await cartService.createCartItem({
+            cartItemId: targetCartItemId,
+            quantity: newQuantity,
+            unitPrice,
+            subTotal,
+          });
+        }
 
         const newTotal = cartTotal + unitPrice * quantity;
         await cartService.updateCart({
@@ -288,14 +310,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       prev.map((item) => (item.cartId === cartId ? { ...item, quantity } : item))
     );
 
-    // Update backend via Axios
-    if (userCartId) {
+    // Update backend via Axios with existing cartItemId UUID
+    if (userCartId && itemToUpdate.cartItemId) {
       try {
-        const backendItemId = buildBackendCartItemId(userCartId, cartId);
         const subTotal = unitPrice * quantity;
 
         await cartService.updateCartItem({
-          cartItemId: backendItemId,
+          cartItemId: itemToUpdate.cartItemId,
           quantity,
           unitPrice,
           subTotal,
@@ -332,11 +353,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Update state
     setCart((prev) => prev.filter((item) => item.cartId !== cartId));
 
-    // Delete on backend via Axios
-    if (userCartId && itemToRemove) {
+    // Delete on backend via Axios using real backend cartItemId UUID
+    if (userCartId && itemToRemove?.cartItemId) {
       try {
-        const backendItemId = buildBackendCartItemId(userCartId, cartId);
-        await cartService.deleteCartItem(backendItemId);
+        await cartService.deleteCartItem(itemToRemove.cartItemId);
 
         const newTotal = cart
           .filter((item) => item.cartId !== cartId)
@@ -367,8 +387,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (userCartId) {
       try {
         for (const item of prevCart) {
-          const backendItemId = buildBackendCartItemId(userCartId, item.cartId);
-          await cartService.deleteCartItem(backendItemId);
+          if (item.cartItemId) {
+            await cartService.deleteCartItem(item.cartItemId);
+          }
         }
         await cartService.updateCart({
           cartId: userCartId,
