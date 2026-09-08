@@ -162,6 +162,17 @@
   font-weight: 600;
 }
 
+.cart-spec-pill.variant-pill {
+  color: var(--text-muted);
+  background-color: var(--pure-white);
+  border-color: #E4E4E7;
+}
+
+.cart-spec-pill.variant-pill strong {
+  color: var(--brand-orange);
+  font-family: monospace;
+}
+
 /* Quantity Controls */
 .cart-item-qty-section {
   display: flex;
