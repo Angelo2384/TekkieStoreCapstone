@@ -42,9 +42,22 @@ export const ShippingAddressSection: React.FC<ShippingAddressSectionProps> = ({
   };
 
   const handleStreetNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Allow letters, spaces, numbers, and common punctuation like hyphens and periods
-    const val = e.target.value.replace(/[^a-zA-Z0-9\s'.-]/g, '');
+    // Allow letters, spaces, and common punctuation — NO digits
+    const val = e.target.value.replace(/[^a-zA-Z\s'.-]/g, '');
     onChange('streetName', val);
+  };
+
+  const handleStreetNamePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    // Strip digits from pasted text before applying it
+    e.preventDefault();
+    const pasted = e.clipboardData.getData('text');
+    const sanitised = pasted.replace(/[^a-zA-Z\s'.-]/g, '');
+    const current = formData.streetName;
+    const input = e.currentTarget;
+    const start = input.selectionStart ?? current.length;
+    const end = input.selectionEnd ?? current.length;
+    const newVal = current.slice(0, start) + sanitised + current.slice(end);
+    onChange('streetName', newVal);
   };
 
   const handleSuburbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +82,6 @@ export const ShippingAddressSection: React.FC<ShippingAddressSectionProps> = ({
     <section className="checkout-card shipping-card" aria-labelledby="shipping-heading">
       <div className="card-header">
         <h2 id="shipping-heading" className="card-title">
-          <span className="card-title-icon" aria-hidden="true">🚚</span>
           SHIPPING ADDRESS
         </h2>
       </div>
@@ -122,6 +134,7 @@ export const ShippingAddressSection: React.FC<ShippingAddressSectionProps> = ({
                 placeholder="Sneakerhead Ave"
                 value={formData.streetName}
                 onChange={handleStreetNameChange}
+                onPaste={handleStreetNamePaste}
                 onBlur={() => onBlur('streetName')}
                 className={`form-input ${touched.streetName && errors.streetName ? 'input-error' : ''} ${
                   touched.streetName && !errors.streetName && formData.streetName ? 'input-valid' : ''
