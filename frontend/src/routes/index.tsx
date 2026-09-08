@@ -17,6 +17,7 @@ import { PrivacyPolicy } from '../pages/PrivacyPolicy';
 import { TermsOfService } from '../pages/TermsOfService';
 import { FAQ } from '../pages/FAQ';
 import { ContactUs } from '../pages/ContactUs';
+import { AboutUs } from '../pages/AboutUs';
 
 export const router = createBrowserRouter([
   {
@@ -101,6 +102,10 @@ export const router = createBrowserRouter([
       {
         path: '/contact',
         element: <ContactUs />,
+      },
+      {
+        path: '/about',
+        element: <AboutUs />,
       },
     ],
   },
