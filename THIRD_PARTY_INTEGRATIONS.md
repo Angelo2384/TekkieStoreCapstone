@@ -710,3 +710,468 @@ Add to Cart and Buy Now are disabled until a valid in-stock size is selected.
 | `ShoeVariantRepository.java` | Spring Data JPA derived query: `findByShoe_ShoeId(String shoeId)` |
 | `ShoeVariant.java` | JPA entity with `@ManyToOne` to `Shoe` and `@Embedded ShoeSize` |
 | `ShoeSize.java` | `@Embeddable` value object: `sizeValue` + `sizeRegion` |
+
+---
+
+## 9. Order / OrderItem Backend Cleanup & Architecture Alignment
+
+This section documents the cleanup of the backend `Order`, `OrderItem`, and `OrderStatus` components. The objective of this phase was strictly to ensure code correctness, safety, test coverage, and documentation without prematurely redesigning the order system, inventing relationship mappings, or implementing final checkout/order business logic.
+
+---
+
+### 9.1 Overview & Scope Boundaries
+
+To maintain clean and explainable academic code, the following boundaries were strictly respected:
+- **No over-engineering:** No unnecessary DTO layers, mapper classes, custom exception hierarchies, response wrappers, or Lombok were introduced.
+- **Preserved architecture:** Kept the straightforward `Controller -> Service -> JpaRepository` pattern already utilized across the project (e.g. `Cart` and `Customer`).
+- **No premature relationship logic:** Relationships between `Order` and `OrderItem`, `Order` and `Customer`, `Order` and `DeliveryDetails`, or `OrderItem` and `Shoe`/`ShoeVariant` were intentionally deferred to the subsequent stage.
+- **No checkout workflow implementation:** The frontend React context (`OrderContext.tsx`) continues its existing local storage operations until backend workflows are explicitly defined in the next step.
+
+---
+
+### 9.2 Backend Files Changed & Provenance References
+
+Every backend change made during this cleanup is detailed below, clearly identifying whether the pattern originated from project code, official framework documentation, or standard library conventions.
+
+#### 1. OrderFactory.java
+- **File Path:** `backend/src/main/java/za/ac/cput/tekkiestorecapstone/factory/OrderFactory.java`
+- **What Changed:** 
+  - Updated `createOrder` so newly constructed `Order` objects default to `OrderStatus.PENDING`.
+  - Added an overload accepting `OrderStatus status` that safely falls back to `OrderStatus.PENDING` if a `null` status is provided.
+- **Why It Changed:** Previously, `createOrder` did not call `.setStatus(...)` on `Order.Builder`, resulting in `status = null` on all factory-instantiated orders.
+- **Problem Fixed:** Eliminates null pointer risks and database column nullability issues for order status.
+- **Implementation:** Simple fallback check `(status == null) ? OrderStatus.PENDING : status` directly in `OrderFactory`. No separate status resolver or helper class was created.
+- **Pattern / Source Reference:**
+  - *Project reference / existing implementation pattern:* `backend/src/main/java/za/ac/cput/tekkiestorecapstone/domain/Order.java` (reuses the inner `Order.Builder`).
+  - *Framework documentation:* [Jakarta Persistence Enum Mapping](https://jakarta.ee/specifications/persistence/) (for mapping enumerated status).
+
+#### 2. OrderItemFactory.java
+- **File Path:** `backend/src/main/java/za/ac/cput/tekkiestorecapstone/factory/OrderItemFactory.java`
+- **What Changed:** 
+  - Removed the redundant 4th parameter (`double subTotal`) from `createOrderItem(String orderItemId, int quantity, double unitPrice)`.
+  - Subtotal is computed internally as `quantity * unitPrice`.
+- **Why It Changed:** The factory previously accepted `subTotal` from the caller but ignored it and calculated `quantity * unitPrice`, allowing callers to pass conflicting or misleading values.
+- **Problem Fixed:** Guarantees a single source of truth for line-item calculations and prevents data inconsistency.
+- **Implementation:** Directly assigned `.setSubTotal(quantity * unitPrice)` inside the existing factory method.
+- **Pattern / Source Reference:**
+  - *Project reference / existing implementation pattern:* `backend/src/main/java/za/ac/cput/tekkiestorecapstone/domain/OrderItem.java` (reuses `OrderItem.Builder`).
+  - *Project reference:* `backend/src/main/java/za/ac/cput/tekkiestorecapstone/factory/CartItemFactory.java` (similar arithmetic pattern for cart line items).
+
+#### 3. OrderService.java
+- **File Path:** `backend/src/main/java/za/ac/cput/tekkiestorecapstone/service/OrderService.java`
+- **What Changed:** 
+  - Improved `delete(String id)`: now performs `if (id == null || !this.repo.existsById(id)) { return false; }` before calling `deleteById(id)`.
+  - Improved `update(Order order)`: performs `if (order == null || order.getOrderId() == null || !this.repo.existsById(order.getOrderId())) { return null; }` before `save(order)`.
+- **Why It Changed:** Previously, `delete` invoked `repo.deleteById(id)` unconditionally and returned `true`, even if the entity did not exist. Furthermore, calling `save` on an entity whose ID does not exist in an update operation could create an unwanted new record.
+- **Problem Fixed:** Accurately reports deletion success/failure and ensures update operations only apply to existing database records.
+- **Implementation:** Uses basic `existsById(id)` checks provided out-of-the-box by Spring Data JPA.
+- **Pattern / Source Reference:**
+  - *Project reference / existing implementation pattern:* `backend/src/main/java/za/ac/cput/tekkiestorecapstone/service/IService.java` and `CartService.java`.
+  - *Official documentation:* [Spring Data JPA CrudRepository.existsById](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html).
+
+#### 4. OrderItemService.java
+- **File Path:** `backend/src/main/java/za/ac/cput/tekkiestorecapstone/service/OrderItemService.java`
+- **What Changed:** 
+  - Improved `delete(String id)`: checks `if (id == null || !this.repo.existsById(id)) { return false; }` before deleting.
+  - Improved `update(OrderItem orderItem)`: checks `if (orderItem == null || orderItem.getOrderItemId() == null || !this.repo.existsById(orderItem.getOrderItemId())) { return null; }` before saving.
+- **Why It Changed:** Same issue as `OrderService`: prevented false-positive deletion returns and unintended creation during update calls.
+- **Problem Fixed:** Consistent return contract for `delete` (returns `false` if not found) and `update` (returns `null` if not found).
+- **Implementation:** Standard Spring Data JPA `existsById` checks.
+- **Pattern / Source Reference:**
+  - *Project reference / existing implementation pattern:* `backend/src/main/java/za/ac/cput/tekkiestorecapstone/service/IOrderItemService.java`.
+  - *Official documentation:* [Spring Data JPA CrudRepository](https://docs.spring.io/spring-data/jpa/reference/jpa/query-methods.html).
+
+#### 5. Order.java (Domain Entity)
+- **File Path:** `backend/src/main/java/za/ac/cput/tekkiestorecapstone/domain/Order.java`
+- **What Changed:** 
+  - Preserved `@Entity`, `@Table(name = "orders")` (crucial: `order` is a reserved SQL keyword in MySQL and TiDB), `@Id`, `@Enumerated(EnumType.STRING)` for `status`.
+  - Preserved Builder pattern, no-arg constructor `protected Order()`, and getters.
+  - Added a concise `// TODO:` comment marking placeholder for future relational associations (`OrderItem`, `Customer`, `DeliveryDetails`).
+- **Pattern / Source Reference:**
+  - *Project reference:* Existing entity structure and Builder pattern across all domain models.
+  - *Framework documentation:* [Jakarta Persistence @Table specification](https://jakarta.ee/specifications/persistence/) (for reserved keyword avoidance).
+
+#### 6. OrderItem.java (Domain Entity)
+- **File Path:** `backend/src/main/java/za/ac/cput/tekkiestorecapstone/domain/OrderItem.java`
+- **What Changed:** 
+  - Preserved `@Entity`, `@Id`, fields (`orderItemId`, `quantity`, `unitPrice`, `subTotal`), Builder pattern, and no-arg constructor.
+  - Added a concise `// TODO:` comment marking placeholder for future relational associations (`Order`, `Shoe`, `ShoeVariant`).
+- **Pattern / Source Reference:**
+  - *Project reference:* Existing entity structure across the repository.
+
+#### 7. OrderStatus.java (Domain Enum)
+- **File Path:** `backend/src/main/java/za/ac/cput/tekkiestorecapstone/domain/OrderStatus.java`
+- **Status:** Unchanged. Verified that it remains a clean enum inside the domain package containing `PENDING`, `PAID`, `PACKED`, `SHIPPED`, `DELIVERED`, `CANCELLED`. Not converted to an `@Entity`.
+
+#### 8. OrderRepository.java & OrderItemRepository.java
+- **File Paths:** 
+  - `backend/src/main/java/za/ac/cput/tekkiestorecapstone/repository/OrderRepository.java`
+  - `backend/src/main/java/za/ac/cput/tekkiestorecapstone/repository/OrderItemRepository.java`
+- **Status:** Unchanged. Maintained as standard `JpaRepository<Order, String>` and `JpaRepository<OrderItem, String>` without custom SQL or complex overrides.
+
+#### 9. OrderController.java & OrderItemController.java
+- **File Paths:**
+  - `backend/src/main/java/za/ac/cput/tekkiestorecapstone/controller/OrderController.java`
+  - `backend/src/main/java/za/ac/cput/tekkiestorecapstone/controller/OrderItemController.java`
+- **Status:** Unchanged. Preserved existing clean endpoints:
+  - `POST /order/create`, `GET /order/read/{id}`, `PUT /order/update`, `DELETE /order/delete/{id}`, `GET /order/getAll`
+  - `POST /orderItem/create`, `GET /orderItem/read/{id}`, `PUT /orderItem/update`, `DELETE /orderItem/delete/{id}`, `GET /orderItem/getAll`
+
+---
+
+### 9.3 Test Suite Updates & Validation
+
+All factory, service, and controller tests were updated to validate the cleanup:
+
+| Test File | Tests Run | What is Validated |
+|---|---|---|
+| `OrderFactoryTest.java` | 4 tests | Verifies valid creation, null checks for payment reference, negative amount validation, and default `OrderStatus.PENDING`. |
+| `OrderItemFactoryTest.java` | 5 tests | Verifies line subtotal equals `quantity * unitPrice`, calls 3-argument factory, validates zero/negative quantity, negative price, and empty ID. |
+| `OrderServiceTest.java` | 7 tests | Verifies CRUD operations, tests that `update` returns `null` for non-existent IDs, and tests that `delete` returns `false` when entity does not exist. |
+| `OrderItemServiceTest.java` | 7 tests | Verifies CRUD operations, tests that `update` returns `null` for non-existent IDs, and tests that `delete` returns `false` when entity does not exist. |
+| `OrderControllerTest.java` | 5 tests | Verifies controller layer delegates cleanly to service for create, read, update, delete, and getAll. |
+| `OrderItemControllerTest.java` | 5 tests | Verifies controller layer delegates cleanly to service with updated 3-argument factory fixture. |
+
+**Total Order/OrderItem Tests:** 33 tests executed, 0 failures, 0 errors.
+
+---
+
+### 9.4 Frontend vs. Backend Model Differences (Documentation for Next Stage)
+
+Currently, `frontend/src/context/OrderContext.tsx` handles orders on the client side via React state and `localStorage` (`tekkie_store_orders`), while the backend has initial JPA models for `Order` and `OrderItem`. The following differences are noted for the upcoming workflow integration:
+
+#### 1. Status Mismatches
+
+| Frontend Status (`OrderContext.tsx`) | Backend Status (`OrderStatus.java`) | Notes |
+|---|---|---|
+| `'Order Confirmed'` | `PENDING` or `PAID` | Frontend combines initial checkout confirmation into one label; backend distinguishes between unpaid order creation (`PENDING`) and confirmed payment (`PAID`). |
+| `'Processing'` | `PACKED` | Frontend refers to fulfillment preparation as "Processing", whereas backend models it as "PACKED". |
+| `'Dispatched'` | `SHIPPED` | Dispatched vs Shipped terminology. |
+| `'Delivered'` | `DELIVERED` | Direct match. |
+| *(None)* | `CANCELLED` | Backend supports cancellation status. |
+
+#### 2. Order Entity Fields Comparison
+
+| Field Concept | Frontend Model (`OrderContext.tsx`) | Backend Model (`Order.java`) |
+|---|---|---|
+| Identifier | `id` (e.g. `"TK-88291"`), `orderNumber` (e.g. `"#TK-88291"`) | `orderId` (String) |
+| Date | `createdAt` (ISO string), `dateFormatted` (e.g. `"Oct 24, 2026"`) | `orderDate` (`java.util.Date`) |
+| Delivery Timeline | `estimatedArrival` (e.g. `"Oct 28 - 30"`) | Managed by `DeliveryDetails` entity (not yet linked) |
+| Line Items | `items: OrderItem[]`, `itemsCount: number` | Not yet linked (to be defined in next stage) |
+| Pricing Breakdown | `subtotal`, `shippingFee`, `vat`, `total` | `totalAmount` (double) |
+| Shipping Address | `shippingAddress: OrderShippingAddress` | Intended for future `DeliveryDetails` link |
+| Shipping Method | `shippingMethod: string` (e.g. `"DSV EXPRESS AIR"`) | Managed in `DeliveryDetails` |
+| Payment Info | `paymentMethod: 'card' \| 'eft'`, `paymentReference` | `paymentReference` (String) |
+| Shipment Tracking | `trackingNumber` (e.g. `"DSV-ZA-99482710"`) | Managed in `DeliveryDetails` |
+
+#### 3. OrderItem Fields Comparison
+
+| Field Concept | Frontend Model (`OrderContext.tsx`) | Backend Model (`OrderItem.java`) |
+|---|---|---|
+| Identifier | `id` (string) | `orderItemId` (String) |
+| Product Reference | `productId`, `name`, `brand`, `image` | Not yet linked (to connect to `Shoe` in next stage) |
+| Variant Reference | `size` (string) | Not yet linked (to connect to `ShoeVariant`/`ShoeSize`) |
+| Pricing | `price`, `quantity` | `unitPrice`, `quantity`, `subTotal` |
+
+---
+
+
+### 9.5 Future Frontend Integration Guidelines
+
+When the complete order workflow is implemented in the next stage:
+1. **Central Axios Client:** All HTTP communications must reuse the existing central Axios client at `frontend/src/services/api.ts` (`import api from './api';`). Do not instantiate a second `axios.create(...)` or bypass the JWT interceptor.
+2. **Official Axios Documentation:** [https://axios-http.com/](https://axios-http.com/)
+3. **No premature frontend rewrite:** `OrderContext.tsx` was not modified in this cleanup to avoid breaking the existing checkout UI demonstration before the backend order relationship architecture is formalized.
+
+---
+
+## 10. Customer, Order & OrderItem — Full Relational Integration
+
+This section documents the complete end-to-end connection of `Customer → Order → OrderItem` with `OrderStatus` across the Spring Boot backend and React/TypeScript/Axios frontend. Upon a successful checkout, a real `Order` referencing the authenticated `Customer` is persisted to TiDB Cloud, along with all associated `OrderItem` rows, and is displayed back to the user on the `OrderConfirmation` page and the `RecentOrders` profile component.
+
+> **Note:** `DeliveryDetails` is explicitly **not** connected in this stage. It will be integrated in a later, separate stage.
+
+---
+
+### 10.1 Overview & Scope
+
+| Concern | Decision |
+|---|---|
+| Code simplicity | No DTO layers, mappers, Lombok, custom exceptions, or response wrappers introduced |
+| Architecture | Controller → Service → Repository pattern consistent with the rest of the project |
+| Axios | Reused existing `frontend/src/services/api.ts` — no second instance created |
+| Password security | `Customer.password` annotated with `@JsonProperty(access = WRITE_ONLY)` — never serialized to JSON |
+| Relationship direction | `Order @ManyToOne Customer` (unidirectional — Customer has no `orders` list) |
+| Item cascade | `Order @OneToMany(cascade = ALL) List<OrderItem>`; `OrderItem @ManyToOne Order` (`@JsonIgnore`) |
+| New order status | Always enforced as `OrderStatus.PENDING` regardless of what the frontend sends |
+| Delivery | No `DeliveryDetails` fields added to `Order` |
+
+---
+
+### 10.2 Database Relationships
+
+```
+customer
+  └─ customer_id (PK)
+
+orders
+  ├─ order_id (PK)
+  ├─ customer_id (FK → customer.customer_id)
+  ├─ status (VARCHAR — PENDING | CONFIRMED | ...)
+  ├─ subtotal, shipping_fee, vat, total_amount
+  ├─ payment_method, payment_reference
+  └─ order_date
+
+order_item
+  ├─ order_item_id (PK)
+  ├─ order_id (FK → orders.order_id)
+  ├─ shoe_id (snapshot — no FK to shoe table)
+  ├─ shoe_name, brand, size, image_url (snapshot columns)
+  ├─ quantity, unit_price, sub_total
+```
+
+`OrderItem` stores snapshot columns (`shoeId`, `shoeName`, `brand`, `size`, `imageUrl`) rather than a live foreign key to `Shoe`. This means the order history remains accurate even if a shoe is later modified or removed from the catalogue.
+
+---
+
+### 10.3 Backend Files Changed
+
+#### [MODIFIED] `Customer.java`
+- Added `@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)` to `password` field.
+- **Why:** Prevents the customer password from being serialized into any JSON API response, including Order responses that nest the Customer object.
+- **Pattern reference:** Jackson `@JsonProperty(access = WRITE_ONLY)` — [Jackson Databind documentation](https://fasterxml.github.io/jackson-databind/).
+
+#### [MODIFIED] `Order.java`
+- Added `@ManyToOne(fetch = FetchType.LAZY) Customer customer` with `@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})`.
+- Added `@OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true) List<OrderItem> orderItems`.
+- Added financial fields: `subtotal`, `shippingFee`, `vat`, `totalAmount`.
+- Added `paymentMethod`, `paymentReference`.
+- Updated Builder, getters, and setters accordingly.
+- **Why `mappedBy`:** Prevents Hibernate from creating a join table; the FK lives in `order_item.order_id`.
+- **Pattern reference:** [Jakarta Persistence @OneToMany / CascadeType.ALL](https://jakarta.ee/specifications/persistence/).
+
+#### [MODIFIED] `OrderItem.java`
+- Added `@ManyToOne(fetch = FetchType.LAZY) Order order` with `@JsonIgnore` (prevents JSON recursion).
+- Added snapshot fields: `shoeId`, `shoeName`, `brand`, `size`, `imageUrl`.
+- Updated Builder, getters, and setters accordingly.
+- **Why `@JsonIgnore` on `order`:** Without it, Jackson would serialize `Order → OrderItem → Order → ...` infinitely.
+- **Pattern reference:** Jackson `@JsonIgnore` — [Jackson Databind documentation](https://fasterxml.github.io/jackson-databind/).
+
+#### [MODIFIED] `OrderFactory.java`
+- Added full `createOrder(String orderId, Date orderDate, Customer customer, List<OrderItem> orderItems, double subtotal, double shippingFee, double vat, double totalAmount, String paymentMethod, String paymentReference)` overload.
+- Preserved original 3-arg backward-compatible overload.
+- **Pattern reference:** Existing `CustomerFactory.java` and `CartItemFactory.java` in the project.
+
+#### [MODIFIED] `OrderItemFactory.java`
+- Added snapshot-field overload: `createOrderItem(String id, String shoeId, String shoeName, String brand, String size, String imageUrl, int quantity, double unitPrice)`.
+- Preserved original 3-arg overload.
+
+#### [MODIFIED] `OrderRepository.java`
+- Added derived query: `List<Order> findByCustomer_CustomerId(String customerId)`.
+- **Pattern reference:** Spring Data JPA property traversal naming convention — [Spring Data JPA Reference](https://docs.spring.io/spring-data/jpa/reference/).
+
+#### [MODIFIED] `IOrderService.java` & `OrderService.java`
+- Injected `CustomerRepository`.
+- `create(Order order)`: validates the customer exists in the database, assigns each `OrderItem.order` back-reference (so the FK is populated), recalculates `subTotal` on each item, enforces `OrderStatus.PENDING` regardless of input.
+- Added `getOrdersByCustomerId(String customerId)` delegating to `findByCustomer_CustomerId`.
+- **Pattern reference:** `CustomerService.java` and `CartService.java` in the project.
+
+#### [MODIFIED] `OrderController.java`
+- Added `GET /order/customer/{customerId}` → returns `List<Order>` for the given customer.
+- **Pattern reference:** `CartController.java` existing GET endpoints.
+
+---
+
+### 10.4 Backend JSON Response — Password Security
+
+The following JSON field is **never** present in any API response involving a Customer:
+
+```
+❌ "password": "..."    ← never serialized
+✅ "customer": { "customerId": "...", "email": "...", "name": { ... } }
+```
+
+This is verified by `OrderServiceTest.g_customerPasswordNeverExposedInOrderJson()`, which uses `ObjectMapper` to serialize a real `Order` object to JSON and asserts that:
+1. `"password"` key does not appear anywhere in the output.
+2. The actual password value does not appear anywhere in the output.
+
+---
+
+### 10.5 Backend Endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `POST` | `/order/create` | Creates an `Order` with its `OrderItems` in one cascade save. Enforces `PENDING` status. |
+| `GET` | `/order/read/{id}` | Returns a single `Order` by `orderId`. |
+| `POST` | `/order/update` | Updates an existing `Order`. |
+| `DELETE` | `/order/delete/{id}` | Deletes an `Order`. |
+| `GET` | `/order/getAll` | Returns all orders. |
+| `GET` | `/order/customer/{customerId}` | Returns all orders for a given authenticated customer. |
+
+---
+
+### 10.6 Frontend Files Changed
+
+#### [NEW] `frontend/src/services/orderService.ts`
+Dedicated Axios service wrapping all order REST endpoints. Reuses the existing central `api` instance.
+
+**Exported types:**
+```typescript
+export interface BackendOrderItem {
+  orderItemId: string;
+  shoeId: string;
+  shoeName: string;
+  brand: string;
+  size: string;
+  imageUrl: string;
+  quantity: number;
+  unitPrice: number;
+  subTotal: number;
+}
+
+export interface BackendOrder {
+  orderId: string;
+  customer?: { customerId: string; name?: { firstName?: string; lastName?: string }; ... };
+  orderItems: BackendOrderItem[];
+  orderDate: string | number;
+  subtotal: number;
+  shippingFee: number;
+  vat: number;
+  totalAmount: number;
+  paymentMethod: string;
+  paymentReference: string;
+  status: string;
+}
+```
+
+**Exported functions:**
+
+| Function | Axios Request | Description |
+|---|---|---|
+| `orderService.createOrder(payload)` | `POST /order/create` | Creates a new order and returns the saved `BackendOrder`. |
+| `orderService.getOrderById(id)` | `GET /order/read/{id}` | Returns a single `BackendOrder` or `null`. |
+| `orderService.getOrdersByCustomerId(id)` | `GET /order/customer/{id}` | Returns `BackendOrder[]` for a customer. |
+| `formatOrderStatus(status)` | — | Maps backend enum values to display strings. |
+
+#### [MODIFIED] `frontend/src/context/OrderContext.tsx`
+- Imports `orderService`, `BackendOrder`, and `formatOrderStatus` from `orderService.ts`.
+- `createOrder()` now requires authenticated user (`user.customerId`); throws if not logged in.
+- Posts to `POST /order/create` with full customer reference and order items; maps the saved backend response to the local `Order` display type.
+- Added `fetchOrderById(orderId)` — fetches from `GET /order/read/{id}` if not already in local state.
+- Orders are also persisted in `localStorage` for resilience on page refresh.
+
+#### [MODIFIED] `frontend/src/pages/CheckoutPage.tsx`
+- `handlePlaceOrder` changed to `async` to support `await createOrder(...)` and `await clearCart()`.
+- Requires authenticated user (`user.customerId`) before checkout.
+- Navigates to `/order-confirmation/${newOrder.id}` on success.
+
+#### [MODIFIED] `frontend/src/pages/OrderConfirmation.tsx`
+- Added `useEffect` that calls `fetchOrderById(orderId)` from the URL param when the order is not already in local state.
+- Resolves order from: (1) loaded backend order, (2) local context order, (3) fallback demo order.
+
+#### [MODIFIED] `frontend/src/components/profile/RecentOrders.tsx`
+- On mount, calls `orderService.getOrdersByCustomerId(user.customerId)` when the user is authenticated.
+- Maps `BackendOrder[]` to the existing `Order` display type (defined in `frontend/src/types/profile.ts`).
+- Falls back to `MOCK_ORDERS` for unauthenticated/demo users.
+- `useEffect` re-runs on `activeOrder` change to refresh after new checkout.
+- `getStatusBadgeClass` extended to handle `'Pending'` and `'Confirmed'` from backend enum mapping.
+- Action buttons (`View Order Details`, `Track Package`, `Buy Again`) wired up to `useNavigate`.
+
+---
+
+### 10.7 Axios Request Payload — `POST /order/create`
+
+```json
+{
+  "orderId": "TK-83921",
+  "orderDate": "2026-09-08T12:00:00.000Z",
+  "subtotal": 4998.0,
+  "shippingFee": 0.0,
+  "vat": 749.7,
+  "totalAmount": 4998.0,
+  "paymentMethod": "card",
+  "paymentReference": "VISA-4921",
+  "status": "PENDING",
+  "customer": {
+    "customerId": "C001"
+  },
+  "orderItems": [
+    {
+      "orderItemId": "OI-TK-83921-1",
+      "shoeId": "S001",
+      "shoeName": "Air Max 90",
+      "brand": "Nike",
+      "size": "UK 9",
+      "imageUrl": "https://res.cloudinary.com/.../nike.jpg",
+      "quantity": 2,
+      "unitPrice": 2499.0,
+      "subTotal": 4998.0
+    }
+  ]
+}
+```
+
+The backend:
+1. Looks up the real `Customer` via `CustomerRepository.findById(customerId)` — 404 if not found.
+2. Sets `order.setStatus(OrderStatus.PENDING)` regardless of what the frontend sent.
+3. Iterates `orderItems`, sets `item.setOrder(order)` on each, recalculates `subTotal`.
+4. Calls `orderRepository.save(order)` — Hibernate cascade saves all `OrderItem` rows via `CascadeType.ALL`.
+
+---
+
+### 10.8 Test Coverage
+
+All tests in the following suites pass (**38/38, BUILD SUCCESS**):
+
+| Test Class | Tests | Covers |
+|---|---|---|
+| `OrderFactoryTest` | 4 | Factory creates orders with all fields; backward-compatible overloads |
+| `OrderItemFactoryTest` | 5 | Factory creates items with snapshot fields; subTotal calculation |
+| `OrderServiceTest` | 11 | CRUD + `getOrdersByCustomerId` + password-never-exposed JSON test |
+| `OrderItemServiceTest` | 7 | CRUD including `existsById` update/delete guards |
+| `OrderControllerTest` | 6 | REST layer CRUD + customer orders endpoint (Mockito) |
+| `OrderItemControllerTest` | 5 | REST layer CRUD (Mockito) |
+
+---
+
+### 10.9 Presentation Cheatsheet
+
+**Q: Why does the `Order` not store a foreign key to `DeliveryDetails`?**
+> *"DeliveryDetails is a separate integration stage. Connecting it prematurely would introduce incomplete or null delivery records for every order. Orders work independently; delivery tracking is added as a follow-on capability."*
+
+**Q: Why do `OrderItem` rows store snapshot columns (shoeName, brand, imageUrl) instead of a live FK to the Shoe table?**
+> *"Order history must be immutable. If a shoe is renamed, repriced, or removed from the catalogue after purchase, the order record must still reflect exactly what the customer bought. Snapshot columns guarantee that."*
+
+**Q: Why is `Customer.password` never returned in the Order JSON?**
+> *"Jackson's `@JsonProperty(access = WRITE_ONLY)` tells the serializer to ignore the field during serialization while still allowing it to be deserialized on login. We also verify this programmatically with a unit test that serializes a real Order to JSON and asserts the password field is absent."*
+
+**Q: Why is `OrderStatus.PENDING` enforced server-side rather than trusting the frontend?**
+> *"Never trust the client to set business state. The frontend sends 'PENDING' as a convention, but the backend overwrites it regardless, ensuring no order can bypass the standard lifecycle by sending a forged status like 'DELIVERED'."*
+
+**Q: Why does `@OneToMany` use `CascadeType.ALL` and `orphanRemoval = true`?**
+> *"CascadeType.ALL means saving one Order automatically saves all its child OrderItems in a single transaction — no manual loop needed. orphanRemoval ensures that if an OrderItem is removed from the list, Hibernate deletes the row from the database automatically."*
+
+---
+
+### 10.10 Code References
+
+| Source | Used For |
+|---|---|
+| `backend/.../domain/Order.java` | JPA entity with `@ManyToOne Customer`, `@OneToMany OrderItem`, financial and payment fields |
+| `backend/.../domain/OrderItem.java` | JPA entity with `@ManyToOne Order` (`@JsonIgnore`), snapshot shoe fields |
+| `backend/.../domain/Customer.java` | `password` field annotated `@JsonProperty(access = WRITE_ONLY)` |
+| `backend/.../factory/OrderFactory.java` | Full `createOrder` overload with Customer and OrderItems |
+| `backend/.../factory/OrderItemFactory.java` | Snapshot-field overload for creating order line items |
+| `backend/.../repository/OrderRepository.java` | `findByCustomer_CustomerId(String)` derived query |
+| `backend/.../service/OrderService.java` | Customer validation, cascade save, PENDING enforcement, customer order lookup |
+| `backend/.../controller/OrderController.java` | `GET /order/customer/{customerId}` endpoint |
+| `frontend/src/services/api.ts` | Central Axios instance — reused, not duplicated |
+| `frontend/src/services/orderService.ts` | `createOrder`, `getOrderById`, `getOrdersByCustomerId`, `formatOrderStatus` |
+| `frontend/src/context/OrderContext.tsx` | Checkout → backend save → local state mapping |
+| `frontend/src/pages/CheckoutPage.tsx` | `async handlePlaceOrder`, navigates to `/order-confirmation/{id}` |
+| `frontend/src/pages/OrderConfirmation.tsx` | Fetches saved order from backend via `fetchOrderById` |
+| `frontend/src/components/profile/RecentOrders.tsx` | Lists real customer orders fetched from `GET /order/customer/{id}` |
+| Jackson Databind | `@JsonProperty(access = WRITE_ONLY)`, `@JsonIgnore`, `@JsonIgnoreProperties` |
+| Jakarta Persistence | `@OneToMany`, `@ManyToOne`, `CascadeType.ALL`, `orphanRemoval` |
+| Spring Data JPA | `findByCustomer_CustomerId` derived query, `CrudRepository.existsById` |
+

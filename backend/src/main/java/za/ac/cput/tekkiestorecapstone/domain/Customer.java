@@ -7,6 +7,7 @@
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Embedded;
@@ -16,6 +17,7 @@ public class Customer {
     @Id
     private String customerId;
     private String email;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
     @Embedded
     private Name name;

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 
 import za.ac.cput.tekkiestorecapstone.domain.Order;
+import za.ac.cput.tekkiestorecapstone.domain.OrderStatus;
 
 import java.util.Date;
 
@@ -32,6 +33,8 @@ class OrderFactoryTest {
         );
 
         assertNotNull(order);
+        assertNotNull(order.getStatus());
+        assertEquals(OrderStatus.PENDING, order.getStatus());
         System.out.println(order.toString());
     }
 
@@ -61,5 +64,21 @@ class OrderFactoryTest {
         );
 
         assertNull(order);
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(4)
+    public void createOrderDefaultsToPending() {
+
+        Order order = OrderFactory.createOrder(
+                "ORD002",
+                new Date(),
+                2500.00,
+                null,
+                "PAY002"
+        );
+
+        assertNotNull(order);
+        assertEquals(OrderStatus.PENDING, order.getStatus());
     }
 }

@@ -35,11 +35,17 @@ public class OrderItemService implements IOrderItemService {
 
     @Override
     public OrderItem update(OrderItem orderItem) {
+        if (orderItem == null || orderItem.getOrderItemId() == null || !this.repo.existsById(orderItem.getOrderItemId())) {
+            return null;
+        }
         return this.repo.save(orderItem);
     }
 
     @Override
     public boolean delete(String s) {
+        if (s == null || !this.repo.existsById(s)) {
+            return false;
+        }
         this.repo.deleteById(s);
         return true;
     }

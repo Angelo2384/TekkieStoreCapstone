@@ -109,4 +109,16 @@ class OrderControllerTest {
 
         System.out.println("Orders: " + orders);
     }
+
+    @Test
+    void f_getOrdersByCustomerId() {
+        when(service.getOrdersByCustomerId("C001")).thenReturn(List.of(order));
+
+        List<Order> orders = controller.getOrdersByCustomerId("C001");
+
+        assertNotNull(orders);
+        assertEquals(1, orders.size());
+
+        System.out.println("Customer Orders: " + orders);
+    }
 }

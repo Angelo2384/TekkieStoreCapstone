@@ -1,25 +1,90 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Package, ExternalLink, RefreshCw, Truck } from 'lucide-react';
 import { Order, OrderStatus } from '../../types/profile';
 import { MOCK_ORDERS } from '../../data/mockOrders';
+import { useAuth } from '../../context/AuthContext';
+import { orderService, formatOrderStatus } from '../../services/orderService';
+import { useOrder } from '../../context/OrderContext';
 
 interface RecentOrdersProps {
   orders?: Order[];
 }
 
-export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders = MOCK_ORDERS }) => {
-  const getStatusBadgeClass = (status: OrderStatus) => {
+export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders: propOrders }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { activeOrder } = useOrder();
+  const [customerOrders, setCustomerOrders] = useState<Order[] | null>(null);
+
+  useEffect(() => {
+    // If explicit orders were passed as props, don't fetch
+    if (propOrders) return;
+
+    let isMounted = true;
+    if (user?.customerId) {
+      orderService
+        .getOrdersByCustomerId(user.customerId)
+        .then((data) => {
+          if (!isMounted) return;
+          const mapped: Order[] = data.map((bo) => {
+            const dateObj = new Date(bo.orderDate);
+            const dateStr = isNaN(dateObj.getTime())
+              ? 'Recent'
+              : dateObj.toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                });
+
+            return {
+              id: bo.orderId,
+              orderNumber: bo.orderId,
+              date: dateStr,
+              status: formatOrderStatus(bo.status) as OrderStatus,
+              total: bo.totalAmount,
+              items: (bo.orderItems || []).map((bi) => ({
+                id: bi.orderItemId,
+                name: bi.shoeName || 'Sneaker',
+                brand: bi.brand || 'Tekkie',
+                size: bi.size || '-',
+                quantity: bi.quantity,
+                price: bi.unitPrice,
+                image: bi.imageUrl || '/trending_shoe_1_1788049696433.jpg',
+              })),
+            };
+          });
+          setCustomerOrders(mapped);
+        })
+        .catch((err) => {
+          console.error('Failed to load customer orders:', err);
+          if (isMounted) setCustomerOrders([]);
+        });
+    } else {
+      setCustomerOrders([]);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user?.customerId, propOrders, activeOrder]);
+
+  const orders: Order[] = propOrders || customerOrders || (user?.customerId ? [] : MOCK_ORDERS);
+
+  const getStatusBadgeClass = (status: OrderStatus | string) => {
     switch (status) {
       case 'Delivered':
         return 'status-delivered';
       case 'In Transit':
+      case 'Confirmed':
         return 'status-transit';
       case 'Processing':
+      case 'Pending':
         return 'status-processing';
       case 'Cancelled':
         return 'status-cancelled';
       default:
-        return '';
+        return 'status-processing';
     }
   };
 
@@ -109,19 +174,31 @@ export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders = MOCK_ORDERS
               <div className="order-footer-actions">
                 <div className="order-actions-left">
                   {order.status === 'In Transit' && (
-                    <button type="button" className="btn-order-action secondary">
+                    <button
+                      type="button"
+                      className="btn-order-action secondary"
+                      onClick={() => navigate(`/delivery-details/${order.id}`)}
+                    >
                       <Truck size={15} />
                       <span>Track Package</span>
                     </button>
                   )}
-                  <button type="button" className="btn-order-action secondary">
+                  <button
+                    type="button"
+                    className="btn-order-action secondary"
+                    onClick={() => navigate(`/order-confirmation/${order.id}`)}
+                  >
                     <ExternalLink size={15} />
                     <span>View Order Details</span>
                   </button>
                 </div>
 
                 <div className="order-actions-right">
-                  <button type="button" className="btn-order-action primary">
+                  <button
+                    type="button"
+                    className="btn-order-action primary"
+                    onClick={() => navigate('/catalogue')}
+                  >
                     <RefreshCw size={14} />
                     <span>Buy Again</span>
                   </button>

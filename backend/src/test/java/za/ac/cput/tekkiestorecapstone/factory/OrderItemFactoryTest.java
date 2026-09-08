@@ -23,11 +23,12 @@ class OrderItemFactoryTest {
         OrderItem orderItem = OrderItemFactory.createOrderItem(
                 "OI001",
                 2,
-                750.00,
-                1500.00
+                750.00
         );
 
         assertNotNull(orderItem);
+        assertEquals(1500.00, orderItem.getSubTotal());
+        assertEquals(orderItem.getQuantity() * orderItem.getUnitPrice(), orderItem.getSubTotal());
         System.out.println(orderItem.toString());
     }
 
@@ -38,8 +39,7 @@ class OrderItemFactoryTest {
         OrderItem orderItem = OrderItemFactory.createOrderItem(
                 "OI002",
                 2,
-                -750.00,
-                -1500.00
+                -750.00
         );
 
         assertNull(orderItem);
@@ -52,8 +52,7 @@ class OrderItemFactoryTest {
         OrderItem orderItem = OrderItemFactory.createOrderItem(
                 "OI003",
                 0,
-                750.00,
-                0.00
+                750.00
         );
 
         assertNull(orderItem);
@@ -61,13 +60,25 @@ class OrderItemFactoryTest {
 
     @Test
     @org.junit.jupiter.api.Order(4)
+    public void createOrderItemWithNegativeQuantity() {
+
+        OrderItem orderItem = OrderItemFactory.createOrderItem(
+                "OI004",
+                -1,
+                750.00
+        );
+
+        assertNull(orderItem);
+    }
+
+    @Test
+    @org.junit.jupiter.api.Order(5)
     public void createOrderItemWithEmptyId() {
 
         OrderItem orderItem = OrderItemFactory.createOrderItem(
                 "",
                 2,
-                750.00,
-                1500.00
+                750.00
         );
 
         assertNull(orderItem);
