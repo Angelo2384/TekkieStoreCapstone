@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
   Truck,
@@ -15,10 +15,24 @@ import './OrderConfirmation.css';
 export const OrderConfirmation: React.FC = () => {
   const { orderId } = useParams<{ orderId?: string }>();
   const navigate = useNavigate();
-  const { activeOrder, getOrderById } = useOrder();
+  const { activeOrder, getOrderById, fetchOrderById } = useOrder();
+  const [loadedOrder, setLoadedOrder] = React.useState<Order | null>(null);
+
+  React.useEffect(() => {
+    if (orderId) {
+      const existing = getOrderById(orderId);
+      if (existing) {
+        setLoadedOrder(existing);
+      } else {
+        fetchOrderById(orderId).then((res) => {
+          if (res) setLoadedOrder(res);
+        });
+      }
+    }
+  }, [orderId, getOrderById, fetchOrderById]);
 
   // Find order by param or activeOrder, or fallback to demo order if directly navigated
-  const order: Order = (orderId ? getOrderById(orderId) : null) ||
+  const order: Order = (orderId ? (loadedOrder || getOrderById(orderId)) : null) ||
     activeOrder || {
       id: 'TK-88291',
       orderNumber: '#TK-88291',

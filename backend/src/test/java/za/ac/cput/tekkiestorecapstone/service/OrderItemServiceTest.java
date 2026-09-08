@@ -43,8 +43,7 @@ class OrderItemServiceTest {
         orderItem = OrderItemFactory.createOrderItem(
                 "OI001",
                 2,
-                750.00,
-                1500.00
+                750.00
         );
     }
 
@@ -80,6 +79,7 @@ class OrderItemServiceTest {
                 .setSubTotal(2250.00)
                 .build();
 
+        when(repo.existsById(updated.getOrderItemId())).thenReturn(true);
         when(repo.save(any(OrderItem.class))).thenReturn(updated);
 
         OrderItem updatedItem = service.update(updated);
@@ -91,7 +91,23 @@ class OrderItemServiceTest {
     }
 
     @Test
+    void c_update_nonExistent() {
+        OrderItem nonExistent = new OrderItem.Builder()
+                .copy(orderItem)
+                .setOrderItemId("NON_EXISTENT")
+                .build();
+
+        when(repo.existsById("NON_EXISTENT")).thenReturn(false);
+
+        OrderItem result = service.update(nonExistent);
+
+        assertNull(result);
+    }
+
+    @Test
     void d_delete() {
+        when(repo.existsById(orderItem.getOrderItemId())).thenReturn(true);
+
         boolean success = service.delete(orderItem.getOrderItemId());
 
         verify(repo).deleteById(orderItem.getOrderItemId());
@@ -99,6 +115,15 @@ class OrderItemServiceTest {
         assertTrue(success);
 
         System.out.println("Success: " + success);
+    }
+
+    @Test
+    void d_delete_nonExistent() {
+        when(repo.existsById("NON_EXISTENT")).thenReturn(false);
+
+        boolean success = service.delete("NON_EXISTENT");
+
+        assertFalse(success);
     }
 
     @Test

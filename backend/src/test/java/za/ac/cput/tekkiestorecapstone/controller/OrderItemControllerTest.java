@@ -41,8 +41,7 @@ class OrderItemControllerTest {
         orderItem = OrderItemFactory.createOrderItem(
                 "OI001",
                 2,
-                750.00,
-                1500.00
+                750.00
         );
     }
 

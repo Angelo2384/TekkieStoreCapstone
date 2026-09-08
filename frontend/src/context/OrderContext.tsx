@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem } from './CartContext';
+import { useAuth } from './AuthContext';
+import {
+  orderService,
+  BackendOrder,
+  formatOrderStatus,
+} from '../services/orderService';
 
 export interface OrderItem {
   id: string;
@@ -29,7 +35,7 @@ export interface Order {
   createdAt: string; // ISO date string
   dateFormatted: string; // e.g. "Oct 24, 2026"
   estimatedArrival: string; // e.g. "Oct 28 - 30"
-  status: 'Order Confirmed' | 'Processing' | 'Dispatched' | 'Delivered';
+  status: 'Order Confirmed' | 'Processing' | 'Dispatched' | 'Delivered' | 'Cancelled';
   items: OrderItem[];
   itemsCount: number;
   subtotal: number;
@@ -66,8 +72,9 @@ export interface CreateOrderInput {
 interface OrderContextType {
   orders: Order[];
   activeOrder: Order | null;
-  createOrder: (input: CreateOrderInput) => Order;
+  createOrder: (input: CreateOrderInput) => Promise<Order>;
   getOrderById: (orderId: string) => Order | undefined;
+  fetchOrderById: (orderId: string) => Promise<Order | undefined>;
   setActiveOrderById: (orderId: string) => void;
 }
 
@@ -105,7 +112,72 @@ const calculateEstimatedArrival = (baseDate: Date): string => {
   return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
 };
 
+const mapBackendOrderToOrder = (
+  bo: BackendOrder,
+  fallbackShipping?: OrderShippingAddress
+): Order => {
+  const dateObj = new Date(bo.orderDate);
+  const dateFormatted = isNaN(dateObj.getTime())
+    ? 'Recent'
+    : dateObj.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      });
+  const estimatedArrival = calculateEstimatedArrival(isNaN(dateObj.getTime()) ? new Date() : dateObj);
+
+  const items: OrderItem[] = (bo.orderItems || []).map((bi) => ({
+    id: bi.orderItemId,
+    productId: bi.shoeId,
+    name: bi.shoeName,
+    brand: bi.brand,
+    price: bi.unitPrice,
+    size: bi.size,
+    quantity: bi.quantity,
+    image: bi.imageUrl,
+  }));
+
+  const totalQuantity = items.reduce((acc, it) => acc + it.quantity, 0);
+
+  const recipientName = bo.customer?.name
+    ? `${bo.customer.name.firstName || ''} ${bo.customer.name.lastName || ''}`.trim()
+    : 'Valued Customer';
+
+  const defaultAddress: OrderShippingAddress = fallbackShipping || {
+    recipientName: recipientName || 'Valued Customer',
+    streetNumber: '12',
+    streetName: 'Main Road',
+    suburb: 'Claremont',
+    city: 'Cape Town',
+    province: 'Western Cape',
+    postalCode: '7708',
+    fullAddress: '12 Main Road, Claremont, Cape Town, Western Cape, 7708',
+  };
+
+  return {
+    id: bo.orderId,
+    orderNumber: `#${bo.orderId}`,
+    createdAt: typeof bo.orderDate === 'string' ? bo.orderDate : new Date(bo.orderDate).toISOString(),
+    dateFormatted,
+    estimatedArrival,
+    status: formatOrderStatus(bo.status) as any,
+    items,
+    itemsCount: totalQuantity,
+    subtotal: bo.subtotal,
+    shippingFee: bo.shippingFee,
+    shippingMethod: 'DSV EXPRESS AIR',
+    vat: bo.vat,
+    total: bo.totalAmount,
+    shippingAddress: defaultAddress,
+    paymentMethod: (bo.paymentMethod as any) || 'card',
+    paymentReference: bo.paymentReference,
+    trackingNumber: `DSV-ZA-${Math.floor(10000000 + Math.random() * 90000000)}`,
+  };
+};
+
 export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
+
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const saved = localStorage.getItem(ORDERS_STORAGE_KEY);
@@ -146,33 +218,14 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const activeOrder = orders.find((o) => o.id === activeOrderId) || (orders.length > 0 ? orders[0] : null);
 
-  const createOrder = (input: CreateOrderInput): Order => {
+  const createOrder = async (input: CreateOrderInput): Promise<Order> => {
+    if (!user || !user.customerId) {
+      throw new Error('You must be logged in to complete checkout.');
+    }
+
     const randomDigits = Math.floor(10000 + Math.random() * 90000).toString();
     const orderId = `TK-${randomDigits}`;
-    const orderNumber = `#TK-${randomDigits}`;
     const now = new Date();
-
-    const dateFormatted = now.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-
-    const estimatedArrival = calculateEstimatedArrival(now);
-
-    // Map cart items into OrderItem structure
-    const orderItems: OrderItem[] = input.items.map((item) => ({
-      id: item.cartId,
-      productId: item.product.id,
-      name: item.product.name,
-      brand: item.product.brand,
-      price: item.product.price,
-      size: item.size,
-      quantity: item.quantity,
-      image: item.product.image,
-    }));
-
-    const totalQuantity = orderItems.reduce((acc, item) => acc + item.quantity, 0);
 
     // 15% South African VAT: Subtotal * 0.15
     const vatAmount = input.vat !== undefined ? input.vat : Math.round(input.subtotal * 0.15);
@@ -187,41 +240,58 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       paymentReference = `EFT-${randomDigits}`;
     }
 
-    const recipient = input.recipientName || 'Marcus Redelinghuys';
-    const address = input.shippingData;
-    const fullAddress = `${address.streetNumber} ${address.streetName}, ${address.suburb}, ${address.city}, ${address.province}, ${address.postalCode}`;
+    const backendItems = input.items.map((item, index) => {
+      const effectivePrice =
+        item.product.isOnSale && item.product.salePrice
+          ? item.product.salePrice
+          : item.product.price;
+      return {
+        orderItemId: `OI-${orderId}-${index + 1}`,
+        shoeId: String(item.product.id),
+        shoeName: item.product.name,
+        brand: item.product.brand,
+        size: String(item.size),
+        imageUrl: item.product.image,
+        quantity: item.quantity,
+        unitPrice: effectivePrice,
+        subTotal: effectivePrice * item.quantity,
+      };
+    });
 
-    const randomTrackingNum = Math.floor(10000000 + Math.random() * 90000000).toString();
-    const trackingNumber = `DSV-ZA-${randomTrackingNum}`;
-
-    const newOrder: Order = {
-      id: orderId,
-      orderNumber,
-      createdAt: now.toISOString(),
-      dateFormatted,
-      estimatedArrival,
-      status: 'Order Confirmed',
-      items: orderItems,
-      itemsCount: totalQuantity,
+    const payload = {
+      orderId,
+      orderDate: now.toISOString(),
       subtotal: input.subtotal,
       shippingFee: input.shippingFee,
-      shippingMethod: 'DSV EXPRESS AIR',
       vat: vatAmount,
-      total: input.total,
-      shippingAddress: {
-        recipientName: recipient,
-        streetNumber: address.streetNumber,
-        streetName: address.streetName,
-        suburb: address.suburb,
-        city: address.city,
-        province: address.province,
-        postalCode: address.postalCode,
-        fullAddress,
-      },
+      totalAmount: input.total,
       paymentMethod: input.paymentMethod,
       paymentReference,
-      trackingNumber,
+      status: 'PENDING',
+      customer: {
+        customerId: user.customerId,
+      },
+      orderItems: backendItems,
     };
+
+    // 1. Post to Spring Boot backend via Axios
+    const savedBackendOrder = await orderService.createOrder(payload);
+
+    // 2. Build local presentation Order
+    const recipient = input.recipientName || `${user.firstName} ${user.lastName}`;
+    const address = input.shippingData;
+    const shippingAddress: OrderShippingAddress = {
+      recipientName: recipient,
+      streetNumber: address.streetNumber,
+      streetName: address.streetName,
+      suburb: address.suburb,
+      city: address.city,
+      province: address.province,
+      postalCode: address.postalCode,
+      fullAddress: `${address.streetNumber} ${address.streetName}, ${address.suburb}, ${address.city}, ${address.province}, ${address.postalCode}`,
+    };
+
+    const newOrder = mapBackendOrderToOrder(savedBackendOrder, shippingAddress);
 
     setOrders((prev) => [newOrder, ...prev]);
     setActiveOrderId(newOrder.id);
@@ -231,7 +301,24 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const getOrderById = (orderId: string): Order | undefined => {
     const cleanId = orderId.replace('#', '').trim().toUpperCase();
-    return orders.find((o) => o.id.toUpperCase() === cleanId || o.orderNumber.toUpperCase() === `#${cleanId}`);
+    return orders.find(
+      (o) => o.id.toUpperCase() === cleanId || o.orderNumber.toUpperCase() === `#${cleanId}`
+    );
+  };
+
+  const fetchOrderById = async (orderId: string): Promise<Order | undefined> => {
+    const existing = getOrderById(orderId);
+    if (existing) return existing;
+
+    const cleanId = orderId.replace('#', '').trim();
+    const bo = await orderService.getOrderById(cleanId);
+    if (bo) {
+      const mapped = mapBackendOrderToOrder(bo);
+      setOrders((prev) => [mapped, ...prev.filter((o) => o.id !== mapped.id)]);
+      setActiveOrderId(mapped.id);
+      return mapped;
+    }
+    return undefined;
   };
 
   const setActiveOrderById = (orderId: string) => {
@@ -246,6 +333,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     activeOrder,
     createOrder,
     getOrderById,
+    fetchOrderById,
     setActiveOrderById,
   };
 

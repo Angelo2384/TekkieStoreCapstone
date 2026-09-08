@@ -10,10 +10,21 @@ import za.ac.cput.tekkiestorecapstone.domain.OrderItem;
 import za.ac.cput.tekkiestorecapstone.util.Helper;
 
 public class OrderItemFactory {
+
     public static OrderItem createOrderItem(String orderItemId,
                                             int quantity,
-                                            double unitPrice,
-                                            double subTotal) {
+                                            double unitPrice) {
+        return createOrderItem(orderItemId, null, null, null, null, null, quantity, unitPrice);
+    }
+
+    public static OrderItem createOrderItem(String orderItemId,
+                                            String shoeId,
+                                            String shoeName,
+                                            String brand,
+                                            String size,
+                                            String imageUrl,
+                                            int quantity,
+                                            double unitPrice) {
 
         if (Helper.isNullOrEmpty(orderItemId)) {
             return null;
@@ -25,6 +36,11 @@ public class OrderItemFactory {
 
         return new OrderItem.Builder()
                 .setOrderItemId(orderItemId)
+                .setShoeId(shoeId)
+                .setShoeName(shoeName)
+                .setBrand(brand)
+                .setSize(size)
+                .setImageUrl(imageUrl)
                 .setQuantity(quantity)
                 .setUnitPrice(unitPrice)
                 .setSubTotal(quantity * unitPrice)

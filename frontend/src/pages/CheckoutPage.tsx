@@ -31,6 +31,13 @@ export const CheckoutPage: React.FC = () => {
   const { createOrder } = useOrder();
   const { user } = useAuth();
 
+  // Redirect to login if user is not authenticated
+  useEffect(() => {
+    if (!user || !user.customerId) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
   // Shipping Form State (Restores previously saved shipping details if available)
   const [shippingData, setShippingData] = useState<ShippingAddressData>(() => {
     try {
@@ -250,7 +257,7 @@ export const CheckoutPage: React.FC = () => {
   };
 
   // Full Form Validation on Submit
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (cart.length === 0) {
       alert('Your cart is empty. Please add items to your cart before checking out.');
       return;
@@ -304,13 +311,13 @@ export const CheckoutPage: React.FC = () => {
     // 4. Successful validation: Create real shared order and navigate to Order Confirmation
     setIsSubmitting(true);
 
-    setTimeout(() => {
+    try {
       const cardClean = cardData.cardNumber.replace(/\s+/g, '');
       const cardLastFour = cardClean.slice(-4) || '4921';
       const cardBrand = detectCardType(cardData.cardNumber);
       const recipientName = user ? `${user.firstName} ${user.lastName}` : undefined;
 
-      const newOrder = createOrder({
+      const newOrder = await createOrder({
         items: cart,
         shippingData,
         recipientName,
@@ -323,13 +330,17 @@ export const CheckoutPage: React.FC = () => {
         total: finalTotal,
       });
 
-      // Clear the cart on successful checkout (saved shipping/payment info remains stored)
-      clearCart();
+      // Clear the cart on successful checkout
+      await clearCart();
       setIsSubmitting(false);
 
       // Navigate to the Order Confirmation Page
       navigate(`/order-confirmation/${newOrder.id}`);
-    }, 600);
+    } catch (err: any) {
+      console.error('Failed to create order:', err);
+      alert(err.message || 'Unable to place order. Please try again.');
+      setIsSubmitting(false);
+    }
   };
 
   return (
