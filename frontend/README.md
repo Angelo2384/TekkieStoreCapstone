@@ -70,10 +70,10 @@ This section documents all updates made to the Profile page, Contact Us page, Fo
   - `POST /cartitem/update`: Updates an existing `CartItem` entity quantity and subtotal.
   - `DELETE /cartitem/delete/{id}`: Deletes a `CartItem` entity.
 - **How cart state is updated**:
-  - Add to cart updates local state and sends `cartService.updateCartItem` (or `createCartItem`) with composite key `${userCartId}___${product.id}-${size}` and updates total via `cartService.updateCart`.
-  - Update quantity adjusts the item in state, updates the entity in Spring Boot, and recalculates the cart total.
-  - Remove item deletes the entity from the database via `DELETE /cartitem/delete/{id}` and updates the cart total.
-  - Clear cart iterates and deletes all user items on the backend.
+  - Add to cart updates local state and sends `cartService.createCartItem` with a unique collision-safe UUID (`cartItemId`) for new items, or `cartService.updateCartItem` reusing the existing `cartItemId` for quantity increments, and updates the cart total via `cartService.updateCart`.
+  - Update quantity adjusts the item in state, updates the entity in Spring Boot using its existing `cartItemId`, and recalculates the cart total.
+  - Remove item deletes the entity from the database via `DELETE /cartitem/delete/{cartItemId}` and updates the cart total.
+  - Clear cart iterates and deletes all user items on the backend using each item's actual `cartItemId`.
 - **How cart totals are calculated**:
   - Effective item price dynamically evaluates sales: `product.isOnSale && product.salePrice ? product.salePrice : product.price`.
   - Item subtotal: `effectivePrice * quantity`.

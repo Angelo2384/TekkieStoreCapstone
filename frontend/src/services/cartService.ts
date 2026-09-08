@@ -107,14 +107,8 @@ export const cartService = {
    * Endpoint: POST /cartitem/update
    */
   updateCartItem: async (cartItem: BackendCartItem): Promise<BackendCartItem> => {
-    try {
-      const response = await api.post<BackendCartItem>('/cartitem/update', cartItem);
-      return response.data;
-    } catch {
-      // If update fails because item doesn't exist yet, fallback to create
-      const response = await api.post<BackendCartItem>('/cartitem/create', cartItem);
-      return response.data;
-    }
+    const response = await api.post<BackendCartItem>('/cartitem/update', cartItem);
+    return response.data;
   },
 
   /**
