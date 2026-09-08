@@ -452,6 +452,10 @@ export interface BackendCart {
 
 export interface BackendCartItem {
   cartItemId: string;
+  cart?: { cartId: string; totalAmount?: number } | null;
+  shoe?: BackendShoeRef | null;
+  shoeVariant?: BackendShoeVariantRef | null;
+  shoeSize?: BackendShoeSize | null;
   quantity: number;
   unitPrice: number;
   subTotal: number;
@@ -465,32 +469,28 @@ export interface BackendCartItem {
 `CartContext.tsx` manages cart state for the entire application and synchronizes it with the Spring Boot backend for authenticated users. The cart also persists locally in `localStorage` under the key `tekkie_store_cart` for resilience.
 
 **Cart item ID scheme:**  
-Each cart item is identified on the backend using a composite string key:
-```
-<userCartId>___<productId>-<selectedSize>
-```
-This allows filtering all items belonging to a specific user from the shared `GET /cartitem/getAll` response.
+Each cart item is identified on the backend using a collision-safe UUID (`cartItemId`).
 
 **`refreshCart()`:**  
 On authentication, `refreshCart()` is called automatically. It:
 1. Calls `getCart(userCartId)` to check if a backend cart exists.
-2. Calls `getAllCartItems()` and filters items whose `cartItemId` starts with `<userCartId>___`.
-3. If backend items exist, they are merged into the local cart state (quantities updated from backend).
-4. If no backend items exist but local items do, they are pushed to the backend via `createCartItem` and `updateCart`.
+2. Calls `getAllCartItems()` to retrieve backend items.
+3. If backend items exist, they are merged into the local cart state, restoring backend quantities and synchronizing connected `shoeVariant` and `shoeSize` data.
+4. If local items are missing on the backend, they are pushed to Spring Boot via `createCartItem` and `updateCart`.
 
-**`addToCart(product, size, quantity)`:**  
-1. Updates local state immediately for instant UI feedback.
-2. Calls `updateCartItem(...)` to upsert the item on the backend (falls back to `createCartItem` on 404/failure).
-3. Calls `updateCart(...)` to update the cart total.
+**`addToCart(product, size, quantity, variant)`:**  
+1. Updates local state immediately for instant UI feedback, recording `variantId`, `shoeSize`, and `colour`.
+2. Calls `updateCart(...)` to ensure the parent cart exists and has the new total.
+3. Sends `cartService.createCartItem(...)` or `updateCartItem(...)` containing the complete connection payload (`cart`, `shoe`, `shoeVariant`, `shoeSize`, `quantity`, `unitPrice`, `subTotal`).
 
 **`updateQuantity(cartId, quantity)`:**  
 1. Updates local state.
-2. Calls `updateCartItem(...)` with the new quantity and recalculated subtotal.
+2. Calls `updateCartItem(...)` with the new quantity, recalculated subtotal, and connected entity references.
 3. Recalculates the full cart total and calls `updateCart(...)`.
 
 **`removeFromCart(cartId)`:**  
 1. Removes the item from local state.
-2. Calls `deleteCartItem(backendItemId)`.
+2. Calls `deleteCartItem(cartItemId)`.
 3. Recalculates the cart total and calls `updateCart(...)`.
 
 **`clearCart()`:**  
@@ -548,16 +548,46 @@ The local cart stored in `localStorage` acts as a fallback — if any backend ca
 
 ---
 
-### 7.9 Code References
+### 7.9 CartItem Relationships (Cart, Shoe, ShoeVariant & ShoeSize)
+
+To ensure full persistence of customer selections, `CartItem` connects directly with `Cart`, `Shoe`, `ShoeVariant`, and `ShoeSize`:
+
+1. **`cart` (`@ManyToOne` &rarr; `Cart`):** Links each line item to its parent cart via `cart_id` foreign key.
+2. **`shoe` (`@ManyToOne` &rarr; `Shoe`):** Links each line item to the base shoe catalog entity via `shoe_id` foreign key.
+3. **`shoeVariant` (`@ManyToOne` &rarr; `ShoeVariant`):** Identifies the exact shoe variant chosen by the user (specific SKU/colorway/stock record) via `variant_id` foreign key.
+4. **`shoeSize` (`@Embedded` &rarr; `ShoeSize`):** Embeds the value object containing numeric `sizeValue` (e.g. `8.0`) and regional standard `sizeRegion` (e.g. `'UK'`).
+5. **Serialization:** All `@ManyToOne` associations specify `@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})` to prevent Hibernate proxy serialization errors when sending JSON back over Axios.
+
+**Axios Request Payload (`POST /cartitem/create` & `POST /cartitem/update`):**
+```json
+{
+  "cartItemId": "f81d4fae-7dec-11d0-a765-00a0c91e6bf6",
+  "cart": { "cartId": "cart_marcus" },
+  "shoe": { "shoeId": "S001" },
+  "shoeVariant": { "variantId": "V001" },
+  "shoeSize": { "sizeValue": 8.0, "sizeRegion": "UK" },
+  "quantity": 1,
+  "unitPrice": 2499.0,
+  "subTotal": 2499.0
+}
+```
+
+---
+
+### 7.10 Code References
 
 | Source | Used For |
 |---|---|
-| `frontend/src/services/api.ts` | Central Axios instance reused directly by `cartService.ts`. No new Axios instance was created. |
-| `frontend/src/context/AuthContext.tsx` | `useAuth()` hook reused by `CartContext` to access `isAuthenticated`, `user`, and `logout()`. |
-| `frontend/src/pages/CartPage.tsx` | Existing cart UI page, unchanged. Consumes `useCart()` from `CartContext` as before. |
-| `CartController.java` | Existing Spring Boot REST controller referenced for `/cart/*` endpoint contracts. |
-| `CartItemController.java` | Existing Spring Boot REST controller referenced for `/cartitem/*` endpoint contracts. |
+| `backend/src/main/java/za/ac/cput/tekkiestorecapstone/domain/CartItem.java` | JPA entity connecting `cartItemId`, `cart`, `shoe`, `shoeVariant`, `shoeSize`, `quantity`, `unitPrice`, `subTotal`. |
+| `backend/src/main/java/za/ac/cput/tekkiestorecapstone/factory/CartItemFactory.java` | Factory method creating `CartItem` instances with connected `Cart`, `Shoe`, `ShoeVariant`, and `ShoeSize`. |
+| `backend/src/main/java/za/ac/cput/tekkiestorecapstone/repository/CartItemRepository.java` | Spring Data JPA repository with `findByCart_CartId` and `findByShoe_ShoeId` queries. |
+| `backend/src/main/java/za/ac/cput/tekkiestorecapstone/controller/CartItemController.java` | REST endpoints for cart item CRUD (`/cartitem/create`, `/update`, `/delete`, `/cart/{cartId}`). |
+| `frontend/src/services/api.ts` | Central Axios instance configured with base URL `http://localhost:8080` and JWT auth interceptor. |
+| `frontend/src/services/cartService.ts` | Axios wrapper with updated `BackendCartItem` interface including `cart`, `shoe`, `shoeVariant`, `shoeSize`. |
+| `frontend/src/context/CartContext.tsx` | Manages cart state and transmits connected relationships via Axios during `addToCart`, `updateQuantity`, and `refreshCart`. |
+| `frontend/src/pages/CartPage.tsx` | User-facing shopping cart page rendering `CartItemCard` components. |
 | Axios official documentation | [https://axios-http.com/docs/intro](https://axios-http.com/docs/intro) |
+
 
 ---
 

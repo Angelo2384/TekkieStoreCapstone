@@ -61,12 +61,12 @@ class CartItemControllerTest {
 
     @Test
     void b_read() {
-        when(service.read("DD01")).thenReturn(cartItem);
+        when(service.read("D001")).thenReturn(cartItem);
 
-        CartItem found = controller.read("DD01");
+        CartItem found = controller.read("D001");
 
         assertNotNull(found);
-        assertEquals("DD01", found.getCartItem());
+        assertEquals("D001", found.getCartItem());
 
         System.out.println("Cart Item: " + found);
     }
@@ -91,9 +91,9 @@ class CartItemControllerTest {
 
     @Test
     void d_delete() {
-        when(service.delete("DD01")).thenReturn(true);
+        when(service.delete("D001")).thenReturn(true);
 
-        boolean deleted = controller.delete("DD01");
+        boolean deleted = controller.delete("D001");
 
         assertTrue(deleted);
 
@@ -110,4 +110,16 @@ class CartItemControllerTest {
 
         System.out.println("Cart Items: " + cartItems);
     }
-}
+
+    @Test
+    void f_getCartItemsByCartId() {
+        when(service.getCartItemsByCartId("CART001")).thenReturn(List.of(cartItem));
+
+        List<CartItem> cartItems = controller.getCartItemsByCartId("CART001");
+
+        assertNotNull(cartItems);
+        assertEquals(1, cartItems.size());
+
+        System.out.println("Cart Items by Cart ID: " + cartItems);
+    }
+}

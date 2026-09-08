@@ -87,7 +87,7 @@ class CartItemServiceTest {
     void d_delete() {
         boolean success = service.delete(cartItem.getCartItem());
 
-        verify(repo).existsById(cartItem.getCartItem());
+        verify(repo).deleteById(cartItem.getCartItem());
 
         assertTrue(success);
 
@@ -104,4 +104,17 @@ class CartItemServiceTest {
 
         System.out.println("Success: " + all);
     }
+
+    @Test
+    void f_getCartItemsByCartId() {
+        when(repo.findByCart_CartId("CART001")).thenReturn(List.of(cartItem));
+
+        List<CartItem> items = service.getCartItemsByCartId("CART001");
+
+        assertNotNull(items);
+        assertEquals(1, items.size());
+
+        System.out.println("Success: " + items);
+    }
 }
+

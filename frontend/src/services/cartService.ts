@@ -5,8 +5,33 @@ export interface BackendCart {
   totalAmount: number;
 }
 
+export interface BackendShoeRef {
+  shoeId: string;
+  brand?: string;
+  shoeName?: string;
+  category?: string;
+  [key: string]: any;
+}
+
+export interface BackendShoeSize {
+  sizeValue: number;
+  sizeRegion: string;
+}
+
+export interface BackendShoeVariantRef {
+  variantId: string;
+  colour?: string;
+  stockQuantity?: number;
+  size?: BackendShoeSize;
+  [key: string]: any;
+}
+
 export interface BackendCartItem {
   cartItemId: string;
+  cart?: { cartId: string; totalAmount?: number } | null;
+  shoe?: BackendShoeRef | null;
+  shoeVariant?: BackendShoeVariantRef | null;
+  shoeSize?: BackendShoeSize | null;
   quantity: number;
   unitPrice: number;
   subTotal: number;
@@ -109,6 +134,20 @@ export const cartService = {
   updateCartItem: async (cartItem: BackendCartItem): Promise<BackendCartItem> => {
     const response = await api.post<BackendCartItem>('/cartitem/update', cartItem);
     return response.data;
+  },
+
+  /**
+   * Retrieves all items belonging to a specific cart.
+   * Endpoint: GET /cartitem/cart/{cartId}
+   */
+  getCartItemsByCartId: async (cartId: string): Promise<BackendCartItem[]> => {
+    try {
+      const response = await api.get<BackendCartItem[]>(`/cartitem/cart/${encodeURIComponent(cartId)}`);
+      return response.data || [];
+    } catch (error) {
+      console.warn(`[cartService] Failed to fetch cart items for cart ${cartId}:`, error);
+      return [];
+    }
   },
 
   /**

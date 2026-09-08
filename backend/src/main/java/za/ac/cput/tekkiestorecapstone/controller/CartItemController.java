@@ -50,4 +50,9 @@ public class CartItemController {
     public List<CartItem> getAll() {
         return service.getAll();
     }
-}
+
+    @GetMapping("/cart/{cartId}")
+    public List<CartItem> getCartItemsByCartId(@PathVariable String cartId) {
+        return service.getCartItemsByCartId(cartId);
+    }
+}
