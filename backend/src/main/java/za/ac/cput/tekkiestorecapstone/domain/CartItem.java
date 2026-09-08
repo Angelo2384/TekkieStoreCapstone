@@ -25,8 +25,14 @@ public class CartItem {
     public String getCartItem(){
         return cartItemId;
     }
+    public String getCartItemId(){
+        return cartItemId;
+    }
     public int getQuantity(){
         return quantity;
+    }
+    public double getUnitPrice(){
+        return unitPrice;
     }
     public double getSubTotal(){
         return subTotal;
