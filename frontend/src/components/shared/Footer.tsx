@@ -49,7 +49,7 @@ export const Footer = () => {
           <div className="footer-links">
             <h3 className="footer-title">COMPANY</h3>
             <ul>
-              <li><a href="/about">About Us</a></li>
+              <li><Link to="/about">About Us</Link></li>
               <li><Link to="/privacy">Privacy Policy</Link></li>
               <li><Link to="/terms">Terms of Service</Link></li>
             </ul>
