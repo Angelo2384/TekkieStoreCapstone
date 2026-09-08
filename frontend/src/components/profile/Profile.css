@@ -356,19 +356,19 @@
   gap: 1.75rem;
 }
 
-.form-grid {
+.profile-form .form-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
 }
 
-.form-group {
+.profile-form .form-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-label {
+.profile-form .form-label {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-main);
@@ -376,16 +376,14 @@
   letter-spacing: 0.04em;
 }
 
-.profile-form .input-wrapper,
-.input-wrapper {
+.profile-form .input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
 }
 
-.profile-form .input-icon,
-.input-wrapper .input-icon {
+.profile-form .input-icon {
   position: absolute;
   left: 14px;
   top: 50%;
@@ -402,8 +400,7 @@
 }
 
 .profile-form .form-input,
-.profile-card .form-input,
-.input-wrapper .form-input {
+.profile-card .form-input {
   width: 100%;
   height: 48px;
   padding: 0 16px 0 46px !important;
@@ -418,19 +415,16 @@
   outline: none;
 }
 
-.profile-form .form-input::placeholder,
-.input-wrapper .form-input::placeholder {
+.profile-form .form-input::placeholder {
   color: #9CA3AF;
   opacity: 1;
 }
 
-.profile-form .form-input:hover,
-.input-wrapper .form-input:hover {
+.profile-form .form-input:hover {
   border-color: #BDBDBD;
 }
 
-.profile-form .form-input:focus,
-.input-wrapper .form-input:focus {
+.profile-form .form-input:focus {
   border-color: var(--brand-orange);
   background-color: var(--pure-white);
   box-shadow: 0 0 0 3px rgba(253, 103, 1, 0.15);

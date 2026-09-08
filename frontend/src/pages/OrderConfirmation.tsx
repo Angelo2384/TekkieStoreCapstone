@@ -1,8 +1,6 @@
-import React from 'react';
+﻿import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
-  Check,
-  ShieldCheck,
   Truck,
   ArrowRight,
   Download,
@@ -117,7 +115,6 @@ export const OrderConfirmation: React.FC = () => {
               Date: ${order.dateFormatted}
             </div>
           </div>
-
           <div class="details-grid">
             <div class="box">
               <div class="box-title">Delivered To</div>
@@ -128,7 +125,7 @@ export const OrderConfirmation: React.FC = () => {
               South Africa
             </div>
             <div class="box">
-              <div class="box-title">Dispatch & Payment Details</div>
+              <div class="box-title">Dispatch &amp; Payment Details</div>
               Courier: ${order.shippingMethod}<br/>
               Tracking Ref: ${order.trackingNumber}<br/>
               Payment Method: ${order.paymentMethod === 'card' ? 'Credit / Debit Card' : 'Instant EFT'}<br/>
@@ -136,7 +133,6 @@ export const OrderConfirmation: React.FC = () => {
               Estimated Arrival: ${order.estimatedArrival}
             </div>
           </div>
-
           <table>
             <thead>
               <tr>
@@ -146,40 +142,15 @@ export const OrderConfirmation: React.FC = () => {
                 <th style="text-align: right;">Total</th>
               </tr>
             </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
+            <tbody>${itemsHtml}</tbody>
           </table>
-
           <div class="totals">
-            <div class="totals-row">
-              <span>Subtotal:</span>
-              <span>${formatPrice(order.subtotal)}</span>
-            </div>
-            <div class="totals-row">
-              <span>Shipping (DSV Air):</span>
-              <span>${order.shippingFee === 0 ? 'FREE' : formatPrice(order.shippingFee)}</span>
-            </div>
-            <div class="totals-row">
-              <span>Estimated VAT (15% incl.):</span>
-              <span>${formatPrice(order.vat)}</span>
-            </div>
-            <div class="totals-row grand-total">
-              <span>TOTAL:</span>
-              <span>${formatPrice(order.total)}</span>
-            </div>
+            <div class="totals-row"><span>Subtotal:</span><span>${formatPrice(order.subtotal)}</span></div>
+            <div class="totals-row"><span>Shipping:</span><span>${order.shippingFee === 0 ? 'FREE' : formatPrice(order.shippingFee)}</span></div>
+            <div class="totals-row grand-total"><span>TOTAL:</span><span>${formatPrice(order.subtotal + order.shippingFee)}</span></div>
           </div>
-
-          <div class="footer">
-            &copy; 2026 SOLE Ltd. All rights reserved. Obsidian Tekkie Collection Drop.<br/>
-            Thank you for shopping with TekkieStore. For support, contact support@tekkiestore.co.za
-          </div>
-
-          <script>
-            window.onload = function() {
-              window.print();
-            };
-          </script>
+          <div class="footer">Thank you for shopping with TekkieStore. For support, contact support@tekkiestore.co.za</div>
+          <script>window.onload = function() { window.print(); };</script>
         </body>
       </html>
     `;
@@ -203,7 +174,7 @@ export const OrderConfirmation: React.FC = () => {
       <section className="confirmation-hero-section">
         <div className="confirmation-container">
           <div className="confirmation-hero-content">
-            <span className="confirmation-eyebrow">ORDER STATUS & RECEIPT</span>
+            <span className="confirmation-eyebrow">ORDER STATUS &amp; RECEIPT</span>
             <h1 className="confirmation-main-title">ORDER CONFIRMED</h1>
             <p className="confirmation-hero-subtitle">
               Thank you for your purchase. We've sent a confirmation email with all your order details and live tracking information.
@@ -234,32 +205,26 @@ export const OrderConfirmation: React.FC = () => {
               <span className="info-unit-label">ORDER NUMBER</span>
               <span className="info-unit-value order-num-val">{order.orderNumber}</span>
             </div>
-
             <div className="order-info-divider" />
-
             <div className="order-info-unit">
               <span className="info-unit-label">ORDER DATE</span>
               <span className="info-unit-value">{order.dateFormatted}</span>
             </div>
-
             <div className="order-info-divider" />
-
             <div className="order-info-unit">
               <span className="info-unit-label">PAYMENT REF</span>
               <span className="info-unit-value">{order.paymentReference}</span>
             </div>
-
             <div className="order-info-divider" />
-
             <div className="order-info-unit">
               <span className="info-unit-label">TOTAL AMOUNT</span>
-              <span className="info-unit-value total-amount-val">{formatPrice(order.total)}</span>
+              <span className="info-unit-value total-amount-val">{formatPrice(order.subtotal + order.shippingFee)}</span>
             </div>
           </div>
 
           {/* 3B. TWO-COLUMN LAYOUT: ORDER SUMMARY (LEFT) & DELIVERY (RIGHT) */}
           <div className="confirmation-layout-grid">
-            {/* LEFT COLUMN: ORDER SUMMARY & SECURITY */}
+            {/* LEFT COLUMN: ORDER SUMMARY */}
             <div className="confirmation-left-col">
               {/* Order Summary Card */}
               <div className="confirm-card order-summary-card" aria-label="Order Summary">
@@ -327,30 +292,12 @@ export const OrderConfirmation: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="fin-row vat-row">
-                    <span className="fin-title-vat">Taxes (15% VAT included)</span>
-                    <span className="fin-data-vat">{formatPrice(order.vat)}</span>
-                  </div>
-
                   <div className="summary-section-divider thick" />
 
                   <div className="fin-row total-highlight-row">
                     <span className="final-total-label">TOTAL</span>
-                    <span className="final-total-val">{formatPrice(order.total)}</span>
+                    <span className="final-total-val">{formatPrice(order.subtotal + order.shippingFee)}</span>
                   </div>
-                </div>
-              </div>
-
-              {/* SLIM TRUST / SECURITY BAR */}
-              <div className="trust-security-card" aria-label="Security and protection verification">
-                <div className="trust-security-item">
-                  <ShieldCheck size={16} className="security-icon" />
-                  <span>3D Secure 2.0 Verified</span>
-                </div>
-                <div className="trust-security-separator" />
-                <div className="trust-security-item">
-                  <Check size={16} className="security-icon check" />
-                  <span>Buyer Protection Active</span>
                 </div>
               </div>
             </div>
@@ -450,26 +397,6 @@ export const OrderConfirmation: React.FC = () => {
                   <span>Download PDF Invoice / Receipt</span>
                 </button>
               </div>
-            </div>
-          </div>
-
-          {/* CHECKOUT & CONFIRMATION SUB-FOOTER ROW */}
-          <div className="confirmation-subfooter-bar">
-            <p className="subfooter-copyright">
-              &copy; 2026 SOLE Ltd. All rights reserved. Obsidian Tekkie Collection Drop.
-            </p>
-            <div className="subfooter-links">
-              <a href="/privacy" target="_blank" rel="noopener noreferrer">
-                Privacy Policy
-              </a>
-              <span className="subfooter-sep">•</span>
-              <a href="/terms" target="_blank" rel="noopener noreferrer">
-                Terms of Service
-              </a>
-              <span className="subfooter-sep">•</span>
-              <a href="/shipping" target="_blank" rel="noopener noreferrer">
-                Returns & Exchanges
-              </a>
             </div>
           </div>
         </div>

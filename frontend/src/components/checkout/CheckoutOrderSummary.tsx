@@ -9,7 +9,6 @@ interface CheckoutOrderSummaryProps {
   cartCount: number;
   subtotal: number;
   shippingFee: number;
-  vatAmount?: number;
   finalTotal: number;
   isSubmitting: boolean;
   onPlaceOrder: () => void;
@@ -20,13 +19,10 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
   cartCount,
   subtotal,
   shippingFee,
-  vatAmount,
   finalTotal,
   isSubmitting,
   onPlaceOrder,
 }) => {
-  // SA VAT is 15%: Subtotal * 0.15
-  const calculatedVat = vatAmount !== undefined ? vatAmount : Math.round(subtotal * 0.15);
 
   return (
     <aside className="checkout-summary-card" aria-label="Order Summary">
@@ -109,20 +105,12 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
           </span>
         </div>
 
-        <div className="checkout-financial-row vat-note-row">
-          <span className="fin-label-vat">
-            Estimated VAT (15% included)
-          </span>
-          <span className="fin-value-vat">{formatPrice(calculatedVat)}</span>
-        </div>
-
         <div className="summary-divider thick" />
 
         {/* Final Total */}
         <div className="checkout-financial-row total-highlight-row">
           <div className="total-label-box">
             <span className="total-main-label">TOTAL</span>
-            <span className="total-vat-tag">VAT included</span>
           </div>
           <span className="total-orange-amount">{formatPrice(finalTotal)}</span>
         </div>

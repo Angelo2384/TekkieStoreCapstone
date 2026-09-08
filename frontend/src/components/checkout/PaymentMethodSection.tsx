@@ -38,9 +38,9 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
 }) => {
   const cardType = detectCardType(cardData.cardNumber);
 
-  // Format Card Number into groups of 4 digits: "XXXX XXXX XXXX" (exactly 12 digits max)
+  // Format Card Number into groups of 4 digits: "XXXX XXXX XXXX XXXX" (exactly 16 digits max)
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value.replace(/\D/g, '').slice(0, 12);
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
     const parts = raw.match(/.{1,4}/g) || [];
     const formatted = parts.join(' ');
     onCardChange('cardNumber', formatted);
@@ -65,7 +65,6 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
     <section className="checkout-card payment-card" aria-labelledby="payment-heading">
       <div className="card-header">
         <h2 id="payment-heading" className="card-title">
-          <span className="card-title-icon" aria-hidden="true">💳</span>
           PAYMENT METHOD
         </h2>
       </div>
@@ -132,8 +131,8 @@ export const PaymentMethodSection: React.FC<PaymentMethodSectionProps> = ({
                     id="cardNumber"
                     name="cardNumber"
                     autoComplete="cc-number"
-                    placeholder="1234 5678 9012"
-                    maxLength={14}
+                    placeholder="1234 5678 9012 3456"
+                    maxLength={19}
                     value={cardData.cardNumber}
                     onChange={handleCardNumberChange}
                     onBlur={() => onCardBlur('cardNumber')}
