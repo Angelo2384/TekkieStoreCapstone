@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { router } from '../routes';
 import cartService, { BackendCartItem } from '../services/cartService';
 
-import { ShoeVariant } from '../types/shoeVariant';
+import { ShoeVariant, ShoeSize } from '../types/shoeVariant';
 
 export interface CartItem {
   cartId: string; // Composite key: `${product.id}-${variantId || size}` (frontend line identity)
@@ -17,7 +17,22 @@ export interface CartItem {
   sizeRegion?: string;
   colour?: string;
   variant?: ShoeVariant;
+  shoeSize?: ShoeSize;
 }
+
+const parseShoeSize = (sizeStr?: string, defaultRegion = 'UK'): { sizeValue: number; sizeRegion: string } => {
+  const fallbackRegion = defaultRegion || 'UK';
+  if (!sizeStr) return { sizeValue: 0, sizeRegion: fallbackRegion };
+  const match = sizeStr.match(/^(?:([A-Za-z]+)\s*)?([0-9]+(?:\.[0-9]+)?)/);
+  if (match) {
+    const region = match[1] || fallbackRegion;
+    const val = parseFloat(match[2]);
+    return { sizeValue: isNaN(val) ? 0 : val, sizeRegion: region || fallbackRegion };
+  }
+  return { sizeValue: 0, sizeRegion: fallbackRegion };
+};
+
+
 
 interface CartContextType {
   cart: CartItem[];
@@ -121,11 +136,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
 
           if (backendItem) {
-            // Preserve backend cartItemId and sync quantity
+            // Preserve backend cartItemId, sync quantity, and restore connected variant & shoe size
+            const fallbackRegion = localItem.sizeRegion || 'UK';
+            const restoredVariantId = backendItem.shoeVariant?.variantId || localItem.variantId;
+            const restoredShoeSize = backendItem.shoeSize || localItem.shoeSize || parseShoeSize(localItem.size, fallbackRegion);
+            const restoredRegion = backendItem.shoeSize?.sizeRegion || fallbackRegion;
+            const restoredSize = backendItem.shoeSize
+              ? `${restoredRegion} ${backendItem.shoeSize.sizeValue}`
+              : localItem.size;
+
             updated.push({
               ...localItem,
               cartItemId: backendItem.cartItemId,
               quantity: backendItem.quantity,
+              variantId: restoredVariantId,
+              sizeRegion: restoredRegion,
+              size: restoredSize,
+              shoeSize: restoredShoeSize,
             });
           } else {
             // Keep local item with its existing cartItemId
@@ -143,8 +170,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         );
         if (!exists) {
           const price = getEffectivePrice(item.product);
+          const fallbackRegion = item.sizeRegion || 'UK';
+          const shoeSizeObj = (item.shoeSize && item.shoeSize.sizeRegion)
+            ? { sizeValue: item.shoeSize.sizeValue, sizeRegion: item.shoeSize.sizeRegion || fallbackRegion }
+            : (item.variant?.size
+              ? { sizeValue: item.variant.size.sizeValue, sizeRegion: item.variant.size.sizeRegion || fallbackRegion }
+              : parseShoeSize(item.size, fallbackRegion));
+
           await cartService.createCartItem({
             cartItemId: item.cartItemId,
+            cart: { cartId: userCartId },
+            shoe: { shoeId: item.product.id },
+            shoeVariant: item.variantId ? { variantId: item.variantId } : null,
+            shoeSize: shoeSizeObj,
             quantity: item.quantity,
             unitPrice: price,
             subTotal: price * item.quantity,
@@ -215,9 +253,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const selectedColour = (variant && 'colour' in variant && variant.colour) ? variant.colour : product.colour;
-    const sizeRegion = (variant && 'size' in variant && variant.size && (variant.size as any).sizeRegion)
-      || (variant as any)?.sizeRegion
+    const sizeRegion =
+      (variant && 'size' in variant && variant.size && typeof variant.size === 'object' && variant.size.sizeRegion)
+      || (variant && 'sizeRegion' in variant && variant.sizeRegion)
       || 'UK';
+
+    const shoeSizeObj: ShoeSize =
+      variant && 'size' in variant && variant.size
+        ? typeof variant.size === 'object'
+          ? { sizeValue: variant.size.sizeValue, sizeRegion: variant.size.sizeRegion || sizeRegion }
+          : parseShoeSize(variant.size, sizeRegion)
+        : parseShoeSize(selectedSize, sizeRegion);
+
 
     // 2. Update local state
     setCart((prev) => {
@@ -230,6 +277,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           variantId: variantId || updated[idx].variantId,
           sizeRegion: sizeRegion || updated[idx].sizeRegion,
           colour: selectedColour || updated[idx].colour,
+          shoeSize: shoeSizeObj || updated[idx].shoeSize,
         };
         return updated;
       }
@@ -244,6 +292,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           colour: selectedColour,
           variantId,
           variant: variant && 'stockQuantity' in variant ? (variant as ShoeVariant) : undefined,
+          shoeSize: shoeSizeObj,
           quantity: newQuantity,
           addedAt: Date.now(),
         },
@@ -255,29 +304,30 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const subTotal = unitPrice * newQuantity;
 
-        if (isExisting) {
-          // EXISTING ITEM: Reuse UUID and POST /cartitem/update
-          await cartService.updateCartItem({
-            cartItemId: targetCartItemId,
-            quantity: newQuantity,
-            unitPrice,
-            subTotal,
-          });
-        } else {
-          // NEW ITEM: Persist newly generated UUID and POST /cartitem/create
-          await cartService.createCartItem({
-            cartItemId: targetCartItemId,
-            quantity: newQuantity,
-            unitPrice,
-            subTotal,
-          });
-        }
-
         const newTotal = cartTotal + unitPrice * quantity;
         await cartService.updateCart({
           cartId: userCartId,
           totalAmount: newTotal,
         });
+
+        const backendPayload: BackendCartItem = {
+          cartItemId: targetCartItemId,
+          cart: { cartId: userCartId },
+          shoe: { shoeId: product.id },
+          shoeVariant: variantId ? { variantId } : null,
+          shoeSize: shoeSizeObj,
+          quantity: newQuantity,
+          unitPrice,
+          subTotal,
+        };
+
+        if (isExisting) {
+          // EXISTING ITEM: Reuse UUID and POST /cartitem/update
+          await cartService.updateCartItem(backendPayload);
+        } else {
+          // NEW ITEM: Persist newly generated UUID and POST /cartitem/create
+          await cartService.createCartItem(backendPayload);
+        }
       } catch (err: any) {
         if (err?.response?.status === 401 || err?.response?.status === 403) {
           logout();
@@ -314,9 +364,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (userCartId && itemToUpdate.cartItemId) {
       try {
         const subTotal = unitPrice * quantity;
+        const fallbackRegion = itemToUpdate.sizeRegion || 'UK';
+        const shoeSizeObj = (itemToUpdate.shoeSize && itemToUpdate.shoeSize.sizeRegion)
+          ? { sizeValue: itemToUpdate.shoeSize.sizeValue, sizeRegion: itemToUpdate.shoeSize.sizeRegion || fallbackRegion }
+          : (itemToUpdate.variant?.size
+            ? { sizeValue: itemToUpdate.variant.size.sizeValue, sizeRegion: itemToUpdate.variant.size.sizeRegion || fallbackRegion }
+            : parseShoeSize(itemToUpdate.size, fallbackRegion));
 
         await cartService.updateCartItem({
           cartItemId: itemToUpdate.cartItemId,
+          cart: { cartId: userCartId },
+          shoe: { shoeId: itemToUpdate.product.id },
+          shoeVariant: itemToUpdate.variantId ? { variantId: itemToUpdate.variantId } : null,
+          shoeSize: shoeSizeObj,
           quantity,
           unitPrice,
           subTotal,

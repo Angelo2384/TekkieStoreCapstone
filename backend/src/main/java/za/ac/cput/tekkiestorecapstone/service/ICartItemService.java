@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ICartItemService extends IService<CartItem, String> {
     List<CartItem> getAll();
-}
+    List<CartItem> getCartItemsByCartId(String cartId);
+}

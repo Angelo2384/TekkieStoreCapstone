@@ -1,25 +1,52 @@
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 public class CartItem {
     @Id
     private String cartItemId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Cart cart;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shoe_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Shoe shoe;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "variant_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private ShoeVariant shoeVariant;
+
+    @Embedded
+    private ShoeSize shoeSize;
+
     private int quantity;
     private double unitPrice;
     private double subTotal;
 
-
     protected CartItem(){
     }
+
     private CartItem(Builder build){
-        this.cartItemId= build.cartItemId;
+        this.cartItemId = build.cartItemId;
+        this.cart = build.cart;
+        this.shoe = build.shoe;
+        this.shoeVariant = build.shoeVariant;
+        this.shoeSize = build.shoeSize;
         this.quantity = build.quantity;
         this.subTotal = build.subTotal;
         this.unitPrice = build.unitPrice;
-
     }
 
     public String getCartItem(){
@@ -27,6 +54,18 @@ public class CartItem {
     }
     public String getCartItemId(){
         return cartItemId;
+    }
+    public Cart getCart() {
+        return cart;
+    }
+    public Shoe getShoe() {
+        return shoe;
+    }
+    public ShoeVariant getShoeVariant() {
+        return shoeVariant;
+    }
+    public ShoeSize getShoeSize() {
+        return shoeSize;
     }
     public int getQuantity(){
         return quantity;
@@ -39,19 +78,51 @@ public class CartItem {
     }
 
     @Override
-    public String toString()  {
-        return "CartItem{" + "cartItemId=" + cartItemId + '\'' + ", quantity=" + quantity + ", subtotal=" + subTotal + '}';
-
+    public String toString() {
+        return "CartItem{" +
+                "cartItemId='" + cartItemId + '\'' +
+                ", cartId=" + (cart != null ? cart.getCartId() : "null") +
+                ", shoeId=" + (shoe != null ? shoe.getShoeId() : "null") +
+                ", variantId=" + (shoeVariant != null ? shoeVariant.getVariantId() : "null") +
+                ", shoeSize=" + shoeSize +
+                ", quantity=" + quantity +
+                ", unitPrice=" + unitPrice +
+                ", subTotal=" + subTotal +
+                '}';
     }
 
     public static class Builder{
         private String cartItemId;
+        private Cart cart;
+        private Shoe shoe;
+        private ShoeVariant shoeVariant;
+        private ShoeSize shoeSize;
         private int quantity;
         private double unitPrice;
         private double subTotal;
 
         public Builder setCartItemId(String cartItemId) {
             this.cartItemId = cartItemId;
+            return this;
+        }
+
+        public Builder setCart(Cart cart) {
+            this.cart = cart;
+            return this;
+        }
+
+        public Builder setShoe(Shoe shoe) {
+            this.shoe = shoe;
+            return this;
+        }
+
+        public Builder setShoeVariant(ShoeVariant shoeVariant) {
+            this.shoeVariant = shoeVariant;
+            return this;
+        }
+
+        public Builder setShoeSize(ShoeSize shoeSize) {
+            this.shoeSize = shoeSize;
             return this;
         }
 
@@ -69,17 +140,22 @@ public class CartItem {
             this.subTotal = subTotal;
             return this;
         }
+
         public Builder copy(CartItem cartItem){
             this.cartItemId = cartItem.cartItemId;
+            this.cart = cartItem.cart;
+            this.shoe = cartItem.shoe;
+            this.shoeVariant = cartItem.shoeVariant;
+            this.shoeSize = cartItem.shoeSize;
             this.quantity = cartItem.quantity;
             this.unitPrice = cartItem.unitPrice;
             this.subTotal = cartItem.subTotal;
             return this;
         }
+
         public CartItem build(){
             return new CartItem(this);
         }
-
     }
 }
 

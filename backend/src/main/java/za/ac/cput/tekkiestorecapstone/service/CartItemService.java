@@ -42,4 +42,10 @@ public class CartItemService implements ICartItemService {
     public List<CartItem> getAll() {
         return this.repo.findAll();
     }
+
+    @Override
+    public List<CartItem> getCartItemsByCartId(String cartId) {
+        return this.repo.findByCart_CartId(cartId);
+    }
 }
+
