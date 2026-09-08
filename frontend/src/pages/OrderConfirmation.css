@@ -175,7 +175,7 @@
   background-color: var(--pure-white);
   border: 1px solid #E5E7EB;
   border-radius: 12px;
-  padding: 2rem;
+  padding: 1.35rem 1.75rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
@@ -183,8 +183,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.85rem;
+  margin-bottom: 0.9rem;
+  padding-bottom: 0.65rem;
   border-bottom: 1px solid #F1F3F5;
 }
 
@@ -215,9 +215,11 @@
 .purchased-items-list {
   display: flex;
   flex-direction: column;
-  gap: 1.15rem;
+  gap: 0.75rem;
   max-height: 380px;
   overflow-y: auto;
+  overflow-x: visible;
+  padding-top: 8px;    /* space so the -6px item-qty-tag badge is not clipped */
   padding-right: 0.35rem;
 }
 
@@ -232,8 +234,8 @@
 .purchased-item-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding-bottom: 1rem;
+  gap: 0.75rem;
+  padding-bottom: 0.6rem;
   border-bottom: 1px dashed #F1F3F5;
 }
 
@@ -324,20 +326,20 @@
 .summary-section-divider {
   height: 1px;
   background-color: #F1F3F5;
-  margin: 1.25rem 0;
+  margin: 0.65rem 0;
 }
 
 .summary-section-divider.thick {
   height: 1.5px;
   background-color: #E5E7EB;
-  margin: 1rem 0;
+  margin: 0.55rem 0;
 }
 
 /* Financials Table */
 .order-financials-table {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.45rem;
 }
 
 .fin-row {
@@ -377,7 +379,7 @@
 }
 
 .total-highlight-row {
-  margin-top: 0.25rem;
+  margin-top: 0.1rem;
   align-items: flex-end;
 }
 

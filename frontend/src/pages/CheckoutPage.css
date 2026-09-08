@@ -113,8 +113,7 @@
 }
 
 .checkout-summary-column {
-  position: sticky;
-  top: 1.5rem;
+  width: 100%;
 }
 
 /* --------------------------------------------------------------------------
@@ -127,6 +126,12 @@
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
   transition: box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+.checkout-card.shipping-card,
+.checkout-card.payment-card {
+  width: 100%;
 }
 
 .checkout-card:hover {
@@ -163,11 +168,15 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-row {
   display: grid;
   gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .form-row.two-cols {
@@ -182,6 +191,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.45rem;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: left;
 }
 
 .form-label {
@@ -190,6 +202,9 @@
   color: #374151;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  text-align: left;
+  display: block;
+  margin: 0;
 }
 
 .required-star {
@@ -201,6 +216,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .detected-card-pill {
@@ -224,12 +241,17 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
+.checkout-page .form-input,
+.checkout-page .form-select,
 .form-input,
 .form-select {
   width: 100%;
-  padding: 0.85rem 1rem;
+  height: 46px;
+  padding: 0 1rem !important;
   font-family: inherit;
   font-size: 0.95rem;
   color: var(--text-main);
@@ -238,6 +260,18 @@
   border-radius: 8px;
   outline: none;
   transition: all 0.2s ease;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.checkout-page .input-wrapper .form-input {
+  padding-left: 1rem !important;
+  padding-right: 2.5rem !important;
+}
+
+.checkout-page .input-wrapper .form-select {
+  padding-left: 1rem !important;
+  padding-right: 2.25rem !important;
 }
 
 .form-input::placeholder {
@@ -303,6 +337,8 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .payment-option-box {
@@ -312,6 +348,8 @@
   background-color: #FFFFFF;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .payment-option-box:hover {
@@ -414,6 +452,8 @@
   flex-direction: column;
   gap: 1.15rem;
   cursor: default;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Instant EFT */
@@ -568,6 +608,7 @@
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
 }
 
 .checkout-summary-header {
@@ -603,18 +644,6 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: 380px;
-  overflow-y: auto;
-  padding-right: 0.35rem;
-}
-
-/* Custom sleek scrollbar for items list */
-.checkout-items-list::-webkit-scrollbar {
-  width: 4px;
-}
-.checkout-items-list::-webkit-scrollbar-thumb {
-  background-color: #D1D5DB;
-  border-radius: 4px;
 }
 
 .checkout-item-row {
@@ -1149,7 +1178,6 @@
   }
 
   .checkout-summary-column {
-    position: static;
     order: 2;
   }
 

@@ -101,12 +101,11 @@ export const CheckoutPage: React.FC = () => {
 
   const mainFormRef = useRef<HTMLDivElement>(null);
 
-  // Financial Calculations: Total = Subtotal + VAT (15%) + Shipping
+  // Financial Calculations: Total = Subtotal + Shipping (No VAT during checkout)
   const subtotal = cartTotal;
-  const vatAmount = Math.round(subtotal * 0.15);
   const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0;
   const shippingFee = isFreeShipping ? 0 : STANDARD_SHIPPING_FEE;
-  const finalTotal = subtotal + vatAmount + shippingFee;
+  const finalTotal = subtotal + shippingFee;
 
   // Real-time Shipping Validation Logic
   const validateShippingField = (
@@ -178,11 +177,11 @@ export const CheckoutPage: React.FC = () => {
       case 'cardNumber': {
         if (!trimmed) return 'Please enter your card number.';
         const clean = trimmed.replace(/\s+/g, '');
-        if (clean.length < 12) {
-          return 'Card number must contain exactly 12 digits.';
+        if (clean.length < 16) {
+          return 'Card number must contain exactly 16 digits.';
         }
-        if (clean.length > 12 || !/^\d{12}$/.test(clean)) {
-          return 'Card number must contain exactly 12 digits.';
+        if (clean.length > 16 || !/^\d{16}$/.test(clean)) {
+          return 'Card number must contain exactly 16 digits.';
         }
         return undefined;
       }
@@ -319,7 +318,7 @@ export const CheckoutPage: React.FC = () => {
         cardLastFour,
         cardBrand,
         subtotal,
-        vat: vatAmount,
+        vat: 0,
         shippingFee,
         total: finalTotal,
       });
@@ -399,25 +398,10 @@ export const CheckoutPage: React.FC = () => {
                 cartCount={cartCount}
                 subtotal={subtotal}
                 shippingFee={shippingFee}
-                vatAmount={vatAmount}
                 finalTotal={finalTotal}
                 isSubmitting={isSubmitting}
                 onPlaceOrder={handlePlaceOrder}
               />
-            </div>
-          </div>
-
-          {/* CHECKOUT SUB-FOOTER ROW */}
-          <div className="checkout-subfooter-bar">
-            <p className="subfooter-copyright">
-              &copy; 2026 SOLE Ltd. All rights reserved. Obsidian Tekkie Collection Drop.
-            </p>
-            <div className="subfooter-links">
-              <a href="/privacy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
-              <span className="subfooter-sep">•</span>
-              <a href="/terms" target="_blank" rel="noopener noreferrer">Terms of Service</a>
-              <span className="subfooter-sep">•</span>
-              <a href="/shipping" target="_blank" rel="noopener noreferrer">Returns & Exchanges</a>
             </div>
           </div>
         </div>
