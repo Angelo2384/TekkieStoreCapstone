@@ -13,4 +13,5 @@ import java.util.List;
 
 public interface IShoeVariantService extends IService<ShoeVariant, String> {
     List<ShoeVariant> getAll();
+    List<ShoeVariant> getVariantsByShoeId(String shoeId);
 }

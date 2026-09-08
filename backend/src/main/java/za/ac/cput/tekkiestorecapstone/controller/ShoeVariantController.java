@@ -36,4 +36,9 @@ public class ShoeVariantController {
 
     @GetMapping("/getAll")
     public List<ShoeVariant> getAll() {return service.getAll();}
+
+    @GetMapping("/shoe/{shoeId}")
+    public List<ShoeVariant> getVariantsByShoeId(@PathVariable String shoeId) {
+        return service.getVariantsByShoeId(shoeId);
+    }
 }

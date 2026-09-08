@@ -7,6 +7,8 @@ Date: 18 July 2026
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
@@ -14,10 +16,17 @@ public class ShoeSize {
     private double sizeValue;
     private String sizeRegion;
 
-
     protected ShoeSize() {}
 
-    private ShoeSize(Builder builder){
+    // Jackson uses this constructor to deserialize ShoeSize from JSON.
+    @JsonCreator
+    public ShoeSize(@JsonProperty("sizeValue") double sizeValue,
+                    @JsonProperty("sizeRegion") String sizeRegion) {
+        this.sizeValue = sizeValue;
+        this.sizeRegion = sizeRegion;
+    }
+
+    private ShoeSize(Builder builder) {
         this.sizeValue = builder.sizeValue;
         this.sizeRegion = builder.sizeRegion;
     }
