@@ -131,13 +131,37 @@ In this project, we use four third-party tools to handle data, media, cloud pers
 
 5. **CORS Configuration (Backend):**
    Because the React frontend runs on `http://localhost:5173` and the backend runs on `http://localhost:8080`, browsers enforce Cross-Origin Resource Sharing (CORS) security.
-   We enabled browser access by annotating controllers with:
+   We enabled browser access by configuring CORS in Spring Security / controllers:
    ```java
    @CrossOrigin(origins = "http://localhost:5173")
    @RestController
    @RequestMapping("/shoe")
    public class ShoeController { ... }
    ```
+
+6. **ShoeVariant & Embedded ShoeSize Integration (`src/services/shoeVariantService.ts`):**
+   - **Axios for ShoeVariant REST Endpoints:** The React frontend uses the central Axios instance (`api.ts`) to communicate with Spring Boot's `/shoeVariant/**` REST endpoints:
+     - `GET /shoeVariant/getAll` &rarr; Fetches all shoe variants.
+     - `GET /shoeVariant/read/{id}` &rarr; Fetches a single variant by ID.
+     - `POST /shoeVariant/create` &rarr; Creates a new shoe variant.
+     - `POST /shoeVariant/update` &rarr; Updates an existing shoe variant.
+     - `DELETE /shoeVariant/delete/{id}` &rarr; Deletes a variant by ID.
+   - **ShoeSize as Embedded Value Object:** In Spring Boot, `ShoeSize` is an `@Embeddable` JPA value object containing `sizeValue` and `sizeRegion`, rather than an independent relational entity. It does not possess its own repository, service, or `/shoeSize` REST endpoints. Axios requests and responses transmit `ShoeSize` as nested JSON embedded directly inside each `ShoeVariant`:
+     ```json
+     {
+       "variantId": "V001",
+       "shoe": {
+         "shoeId": "S001"
+       },
+       "size": {
+         "sizeValue": 8.0,
+         "sizeRegion": "UK"
+       },
+       "colour": "Black",
+       "stockQuantity": 10
+     }
+     ```
+   - **Product Details Dynamic Filtering:** When a sneaker is viewed on the `ProductDetails` page, variants are fetched via Axios and filtered by matching `variant.shoe.shoeId === currentShoe.shoeId`. The page dynamically displays available sizes, size regions (e.g. UK), colours, and live stock quantities directly from backend records, automatically disabling out-of-stock options (`stockQuantity <= 0`) and preserving the selected `variantId` upon adding to the shopping bag.
 
 ---
 
@@ -534,3 +558,125 @@ The local cart stored in `localStorage` acts as a fallback — if any backend ca
 | `CartController.java` | Existing Spring Boot REST controller referenced for `/cart/*` endpoint contracts. |
 | `CartItemController.java` | Existing Spring Boot REST controller referenced for `/cartitem/*` endpoint contracts. |
 | Axios official documentation | [https://axios-http.com/docs/intro](https://axios-http.com/docs/intro) |
+
+---
+
+## 8. ShoeVariant & ShoeSize — Product Details Integration (Axios)
+
+### 8.1 Overview
+
+The **Product Details** page (`ProductDetails.tsx`) retrieves shoe size and stock data from the Spring Boot API using Axios. Each `ShoeVariant` contains an `@Embedded ShoeSize` value object — `ShoeSize` is **not** a standalone entity and has no separate REST endpoints.
+
+### 8.2 Data Flow
+
+```
+/product/{shoeId}
+      ↓
+ProductDetails.tsx
+      ↓  (Axios GET)
+shoeVariantService.getVariantsByShoeId(shoeId)
+      ↓
+GET /shoeVariant/shoe/{shoeId}
+      ↓
+ShoeVariantController
+      ↓
+ShoeVariantService.getVariantsByShoeId(shoeId)
+      ↓
+ShoeVariantRepository.findByShoe_ShoeId(shoeId)   ← Spring Data JPA derived query
+      ↓
+shoe_variant table (TiDB Cloud)
+      ↓
+List<ShoeVariant> JSON (ShoeSize embedded as nested object)
+      ↓
+ProductInfo.tsx → Colour + Size grid + live stock displayed
+```
+
+### 8.3 Backend Endpoint
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/shoeVariant/shoe/{shoeId}` | Returns all `ShoeVariant` rows whose `shoe_id` FK matches `{shoeId}`. Returns `[]` when none exist. |
+
+**Example response:**
+```json
+[
+  {
+    "variantId": "V001",
+    "shoe": { "shoeId": "S001" },
+    "size": { "sizeValue": 7.0, "sizeRegion": "UK" },
+    "colour": "Black",
+    "stockQuantity": 10
+  }
+]
+```
+
+> `ShoeSize` is serialized inline as a nested JSON object because it is an `@Embeddable` value object stored in the same database row as `ShoeVariant`.
+
+### 8.4 Serialization Notes
+
+- `ShoeVariant.shoe` is a `@ManyToOne(fetch = FetchType.LAZY)` relationship.
+- `@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "variants"})` is applied to the `shoe` field to prevent Hibernate proxy serialization errors and avoid circular recursion.
+
+### 8.5 Frontend Service
+
+**File:** `frontend/src/services/shoeVariantService.ts`
+
+```ts
+getVariantsByShoeId: async (shoeId: string): Promise<ShoeVariant[]> => {
+  const response = await api.get<ShoeVariant[]>(
+    `/shoeVariant/shoe/${encodeURIComponent(shoeId)}`
+  );
+  return Array.isArray(response.data) ? response.data : [];
+}
+```
+
+Errors are **not caught** in this method — they propagate so `ProductDetails` can distinguish:
+- API error → `variantsError = true` → user sees "Unable to retrieve live sizing…"
+- Empty array → `variants = []` → user sees "No shoe size variants registered…"
+- Populated array → sizes and colours rendered in `ProductInfo`
+
+### 8.6 Frontend Types
+
+**File:** `frontend/src/types/shoeVariant.ts`
+
+```ts
+export interface ShoeSize {
+  sizeValue: number;
+  sizeRegion: string;
+}
+
+export interface ShoeVariant {
+  variantId: string;
+  shoe?: { shoeId: string } | null;
+  size: ShoeSize;
+  colour: string;
+  stockQuantity: number;
+}
+```
+
+### 8.7 ProductInfo Rendering Rules
+
+| Condition | UI Behaviour |
+|---|---|
+| `variantsLoading === true` | Skeleton placeholders shown in size grid |
+| `variantsError === true` | Alert: "Unable to retrieve live sizing and stock from server" |
+| `variants.length === 0` | "No shoe size variants are currently registered…" |
+| `variants.length > 0` | Size buttons rendered per colour; disabled if `stockQuantity === 0` |
+| `stockQuantity === 0` | Size button disabled, "out-of-stock" CSS class applied |
+| `stockQuantity > 0` | Size button enabled and selectable |
+
+Add to Cart and Buy Now are disabled until a valid in-stock size is selected.
+
+### 8.8 Code References
+
+| Source | Used For |
+|---|---|
+| `frontend/src/services/shoeVariantService.ts` | Axios calls to `/shoeVariant/*` endpoints |
+| `frontend/src/types/shoeVariant.ts` | TypeScript interfaces for `ShoeVariant` and `ShoeSize` |
+| `frontend/src/pages/ProductDetails.tsx` | Fetches variants on mount; stores in `variants` state |
+| `frontend/src/components/product/ProductInfo.tsx` | Renders colour/size grid and stock status from variant data |
+| `ShoeVariantController.java` | Spring Boot REST controller exposing `/shoeVariant/shoe/{shoeId}` |
+| `ShoeVariantService.java` | Delegates to `ShoeVariantRepository.findByShoe_ShoeId` |
+| `ShoeVariantRepository.java` | Spring Data JPA derived query: `findByShoe_ShoeId(String shoeId)` |
+| `ShoeVariant.java` | JPA entity with `@ManyToOne` to `Shoe` and `@Embedded ShoeSize` |
+| `ShoeSize.java` | `@Embeddable` value object: `sizeValue` + `sizeRegion` |

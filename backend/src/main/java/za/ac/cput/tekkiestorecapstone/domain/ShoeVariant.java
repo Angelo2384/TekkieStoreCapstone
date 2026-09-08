@@ -7,32 +7,43 @@ Date: 18 July 2026
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Embedded;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
 
 @Entity
 public class ShoeVariant {
     @Id
     private String variantId;
+
+    // Many variants belong to one Shoe; shoe_id is the FK column in shoe_variant table.
+    // @JsonIgnoreProperties prevents Hibernate proxy serialisation issues and stops any
+    // future bidirectional recursion if Shoe ever gains a back-reference collection.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "shoe_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "variants"})
+    private Shoe shoe;
+
     @Embedded
     private ShoeSize size;
     private String colour;
     private int stockQuantity;
 
-    protected ShoeVariant(){}
+    protected ShoeVariant() {}
 
-
-    private ShoeVariant(Builder builder){
+    private ShoeVariant(Builder builder) {
         this.variantId = builder.variantId;
+        this.shoe = builder.shoe;
         this.size = builder.size;
         this.colour = builder.colour;
         this.stockQuantity = builder.stockQuantity;
     }
 
-
     public String getVariantId() {
         return variantId;
+    }
+
+    public Shoe getShoe() {
+        return shoe;
     }
 
     public ShoeSize getSize() {
@@ -51,20 +62,27 @@ public class ShoeVariant {
     public String toString() {
         return "ShoeVariant{" +
                 "variantId='" + variantId + '\'' +
+                ", shoeId=" + (shoe != null ? shoe.getShoeId() : "null") +
                 ", size=" + size +
                 ", colour='" + colour + '\'' +
                 ", stockQuantity=" + stockQuantity +
                 '}';
     }
 
-    public static class Builder{
+    public static class Builder {
         private String variantId;
+        private Shoe shoe;
         private ShoeSize size;
         private String colour;
         private int stockQuantity;
 
         public Builder setVariantId(String variantId) {
             this.variantId = variantId;
+            return this;
+        }
+
+        public Builder setShoe(Shoe shoe) {
+            this.shoe = shoe;
             return this;
         }
 
@@ -83,15 +101,16 @@ public class ShoeVariant {
             return this;
         }
 
-        public Builder copy(ShoeVariant shoeVariant){
+        public Builder copy(ShoeVariant shoeVariant) {
             this.variantId = shoeVariant.variantId;
+            this.shoe = shoeVariant.shoe;
             this.size = shoeVariant.size;
             this.colour = shoeVariant.colour;
             this.stockQuantity = shoeVariant.stockQuantity;
             return this;
         }
 
-        public ShoeVariant build(){
+        public ShoeVariant build() {
             return new ShoeVariant(this);
         }
     }

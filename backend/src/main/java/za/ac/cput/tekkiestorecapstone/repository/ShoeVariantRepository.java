@@ -11,7 +11,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import za.ac.cput.tekkiestorecapstone.domain.ShoeVariant;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ShoeVariantRepository extends JpaRepository<ShoeVariant, String> {
 
+    // Returns all variants whose parent Shoe has the given shoeId
+    List<ShoeVariant> findByShoe_ShoeId(String shoeId);
 }

@@ -49,4 +49,9 @@ public class ShoeVariantService implements IShoeVariantService {
     public List<ShoeVariant> getAll() {
         return this.repo.findAll();
     }
+
+    @Override
+    public List<ShoeVariant> getVariantsByShoeId(String shoeId) {
+        return this.repo.findByShoe_ShoeId(shoeId);
+    }
 }
