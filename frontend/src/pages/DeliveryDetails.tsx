@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { TrackingStatus } from '../components/Delivery/TrackingStatus';
@@ -7,18 +7,49 @@ import { CarrierDetails } from '../components/Delivery/CarrierDetails';
 import { ShipmentItems } from '../components/Delivery/ShipmentItems';
 import { DeliveryDetailsCard } from '../components/profile/DeliveryDetailsCard';
 import { useOrder } from '../context/OrderContext';
+import { deliveryService, BackendDeliveryDetailsResponse } from '../services/deliveryService';
 import './DeliveryDetails.css';
 
 export const DeliveryDetails: React.FC = () => {
   const { orderId } = useParams<{ orderId?: string }>();
-  const { activeOrder, getOrderById } = useOrder();
+  const { activeOrder, getOrderById, fetchOrderById } = useOrder();
+  const [backendDelivery, setBackendDelivery] = useState<BackendDeliveryDetailsResponse | null>(null);
+
+  useEffect(() => {
+    if (orderId) {
+      fetchOrderById(orderId);
+    }
+  }, [orderId]);
 
   const order = (orderId ? getOrderById(orderId) : null) || activeOrder;
+  const targetOrderId = orderId || order?.id;
+
+  useEffect(() => {
+    if (!targetOrderId) return;
+    let isMounted = true;
+    const cleanId = targetOrderId.replace('#', '').trim();
+    deliveryService.getDeliveryDetailsByOrderId(cleanId).then((res) => {
+      if (isMounted && res) {
+        setBackendDelivery(res);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [targetOrderId]);
 
   const orderNumber = order?.orderNumber || (orderId ? `#${orderId}` : '—');
   const datePlaced = order?.dateFormatted || '—';
-  const estimatedDelivery = '—';
-  const shipmentMethod = order?.shippingMethod || 'Standard Express Delivery';
+  const estimatedDelivery = backendDelivery?.estimatedDeliveryDate
+    ? new Date(backendDelivery.estimatedDeliveryDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : order?.estimatedArrival || '—';
+  const shipmentMethod = backendDelivery?.courier
+    ? `${backendDelivery.courier} Express`
+    : order?.shippingMethod || 'Standard Express Delivery';
 
   return (
     <div className="delivery-details-page">
@@ -83,8 +114,8 @@ export const DeliveryDetails: React.FC = () => {
 
           {/* 2. TWO-COLUMN: DELIVERY ADDRESS & CARRIER DETAILS */}
           <div className="delivery-two-col-grid">
-            <DeliveryAddress />
-            <CarrierDetails />
+            <DeliveryAddress deliveryData={backendDelivery || undefined} />
+            <CarrierDetails deliveryData={backendDelivery || undefined} />
           </div>
 
           {/* 3. SHIPMENT ITEMS */}

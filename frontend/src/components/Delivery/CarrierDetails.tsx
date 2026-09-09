@@ -1,16 +1,32 @@
 import React, { useState } from 'react';
 import { Truck, ShieldCheck, ExternalLink, RefreshCw, PhoneCall, Mail } from 'lucide-react';
+import { BackendDeliveryDetailsResponse } from '../../services/deliveryService';
 import './CarrierDetails.css';
 
-export const CarrierDetails: React.FC = () => {
+interface CarrierDetailsProps {
+  deliveryData?: BackendDeliveryDetailsResponse;
+}
+
+export const CarrierDetails: React.FC<CarrierDetailsProps> = ({ deliveryData }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
+
+  const courierName = deliveryData?.courier || 'DSV Express Logistics';
+  const transitTime = deliveryData?.estimatedDeliveryDate
+    ? `Est. ${new Date(deliveryData.estimatedDeliveryDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      })}`
+    : '2 - 4 Business Days';
+  const destinationHub = deliveryData?.address?.city
+    ? `${deliveryData.address.city}`
+    : 'Cape Town (CPT)';
 
   const handleRefreshTracking = () => {
     setIsRefreshing(true);
     setTimeout(() => {
       setIsRefreshing(false);
-      setRefreshMessage('Latest status updated: Parcel in transit to Cape Town Hub.');
+      setRefreshMessage('Latest status updated: Parcel in transit to destination hub.');
       setTimeout(() => setRefreshMessage(null), 3000);
     }, 1000);
   };
@@ -30,7 +46,7 @@ export const CarrierDetails: React.FC = () => {
       <div className="carrier-details-body">
         <div className="carrier-brand-row">
           <div className="carrier-brand-info">
-            <span className="carrier-name">DSV Express Logistics</span>
+            <span className="carrier-name">{courierName}</span>
             <span className="carrier-service-tier">Standard Express Door-to-Door</span>
           </div>
           <span className="carrier-verified-badge">
@@ -47,7 +63,7 @@ export const CarrierDetails: React.FC = () => {
 
           <div className="carrier-spec-box">
             <span className="spec-label">Transit Time</span>
-            <span className="spec-value">2 - 4 Business Days</span>
+            <span className="spec-value">{transitTime}</span>
           </div>
 
           <div className="carrier-spec-box">
@@ -57,7 +73,7 @@ export const CarrierDetails: React.FC = () => {
 
           <div className="carrier-spec-box">
             <span className="spec-label">Destination Hub</span>
-            <span className="spec-value">Cape Town (CPT)</span>
+            <span className="spec-value">{destinationHub}</span>
           </div>
         </div>
 

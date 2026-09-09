@@ -10,6 +10,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import za.ac.cput.tekkiestorecapstone.domain.DeliveryDetails;
 
+import java.util.Optional;
+
 @Repository
 public interface DeliveryDetailsRepository extends JpaRepository<DeliveryDetails, String> {
+    Optional<DeliveryDetails> findByOrder_OrderId(String orderId);
 }
+

@@ -1,3 +1,4 @@
+
 /*
 DeliveryDetailsControllerTest.java
 Author: Rameez Karriem
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import za.ac.cput.tekkiestorecapstone.domain.Address;
 import za.ac.cput.tekkiestorecapstone.domain.DeliveryDetails;
+import za.ac.cput.tekkiestorecapstone.domain.Order;
 import za.ac.cput.tekkiestorecapstone.factory.DeliveryDetailsFactory;
 import za.ac.cput.tekkiestorecapstone.service.DeliveryDetailsService;
 
@@ -48,13 +50,17 @@ class DeliveryDetailsControllerTest {
                 .setPostalCode("8005")
                 .build();
 
+        Order order = new Order.Builder()
+                .setOrderId("ORD-001")
+                .build();
+
         deliveryDetails = DeliveryDetailsFactory.createDeliveryDetails(
                 "D001",
+                order,
                 address,
                 "Aramex",
                 "TRK-889922",
-                LocalDate.now()
-        );
+                LocalDate.now());
     }
 
     @Test
@@ -65,6 +71,8 @@ class DeliveryDetailsControllerTest {
 
         assertNotNull(created);
         assertEquals(deliveryDetails.getDeliveryId(), created.getDeliveryId());
+        assertNotNull(created.getOrder());
+        assertEquals("ORD-001", created.getOrder().getOrderId());
 
         System.out.println("Delivery ID: " + created);
     }
@@ -77,6 +85,8 @@ class DeliveryDetailsControllerTest {
 
         assertNotNull(found);
         assertEquals("D001", found.getDeliveryId());
+        assertNotNull(found.getOrder());
+        assertEquals("ORD-001", found.getOrder().getOrderId());
 
         System.out.println("Delivery ID: " + found);
     }
@@ -88,6 +98,7 @@ class DeliveryDetailsControllerTest {
         when(service.update(any(DeliveryDetails.class))).thenReturn(updated);
         DeliveryDetails updatedUpdated = service.update(deliveryDetails);
         assertNotNull(updatedUpdated);
+        assertNotNull(updatedUpdated.getOrder());
 
         System.out.println("Success: " + updatedUpdated);
     }
@@ -112,5 +123,19 @@ class DeliveryDetailsControllerTest {
         assertNotNull(allDeliveryDetails);
 
         System.out.println("Delivery Details: " + allDeliveryDetails);
+    }
+
+    @Test
+    void f_getByOrderId() {
+        when(service.getByOrderId("ORD-001")).thenReturn(deliveryDetails);
+
+        DeliveryDetails found = controller.getByOrderId("ORD-001");
+
+        assertNotNull(found);
+        assertNotNull(found.getOrder());
+        assertEquals("ORD-001", found.getOrder().getOrderId());
+        assertEquals("D001", found.getDeliveryId());
+
+        System.out.println("Delivery Details for order: " + found);
     }
 }

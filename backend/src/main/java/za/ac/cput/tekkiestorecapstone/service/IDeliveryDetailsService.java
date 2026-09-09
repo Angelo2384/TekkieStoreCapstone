@@ -12,4 +12,6 @@ import java.util.List;
 
 public interface IDeliveryDetailsService extends IService<DeliveryDetails, String> {
     List<DeliveryDetails> getAll();
+    DeliveryDetails getByOrderId(String orderId);
 }
+

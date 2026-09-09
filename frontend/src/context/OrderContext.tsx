@@ -67,6 +67,7 @@ export interface CreateOrderInput {
   vat?: number;
   shippingFee: number;
   total: number;
+  trackingNumber?: string;
 }
 
 interface OrderContextType {
@@ -76,6 +77,7 @@ interface OrderContextType {
   getOrderById: (orderId: string) => Order | undefined;
   fetchOrderById: (orderId: string) => Promise<Order | undefined>;
   setActiveOrderById: (orderId: string) => void;
+  refreshOrders: () => Promise<void>;
 }
 
 const ORDERS_STORAGE_KEY = 'tekkie_store_orders';
@@ -114,7 +116,8 @@ const calculateEstimatedArrival = (baseDate: Date): string => {
 
 const mapBackendOrderToOrder = (
   bo: BackendOrder,
-  fallbackShipping?: OrderShippingAddress
+  fallbackShipping?: OrderShippingAddress,
+  fallbackTracking?: string
 ): Order => {
   const dateObj = new Date(bo.orderDate);
   const dateFormatted = isNaN(dateObj.getTime())
@@ -171,7 +174,7 @@ const mapBackendOrderToOrder = (
     shippingAddress: defaultAddress,
     paymentMethod: (bo.paymentMethod as any) || 'card',
     paymentReference: bo.paymentReference,
-    trackingNumber: (bo as any).trackingNumber || '',
+    trackingNumber: (bo as any).trackingNumber || fallbackTracking || '',
   };
 };
 
@@ -291,13 +294,43 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       fullAddress: `${address.streetNumber} ${address.streetName}, ${address.suburb}, ${address.city}, ${address.province}, ${address.postalCode}`,
     };
 
-    const newOrder = mapBackendOrderToOrder(savedBackendOrder, shippingAddress);
+    const trackingNumber =
+      input.trackingNumber || `DSV-ZA-${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+    const newOrder = mapBackendOrderToOrder(savedBackendOrder, shippingAddress, trackingNumber);
 
     setOrders((prev) => [newOrder, ...prev]);
     setActiveOrderId(newOrder.id);
 
     return newOrder;
   };
+
+  const refreshOrders = async () => {
+    if (!user || !user.customerId) return;
+    try {
+      const backendOrders = await orderService.getOrdersByCustomerId(user.customerId);
+      if (Array.isArray(backendOrders)) {
+        setOrders((prevOrders) => {
+          return backendOrders.map((bo) => {
+            const existing = prevOrders.find((o) => o.id === bo.orderId);
+            return mapBackendOrderToOrder(
+              bo,
+              existing?.shippingAddress,
+              existing?.trackingNumber
+            );
+          });
+        });
+      }
+    } catch (err) {
+      console.warn('[OrderContext] Failed to refresh orders from backend:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (user?.customerId) {
+      refreshOrders();
+    }
+  }, [user?.customerId]);
 
   const getOrderById = (orderId: string): Order | undefined => {
     const cleanId = orderId.replace('#', '').trim().toUpperCase();
@@ -335,6 +368,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     getOrderById,
     fetchOrderById,
     setActiveOrderById,
+    refreshOrders,
   };
 
   return <OrderContext.Provider value={value}>{children}</OrderContext.Provider>;

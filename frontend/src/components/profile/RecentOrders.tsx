@@ -14,7 +14,7 @@ interface RecentOrdersProps {
 export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders: propOrders }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { activeOrder } = useOrder();
+  const { activeOrder, orders: contextOrders } = useOrder();
   const [customerOrders, setCustomerOrders] = useState<Order[] | null>(null);
 
   useEffect(() => {
@@ -69,7 +69,42 @@ export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders: propOrders }
     };
   }, [user?.customerId, propOrders, activeOrder]);
 
-  const orders: Order[] = propOrders || customerOrders || (user?.customerId ? [] : MOCK_ORDERS);
+  const orders: Order[] = React.useMemo(() => {
+    if (propOrders) return propOrders;
+
+    const convertedContextOrders: Order[] = (contextOrders || []).map((co) => ({
+      id: co.id,
+      orderNumber: co.orderNumber.replace('#', ''),
+      date: co.dateFormatted,
+      status: co.status as any,
+      total: co.total,
+      items: co.items.map((it) => ({
+        id: it.id,
+        name: it.name,
+        brand: it.brand,
+        size: it.size,
+        quantity: it.quantity,
+        price: it.price,
+        image: it.image,
+      })),
+    }));
+
+    if (!customerOrders) {
+      if (convertedContextOrders.length > 0) return convertedContextOrders;
+      return user?.customerId ? [] : MOCK_ORDERS;
+    }
+
+    const orderMap = new Map<string, Order>();
+    customerOrders.forEach((o) => orderMap.set(o.id.toUpperCase(), o));
+    convertedContextOrders.forEach((o) => {
+      const key = o.id.toUpperCase();
+      if (!orderMap.has(key)) {
+        orderMap.set(key, o);
+      }
+    });
+
+    return Array.from(orderMap.values());
+  }, [propOrders, customerOrders, contextOrders, user?.customerId]);
 
   const getStatusBadgeClass = (status: OrderStatus | string) => {
     switch (status) {
@@ -77,6 +112,7 @@ export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders: propOrders }
         return 'status-delivered';
       case 'In Transit':
       case 'Confirmed':
+      case 'Order Confirmed':
         return 'status-transit';
       case 'Processing':
       case 'Pending':
@@ -173,7 +209,9 @@ export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders: propOrders }
               {/* Order Actions Footer */}
               <div className="order-footer-actions">
                 <div className="order-actions-left">
-                  {order.status === 'In Transit' && (
+                  {(order.status === 'In Transit' ||
+                    order.status === ('Confirmed' as any) ||
+                    (order.status as string) === 'Order Confirmed') && (
                     <button
                       type="button"
                       className="btn-order-action secondary"

@@ -2,9 +2,14 @@ import React from 'react';
 import { MapPin, Phone, Building, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useOrder } from '../../context/OrderContext';
+import { BackendDeliveryDetailsResponse } from '../../services/deliveryService';
 import './DeliveryAddress.css';
 
-export const DeliveryAddress: React.FC = () => {
+interface DeliveryAddressProps {
+  deliveryData?: BackendDeliveryDetailsResponse;
+}
+
+export const DeliveryAddress: React.FC<DeliveryAddressProps> = ({ deliveryData }) => {
   const { user } = useAuth();
   const { activeOrder } = useOrder();
   
@@ -12,13 +17,19 @@ export const DeliveryAddress: React.FC = () => {
     (user ? `${user.firstName} ${user.lastName}` : 'Marcus Redelinghuys');
   const recipientPhone = user?.phone || '+27 82 555 1234';
 
-  const streetLine = activeOrder
+  const streetLine = deliveryData?.address
+    ? `${deliveryData.address.streetNumber} ${deliveryData.address.streetName}`
+    : activeOrder
     ? `${activeOrder.shippingAddress.streetNumber} ${activeOrder.shippingAddress.streetName}`
     : '42 Kloof Street, Apartment 4B';
-  const suburbLine = activeOrder
+  const suburbLine = deliveryData?.address
+    ? `${deliveryData.address.suburb}, ${deliveryData.address.city}`
+    : activeOrder
     ? `${activeOrder.shippingAddress.suburb}, ${activeOrder.shippingAddress.city}`
     : 'Gardens, Cape Town';
-  const postalLine = activeOrder
+  const postalLine = deliveryData?.address
+    ? `${deliveryData.address.postalCode}, South Africa`
+    : activeOrder
     ? `${activeOrder.shippingAddress.postalCode}, ${activeOrder.shippingAddress.province}, South Africa`
     : '8001, Western Cape, South Africa';
 

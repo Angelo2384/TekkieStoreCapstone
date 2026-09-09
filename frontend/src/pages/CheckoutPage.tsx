@@ -29,7 +29,7 @@ const SAVED_METHOD_KEY = 'tekkie_store_saved_payment_method';
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
   const { cart, cartCount, cartTotal, clearCart } = useCart();
-  const { createOrder } = useOrder();
+  const { createOrder, refreshOrders } = useOrder();
   const { user } = useAuth();
 
   // Redirect to login if user is not authenticated
@@ -361,31 +361,15 @@ export const CheckoutPage: React.FC = () => {
 
     try {
       const recipientName = shippingData.fullName || (user ? `${user.firstName} ${user.lastName}` : 'Valued Customer');
-      const contactPhone = shippingData.phone || user?.phone || '';
-
-      // Persist delivery details linked to customer via Axios
-      if (user && user.customerId) {
-        try {
-          await deliveryService.saveDeliveryDetails({
-            customerId: user.customerId,
-            fullName: recipientName,
-            phone: contactPhone,
-            streetNumber: shippingData.streetNumber,
-            streetName: shippingData.streetName,
-            suburb: shippingData.suburb,
-            city: shippingData.city,
-            province: shippingData.province,
-            postalCode: shippingData.postalCode,
-          });
-        } catch (saveErr) {
-          console.warn('[CheckoutPage] Could not save delivery details via Axios:', saveErr);
-        }
-      }
 
       const cardClean = cardData.cardNumber.replace(/\s+/g, '');
       const cardLastFour = cardClean.slice(-4) || '4921';
       const cardBrand = detectCardType(cardData.cardNumber);
 
+      const randomTrack = Math.floor(10000000 + Math.random() * 90000000).toString();
+      const trackingNumber = `DSV-ZA-${randomTrack}`;
+
+      // 1. Save Order first in Spring Boot
       const newOrder = await createOrder({
         items: cart,
         shippingData,
@@ -397,7 +381,46 @@ export const CheckoutPage: React.FC = () => {
         vat: 0,
         shippingFee,
         total: finalTotal,
+        trackingNumber,
       });
+
+      // 2. Save DeliveryDetails linked to that Order
+      const deliveryId = `DD-${newOrder.id}`;
+
+      // Calculate estimated delivery date: 3 business days from now
+      const estDate = new Date();
+      let added = 0;
+      while (added < 3) {
+        estDate.setDate(estDate.getDate() + 1);
+        const day = estDate.getDay();
+        if (day !== 0 && day !== 6) {
+          added++;
+        }
+      }
+      const estimatedDeliveryDate = estDate.toISOString().split('T')[0];
+
+      try {
+        await deliveryService.saveDeliveryDetails({
+          deliveryId,
+          order: {
+            orderId: newOrder.id,
+          },
+          address: {
+            streetNumber: shippingData.streetNumber.trim(),
+            streetName: shippingData.streetName.trim(),
+            suburb: shippingData.suburb.trim(),
+            city: shippingData.city.trim(),
+            postalCode: shippingData.postalCode.trim(),
+          },
+          courier: 'DSV Express Logistics',
+          trackingNumber,
+          estimatedDeliveryDate,
+        });
+      } catch (saveErr) {
+        console.warn('[CheckoutPage] Could not save delivery details via Axios:', saveErr);
+      }
+
+      await refreshOrders();
 
       // Clear the cart on successful checkout
       await clearCart();

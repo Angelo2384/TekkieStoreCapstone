@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import za.ac.cput.tekkiestorecapstone.domain.Address;
 import za.ac.cput.tekkiestorecapstone.domain.DeliveryDetails;
+import za.ac.cput.tekkiestorecapstone.domain.Order;
 import za.ac.cput.tekkiestorecapstone.factory.DeliveryDetailsFactory;
 import za.ac.cput.tekkiestorecapstone.repository.DeliveryDetailsRepository;
 
@@ -48,8 +49,11 @@ class DeliveryDetailsServiceTest {
                 .setPostalCode("8005")
                 .build();
 
-        deliveryDetails = DeliveryDetailsFactory.createDeliveryDetails("D001", address, "Aramex", "TRK-889922", LocalDate.now());
+        Order order = new Order.Builder()
+                .setOrderId("ORD-001")
+                .build();
 
+        deliveryDetails = DeliveryDetailsFactory.createDeliveryDetails("D001", order, address, "Aramex", "TRK-889922", LocalDate.now());
     }
 
     @Test
@@ -60,6 +64,8 @@ class DeliveryDetailsServiceTest {
 
         assertNotNull(created);
         assertEquals(created.getDeliveryId(),  deliveryDetails.getDeliveryId());
+        assertNotNull(created.getOrder());
+        assertEquals("ORD-001", created.getOrder().getOrderId());
 
         System.out.println("Success: " + created);
     }
@@ -70,6 +76,8 @@ class DeliveryDetailsServiceTest {
 
         DeliveryDetails read =  service.read(deliveryDetails.getDeliveryId());
         assertNotNull(read);
+        assertNotNull(read.getOrder());
+        assertEquals("ORD-001", read.getOrder().getOrderId());
 
         System.out.println("Success: " + read);
     }
@@ -81,6 +89,7 @@ class DeliveryDetailsServiceTest {
         when(repo.save(any(DeliveryDetails.class))).thenReturn(updated);
         DeliveryDetails updatedUpdated = service.update(deliveryDetails);
         assertNotNull(updatedUpdated);
+        assertNotNull(updatedUpdated.getOrder());
 
         System.out.println("Success: " + updatedUpdated);
 
@@ -102,5 +111,19 @@ class DeliveryDetailsServiceTest {
 
         assertNotNull(all);
         System.out.println("Success: " + all);
+    }
+
+    @Test
+    void f_getByOrderId() {
+        when(repo.findByOrder_OrderId("ORD-001")).thenReturn(Optional.of(deliveryDetails));
+
+        DeliveryDetails found = service.getByOrderId("ORD-001");
+
+        assertNotNull(found);
+        assertNotNull(found.getOrder());
+        assertEquals("ORD-001", found.getOrder().getOrderId());
+        assertEquals(deliveryDetails.getDeliveryId(), found.getDeliveryId());
+
+        System.out.println("Success: " + found);
     }
 }
