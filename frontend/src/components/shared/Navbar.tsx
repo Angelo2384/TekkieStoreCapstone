@@ -93,11 +93,6 @@ export const Navbar = () => {
                 CATALOGUE
               </NavLink>
             </li>
-            <li>
-              <NavLink to="/about" className={({ isActive }) => isActive ? 'link active' : 'link'}>
-                ABOUT US
-              </NavLink>
-            </li>
           </ul>
         </div>
 
