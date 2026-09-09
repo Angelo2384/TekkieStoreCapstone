@@ -74,6 +74,11 @@ export const Navbar = () => {
               </NavLink>
             </li>
             <li>
+              <NavLink to="/sale" className={({ isActive }) => isActive ? 'link active sale-nav-link' : 'link sale-nav-link'}>
+                SALE
+              </NavLink>
+            </li>
+            <li>
               <NavLink to="/men" className={({ isActive }) => isActive ? 'link active' : 'link'}>
                 MEN
               </NavLink>
@@ -81,11 +86,6 @@ export const Navbar = () => {
             <li>
               <NavLink to="/women" className={({ isActive }) => isActive ? 'link active' : 'link'}>
                 WOMEN
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/sale" className={({ isActive }) => isActive ? 'link active sale-nav-link' : 'link sale-nav-link'}>
-                SALE
               </NavLink>
             </li>
             <li>

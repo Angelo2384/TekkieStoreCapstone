@@ -3,6 +3,8 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 import { SA_PROVINCES } from '../../utils/checkoutUtils';
 
 export interface ShippingAddressData {
+  fullName?: string;
+  phone?: string;
   streetNumber: string;
   streetName: string;
   suburb: string;
@@ -12,6 +14,8 @@ export interface ShippingAddressData {
 }
 
 export interface ShippingAddressErrors {
+  fullName?: string;
+  phone?: string;
   streetNumber?: string;
   streetName?: string;
   suburb?: string;
@@ -35,6 +39,14 @@ export const ShippingAddressSection: React.FC<ShippingAddressSectionProps> = ({
   onChange,
   onBlur,
 }) => {
+  const handleFullNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange('fullName', e.target.value);
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange('phone', e.target.value);
+  };
+
   const handleStreetNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numbers and optional letter suffix (e.g. 42 or 42A), no random symbols
     const val = e.target.value.replace(/[^0-9a-zA-Z]/g, '').slice(0, 8);
@@ -87,6 +99,75 @@ export const ShippingAddressSection: React.FC<ShippingAddressSectionProps> = ({
       </div>
 
       <div className="checkout-form-grid">
+        {/* Row 0: Full Name & Phone Number */}
+        <div className="form-row two-cols">
+          <div className="form-group">
+            <label htmlFor="fullName" className="form-label">
+              Full Name <span className="required-star">*</span>
+            </label>
+            <div className="input-wrapper">
+              <input
+                type="text"
+                id="fullName"
+                name="fullName"
+                autoComplete="name"
+                placeholder="e.g. Marcus Redelinghuys"
+                value={formData.fullName || ''}
+                onChange={handleFullNameChange}
+                onBlur={() => onBlur('fullName')}
+                className={`form-input ${touched.fullName && errors.fullName ? 'input-error' : ''} ${
+                  touched.fullName && !errors.fullName && formData.fullName ? 'input-valid' : ''
+                }`}
+                aria-invalid={Boolean(touched.fullName && errors.fullName)}
+                aria-describedby={errors.fullName ? 'fullName-error' : undefined}
+                required
+              />
+              {touched.fullName && !errors.fullName && formData.fullName && (
+                <CheckCircle2 size={16} className="valid-icon" aria-hidden="true" />
+              )}
+            </div>
+            {touched.fullName && errors.fullName && (
+              <p id="fullName-error" className="field-error-msg" role="alert">
+                <AlertCircle size={14} />
+                <span>{errors.fullName}</span>
+              </p>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone" className="form-label">
+              Phone Number <span className="required-star">*</span>
+            </label>
+            <div className="input-wrapper">
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                autoComplete="tel"
+                placeholder="e.g. +27 82 555 1234"
+                value={formData.phone || ''}
+                onChange={handlePhoneChange}
+                onBlur={() => onBlur('phone')}
+                className={`form-input ${touched.phone && errors.phone ? 'input-error' : ''} ${
+                  touched.phone && !errors.phone && formData.phone ? 'input-valid' : ''
+                }`}
+                aria-invalid={Boolean(touched.phone && errors.phone)}
+                aria-describedby={errors.phone ? 'phone-error' : undefined}
+                required
+              />
+              {touched.phone && !errors.phone && formData.phone && (
+                <CheckCircle2 size={16} className="valid-icon" aria-hidden="true" />
+              )}
+            </div>
+            {touched.phone && errors.phone && (
+              <p id="phone-error" className="field-error-msg" role="alert">
+                <AlertCircle size={14} />
+                <span>{errors.phone}</span>
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Row 1: Street Number & Street Name */}
         <div className="form-row two-cols-unequal">
           <div className="form-group col-street-number">

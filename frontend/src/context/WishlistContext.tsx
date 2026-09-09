@@ -19,7 +19,23 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [wishlist, setWishlist] = useState<ShoeProduct[]>(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      if (!Array.isArray(parsed)) return [];
+
+      // Gracefully restore ShoeProduct[] and handle any { product: ... } objects
+      return parsed
+        .map((item: any) => {
+          if (!item || typeof item !== 'object') return null;
+          if (item.product && typeof item.product === 'object' && item.product.id) {
+            return item.product as ShoeProduct;
+          }
+          if (item.id && item.name && item.price) {
+            return item as ShoeProduct;
+          }
+          return null;
+        })
+        .filter(Boolean) as ShoeProduct[];
     } catch (error) {
       console.error('Failed to load wishlist from localStorage', error);
       return [];
@@ -73,11 +89,7 @@ export const WishlistProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     wishlistCount: wishlist.length,
   };
 
-  return (
-    <WishlistContext.Provider value={value}>
-      {children}
-    </WishlistContext.Provider>
-  );
+  return <WishlistContext.Provider value={value}>{children}</WishlistContext.Provider>;
 };
 
 export const useWishlist = (): WishlistContextType => {

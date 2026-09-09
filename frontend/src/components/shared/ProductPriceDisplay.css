@@ -1,0 +1,41 @@
+.product-price-container {
+  display: flex;
+  align-items: baseline;
+  margin-top: 0.2rem;
+}
+
+.product-price-sale-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.product-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--brand-orange);
+  margin-top: 0.2rem;
+}
+
+.product-price.sale-price {
+  color: var(--brand-orange);
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin-top: 0;
+}
+
+.product-price.original-price {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  text-decoration: line-through;
+  font-weight: 500;
+  margin-top: 0;
+}
+
+.sale-discount-percentage {
+  color: #E02B20;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
