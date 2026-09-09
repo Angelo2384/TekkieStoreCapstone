@@ -17,6 +17,7 @@ import {
 import { ShipmentMethodCard } from '../components/checkout/ShipmentMethodCard';
 import { CheckoutOrderSummary } from '../components/checkout/CheckoutOrderSummary';
 import { detectCardType } from '../utils/checkoutUtils';
+import { deliveryService } from '../services/deliveryService';
 import './CheckoutPage.css';
 
 const FREE_SHIPPING_THRESHOLD = 1000;
@@ -47,6 +48,8 @@ export const CheckoutPage: React.FC = () => {
       console.error('Failed to load saved shipping address', e);
     }
     return {
+      fullName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '',
+      phone: user?.phone || '',
       streetNumber: '',
       streetName: '',
       suburb: '',
@@ -85,7 +88,39 @@ export const CheckoutPage: React.FC = () => {
   const [cardErrors, setCardErrors] = useState<CardFormErrors>({});
   const [cardTouched, setCardTouched] = useState<Record<string, boolean>>({});
 
-  // Persist payment & shipping details for future checkout use
+  // Retrieve customer's latest delivery details from Spring Boot using Axios
+  useEffect(() => {
+    if (!user || !user.customerId) return;
+
+    let isMounted = true;
+    const loadLatestDelivery = async () => {
+      try {
+        const latest = await deliveryService.getLatestDeliveryDetails(user.customerId!);
+        if (latest && isMounted) {
+          setShippingData({
+            fullName: latest.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+            phone: latest.phone || user.phone || '',
+            streetNumber: latest.streetNumber || '',
+            streetName: latest.streetName || '',
+            suburb: latest.suburb || '',
+            city: latest.city || '',
+            province: latest.province || '',
+            postalCode: latest.postalCode || '',
+          });
+        }
+      } catch (err) {
+        console.warn('[CheckoutPage] Could not retrieve latest delivery details from backend:', err);
+      }
+    };
+
+    loadLatestDelivery();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  // Persist payment & shipping details in localStorage for client caching
   useEffect(() => {
     try {
       localStorage.setItem(SAVED_SHIPPING_KEY, JSON.stringify(shippingData));
@@ -117,11 +152,24 @@ export const CheckoutPage: React.FC = () => {
   // Real-time Shipping Validation Logic
   const validateShippingField = (
     field: keyof ShippingAddressData,
-    value: string
+    value?: string
   ): string | undefined => {
-    const trimmed = value.trim();
+    const trimmed = (value || '').trim();
 
     switch (field) {
+      case 'fullName': {
+        if (!trimmed) return 'Please enter your full name.';
+        if (trimmed.length < 2) return 'Full name must be at least 2 characters.';
+        return undefined;
+      }
+      case 'phone': {
+        if (!trimmed) return 'Please enter your phone number.';
+        const digits = trimmed.replace(/\D/g, '');
+        if (digits.length < 10) {
+          return 'Phone number must have at least 10 digits.';
+        }
+        return undefined;
+      }
       case 'streetNumber': {
         if (!trimmed) return 'Please enter your street number.';
         // Allows digits and optional single letter suffix like 42 or 42A
@@ -256,7 +304,7 @@ export const CheckoutPage: React.FC = () => {
     setCardErrors((prev) => ({ ...prev, [field]: error }));
   };
 
-  // Full Form Validation on Submit
+  // Full Form Validation & Checkout Submission
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
       alert('Your cart is empty. Please add items to your cart before checking out.');
@@ -308,14 +356,35 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // 4. Successful validation: Create real shared order and navigate to Order Confirmation
+    // 4. Successful validation: Save Delivery Details via Axios & Create Order
     setIsSubmitting(true);
 
     try {
+      const recipientName = shippingData.fullName || (user ? `${user.firstName} ${user.lastName}` : 'Valued Customer');
+      const contactPhone = shippingData.phone || user?.phone || '';
+
+      // Persist delivery details linked to customer via Axios
+      if (user && user.customerId) {
+        try {
+          await deliveryService.saveDeliveryDetails({
+            customerId: user.customerId,
+            fullName: recipientName,
+            phone: contactPhone,
+            streetNumber: shippingData.streetNumber,
+            streetName: shippingData.streetName,
+            suburb: shippingData.suburb,
+            city: shippingData.city,
+            province: shippingData.province,
+            postalCode: shippingData.postalCode,
+          });
+        } catch (saveErr) {
+          console.warn('[CheckoutPage] Could not save delivery details via Axios:', saveErr);
+        }
+      }
+
       const cardClean = cardData.cardNumber.replace(/\s+/g, '');
       const cardLastFour = cardClean.slice(-4) || '4921';
       const cardBrand = detectCardType(cardData.cardNumber);
-      const recipientName = user ? `${user.firstName} ${user.lastName}` : undefined;
 
       const newOrder = await createOrder({
         items: cart,
