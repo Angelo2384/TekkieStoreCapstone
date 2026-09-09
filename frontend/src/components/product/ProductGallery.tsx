@@ -27,11 +27,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       {/* MAIN LARGE PRODUCT IMAGE */}
       <div className="main-image-container">
         {/* Product Tag / Badge */}
-        {product.tag && (
+        {product.isOnSale ? (
+          <span className="product-gallery-tag tag-orange">SALE</span>
+        ) : product.tag ? (
           <span className={`product-gallery-tag ${product.tag === 'JUST DROPPED' ? 'tag-orange' : ''}`}>
             {product.tag}
           </span>
-        )}
+        ) : null}
 
         {/* Wishlist Button */}
         <button
