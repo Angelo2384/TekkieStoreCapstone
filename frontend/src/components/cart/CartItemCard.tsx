@@ -34,11 +34,13 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
     <div className="cart-item-card" data-cart-id={cartId}>
       {/* THUMBNAIL */}
       <div className="cart-item-thumb-wrapper">
-        {product.tag && (
-          <span className={`cart-item-tag ${product.isOnSale ? 'tag-sale' : product.tag === 'JUST DROPPED' ? 'tag-orange' : ''}`}>
+        {product.isOnSale ? (
+          <span className="cart-item-tag tag-orange">SALE</span>
+        ) : product.tag ? (
+          <span className={`cart-item-tag ${product.tag === 'JUST DROPPED' ? 'tag-orange' : ''}`}>
             {product.tag}
           </span>
-        )}
+        ) : null}
         <Link to={`/product/${product.id}`} className="cart-item-image-link" tabIndex={-1}>
           <img
             src={product.image}

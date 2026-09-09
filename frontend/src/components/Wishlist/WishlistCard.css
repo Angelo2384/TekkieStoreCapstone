@@ -61,8 +61,10 @@
   pointer-events: none;
 }
 
-.wishlist-card-tag.tag-orange {
+.wishlist-card-tag.tag-orange,
+.wishlist-card-tag.tag-sale {
   background-color: var(--brand-orange);
+  color: var(--pure-white);
 }
 
 /* Wishlist Heart Button */
@@ -97,50 +99,51 @@
   transform: scale(1.25);
 }
 
-/* Quick Add Button */
-.wishlist-card-add-btn {
+/* Cart Plus Action Button (replacing Quick Add) */
+.wishlist-card-cart-btn {
   position: absolute;
-  bottom: 1rem;
-  left: 50%;
-  transform: translateX(-50%) translateY(150%);
-  background-color: var(--brand-orange);
-  color: var(--pure-white);
-  border: none;
-  padding: 0.8rem 1.5rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-radius: 8px;
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  box-shadow: 0 4px 15px rgba(253, 103, 1, 0.3);
-  z-index: 10;
-  width: 82%;
+  bottom: 0.85rem;
+  right: 0.85rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background-color: var(--pure-white);
+  border: 1px solid #EAEAEA;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  color: var(--obsidian);
 }
 
-.wishlist-product-card:hover .wishlist-card-add-btn {
-  transform: translateX(-50%) translateY(0);
-  opacity: 1;
+.wishlist-product-card:hover .wishlist-card-cart-btn {
+  transform: scale(1.05);
 }
 
-.wishlist-card-add-btn:hover {
-  background-color: var(--brand-orange-hover);
+.wishlist-card-cart-btn:hover {
+  background-color: var(--brand-orange);
+  border-color: var(--brand-orange);
+  color: var(--pure-white);
+  transform: scale(1.14) !important;
+  box-shadow: 0 6px 16px rgba(253, 103, 1, 0.35);
 }
 
-.wishlist-card-add-btn.added {
+.wishlist-card-cart-btn.added {
   background-color: var(--obsidian);
-  box-shadow: 0 4px 15px rgba(11, 13, 20, 0.3);
+  border-color: var(--obsidian);
+  color: var(--pure-white);
+  box-shadow: 0 4px 12px rgba(11, 13, 20, 0.3);
 }
 
-.wishlist-btn-feedback {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+.wishlist-cart-btn-icon {
+  transition: transform 0.2s ease;
+}
+
+.wishlist-card-cart-btn:active .wishlist-cart-btn-icon {
+  transform: scale(1.2);
 }
 
 /* Product Info */

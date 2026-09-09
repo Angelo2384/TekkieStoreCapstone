@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
-import { Heart, Check } from 'lucide-react';
+import { Heart, Plus, Check } from 'lucide-react';
 import { ShoeProduct } from '../../types/catalogue';
-import { formatPrice } from '../../utils/formatters';
+import { ShoeVariant } from '../../types/shoeVariant';
 import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
+import { ProductPriceDisplay } from '../shared/ProductPriceDisplay';
+import { SizeSelector } from '../shared/SizeSelector';
 import './CatalogueProductCard.css';
 
 interface CatalogueProductCardProps {
@@ -13,27 +16,32 @@ interface CatalogueProductCardProps {
 
 export const CatalogueProductCard: React.FC<CatalogueProductCardProps> = ({
   product,
-  onQuickAdd,
   onClick,
 }) => {
   const { isInWishlist, toggleWishlist } = useWishlist();
+  const { addToCart } = useCart();
   const isWishlisted = isInWishlist(product.id);
   const [addedFeedback, setAddedFeedback] = useState(false);
+  const [selectorOpen, setSelectorOpen] = useState(false);
 
-  const handleWishlistToggle = (e: React.MouseEvent) => {
+  const handleWishlistClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleWishlist(product);
   };
 
-  const handleQuickAdd = async (e: React.MouseEvent) => {
+  const handlePlusClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onQuickAdd) {
-      const result = await onQuickAdd(product);
-      if (result !== false) {
-        setAddedFeedback(true);
-        setTimeout(() => setAddedFeedback(false), 1500);
-      }
+    setSelectorOpen(true);
+  };
+
+  const handleSizeSelected = async (size: string, variant?: ShoeVariant): Promise<boolean> => {
+    const result = await addToCart(product, size, 1, variant);
+    if (result !== false) {
+      setAddedFeedback(true);
+      setTimeout(() => setAddedFeedback(false), 1500);
+      return true;
     }
+    return false;
   };
 
   const handleCardClick = () => {
@@ -43,86 +51,92 @@ export const CatalogueProductCard: React.FC<CatalogueProductCardProps> = ({
   };
 
   return (
-    <div 
-      className="catalogue-product-card" 
-      onClick={handleCardClick}
-      role="button"
-      tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleCardClick();
-        }
-      }}
-      aria-label={`View details for ${product.brand} ${product.name}`}
-    >
-      <div className="product-image-container">
-        {/* Product Tag / Badge */}
-        {product.tag && (
-          <span className={`product-tag ${product.isOnSale ? 'tag-sale' : product.tag === 'JUST DROPPED' ? 'tag-orange' : ''}`}>
-            {product.tag}
-          </span>
-        )}
-
-        {/* Wishlist Button */}
-        <button 
-          className={`wishlist-btn ${isWishlisted ? 'active' : ''}`}
-          onClick={handleWishlistToggle}
-          aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
-          title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-          type="button"
-        >
-          <Heart 
-            size={18} 
-            className="wishlist-icon" 
-            fill={isWishlisted ? 'var(--brand-orange)' : 'none'} 
-            color={isWishlisted ? 'var(--brand-orange)' : 'var(--obsidian)'}
-          />
-        </button>
-
-        {/* Product Image */}
-        <img 
-          src={product.image} 
-          alt={`${product.brand} ${product.name} in ${product.colour}`} 
-          className="product-image" 
-          loading="lazy"
-        />
-
-        {/* Quick Add Button */}
-        <button 
-          className={`add-to-cart-btn ${addedFeedback ? 'added' : ''}`}
-          onClick={handleQuickAdd}
-          aria-label={`Quick add ${product.name} to cart`}
-          type="button"
-        >
-          {addedFeedback ? (
-            <span className="btn-feedback-content">
-              <Check size={16} /> Added
+    <>
+      <div
+        className="catalogue-product-card"
+        onClick={handleCardClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleCardClick();
+          }
+        }}
+        aria-label={`View details for ${product.brand} ${product.name}`}
+      >
+        <div className="product-image-container">
+          {/* Product Tag / Badge */}
+          {product.isOnSale ? (
+            <span className="product-tag tag-orange">SALE</span>
+          ) : product.tag ? (
+            <span className={`product-tag ${product.tag === 'JUST DROPPED' ? 'tag-orange' : ''}`}>
+              {product.tag}
             </span>
-          ) : (
-            'Quick Add'
-          )}
-        </button>
+          ) : null}
+
+          {/* Wishlist Button - Directly toggles wishlist without size selection */}
+          <button
+            className={`wishlist-btn ${isWishlisted ? 'active' : ''}`}
+            onClick={handleWishlistClick}
+            aria-label={isWishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+            title={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+            type="button"
+          >
+            <Heart
+              size={18}
+              className="wishlist-icon"
+              fill={isWishlisted ? 'var(--brand-orange)' : 'none'}
+              color={isWishlisted ? 'var(--brand-orange)' : 'var(--obsidian)'}
+            />
+          </button>
+
+          {/* Product Image */}
+          <img
+            src={product.image}
+            alt={`${product.brand} ${product.name} in ${product.colour}`}
+            className="product-image"
+            loading="lazy"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = '/trending_shoe_1_1788049696433.jpg';
+            }}
+          />
+
+          {/* Cart Plus Action Button */}
+          <button
+            className={`card-cart-btn ${addedFeedback ? 'added' : ''}`}
+            onClick={handlePlusClick}
+            aria-label={`Add ${product.name} to cart`}
+            title={`Add ${product.name} to cart`}
+            type="button"
+          >
+            {addedFeedback ? (
+              <Check size={18} className="cart-btn-icon" />
+            ) : (
+              <Plus size={18} className="cart-btn-icon" />
+            )}
+          </button>
+        </div>
+
+        <div className="product-info">
+          <div className="product-meta-row">
+            <span className="product-brand">{product.brand}</span>
+            <span className="product-category-pill">{product.category}</span>
+          </div>
+          <h3 className="product-name">{product.name}</h3>
+          <p className="product-colour-text">{product.colour}</p>
+          <ProductPriceDisplay product={product} />
+        </div>
       </div>
 
-      <div className="product-info">
-        <div className="product-meta-row">
-          <span className="product-brand">{product.brand}</span>
-          <span className="product-category-pill">{product.category}</span>
-        </div>
-        <h3 className="product-name">{product.name}</h3>
-        <p className="product-colour-text">{product.colour}</p>
-        <div className="product-price-container">
-          {product.isOnSale && product.salePrice ? (
-            <div className="product-price-sale-row">
-              <span className="product-price sale-price">{formatPrice(product.salePrice)}</span>
-              <span className="product-price original-price">{formatPrice(product.price)}</span>
-            </div>
-          ) : (
-            <span className="product-price">{formatPrice(product.price)}</span>
-          )}
-        </div>
-      </div>
-    </div>
+      {/* REUSABLE SIZE SELECTOR MODAL FOR CART */}
+      <SizeSelector
+        product={product}
+        actionType="cart"
+        isOpen={selectorOpen}
+        onClose={() => setSelectorOpen(false)}
+        onSizeSelected={handleSizeSelected}
+      />
+    </>
   );
 };
