@@ -171,7 +171,7 @@ const mapBackendOrderToOrder = (
     shippingAddress: defaultAddress,
     paymentMethod: (bo.paymentMethod as any) || 'card',
     paymentReference: bo.paymentReference,
-    trackingNumber: `DSV-ZA-${Math.floor(10000000 + Math.random() * 90000000)}`,
+    trackingNumber: (bo as any).trackingNumber || '',
   };
 };
 

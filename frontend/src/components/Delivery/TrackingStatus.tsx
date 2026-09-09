@@ -3,98 +3,101 @@ import { Check, Clock, Truck, Package, MapPin, Copy, CheckCircle2 } from 'lucide
 import { useOrder } from '../../context/OrderContext';
 import './TrackingStatus.css';
 
-interface TrackingStep {
-  id: string;
+export type OrderTrackingStatus =
+  | 'ORDER_CONFIRMED'
+  | 'PACKED'
+  | 'DISPATCHED'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED';
+
+interface TrackingStageConfig {
+  key: OrderTrackingStatus;
   title: string;
-  description: string;
-  date: string;
-  time: string;
-  location: string;
-  status: 'completed' | 'current' | 'upcoming';
   icon: React.ReactNode;
+  activeDescription: string;
+  inactiveDescription: string;
 }
+
+const TRACKING_STAGES: TrackingStageConfig[] = [
+  {
+    key: 'ORDER_CONFIRMED',
+    title: 'Order Confirmed',
+    icon: <Check size={16} />,
+    activeDescription: 'Order placed and payment verified successfully.',
+    inactiveDescription: 'Order confirmation pending.',
+  },
+  {
+    key: 'PACKED',
+    title: 'Packed & Quality Checked',
+    icon: <Package size={16} />,
+    activeDescription: 'Shoes inspected, boxed, and quality checked.',
+    inactiveDescription: 'Packaging and quality inspection.',
+  },
+  {
+    key: 'DISPATCHED',
+    title: 'Dispatched & In Transit',
+    icon: <Truck size={16} />,
+    activeDescription: 'Handed over to express courier and in transit.',
+    inactiveDescription: 'Courier dispatch and transport.',
+  },
+  {
+    key: 'OUT_FOR_DELIVERY',
+    title: 'Out for Delivery',
+    icon: <Clock size={16} />,
+    activeDescription: 'Assigned to courier van for doorstep delivery.',
+    inactiveDescription: 'Final local delivery route.',
+  },
+  {
+    key: 'DELIVERED',
+    title: 'Delivered',
+    icon: <MapPin size={16} />,
+    activeDescription: 'Package successfully delivered and received.',
+    inactiveDescription: 'Doorstep drop-off and recipient receipt.',
+  },
+];
+
+const STAGE_KEYS: OrderTrackingStatus[] = [
+  'ORDER_CONFIRMED',
+  'PACKED',
+  'DISPATCHED',
+  'OUT_FOR_DELIVERY',
+  'DELIVERED',
+];
 
 export const TrackingStatus: React.FC = () => {
   const { activeOrder } = useOrder();
   const [copied, setCopied] = useState(false);
-  const trackingNumber = activeOrder?.trackingNumber || 'DSV-ZA-99482710';
-  const orderDate = activeOrder?.dateFormatted || '28 Aug 2026';
+
+  // Status mapping ready for future backend integration (defaults to 'ORDER_CONFIRMED')
+  const currentStatus: OrderTrackingStatus = 'ORDER_CONFIRMED';
+  const currentStageIndex = STAGE_KEYS.indexOf(currentStatus);
+
+  const trackingNumber = activeOrder?.trackingNumber || '';
+  const orderDate = activeOrder?.dateFormatted || '';
 
   const handleCopyTracking = () => {
+    if (!trackingNumber || trackingNumber === '—') return;
     navigator.clipboard.writeText(trackingNumber);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  const steps: TrackingStep[] = [
-    {
-      id: 'step-1',
-      title: 'Order Confirmed',
-      description: 'Order placed & payment verified successfully.',
-      date: orderDate,
-      time: 'Just now',
-      location: 'Tekkie Store Online Vault, JHB',
-      status: 'completed',
-      icon: <Check size={16} />,
-    },
-    {
-      id: 'step-2',
-      title: 'Packed & Quality Checked',
-      description: 'Shoes inspected, boxed in premium packaging, and tagged.',
-      date: '29 Aug 2026',
-      time: '14:30 PM',
-      location: 'Central Fulfillment Hub, JHB',
-      status: 'completed',
-      icon: <Package size={16} />,
-    },
-    {
-      id: 'step-3',
-      title: 'Dispatched & In Transit',
-      description: 'Handed over to DSV Express. Departed regional sorting facility.',
-      date: '01 Sep 2026',
-      time: '08:45 AM',
-      location: 'Cape Town Regional Sorting Hub',
-      status: 'current',
-      icon: <Truck size={16} />,
-    },
-    {
-      id: 'step-4',
-      title: 'Out for Delivery',
-      description: 'Assigned to courier van for final doorstep drop-off.',
-      date: '03 Sep 2026',
-      time: 'Est. 09:00 AM',
-      location: 'Local Cape Town Delivery Depot',
-      status: 'upcoming',
-      icon: <Clock size={16} />,
-    },
-    {
-      id: 'step-5',
-      title: 'Delivered',
-      description: 'Recipient signature and OTP confirmation required.',
-      date: '03 Sep 2026',
-      time: 'Est. 17:00 PM',
-      location: 'Delivery Address (Cape Town)',
-      status: 'upcoming',
-      icon: <MapPin size={16} />,
-    },
-  ];
 
   return (
     <div className="tracking-status-card">
       <div className="tracking-status-header">
         <div className="tracking-header-left">
           <div className="tracking-badge-row">
-            <span className="tracking-status-pill in-transit">
+            <span className="tracking-status-pill order-confirmed">
               <span className="pulse-dot" />
-              IN TRANSIT
+              ORDER CONFIRMED
             </span>
             <span className="estimated-pill">
-              Estimated Delivery: <strong>Thursday, 03 Sep 2026</strong>
+              Estimated Delivery: <strong>—</strong>
             </span>
           </div>
           <h2 className="tracking-title">Live Tracking Progress</h2>
           <p className="tracking-subtitle">
-            Your package is on schedule with our premium express courier network.
+            Your order has been confirmed.
           </p>
         </div>
 
@@ -102,12 +105,13 @@ export const TrackingStatus: React.FC = () => {
           <div className="tracking-number-box">
             <span className="tracking-label">Tracking Number</span>
             <div className="tracking-value-row">
-              <span className="tracking-id">{trackingNumber}</span>
+              <span className="tracking-id">{trackingNumber || '—'}</span>
               <button
                 type="button"
                 className={`btn-copy-tracking ${copied ? 'copied' : ''}`}
                 onClick={handleCopyTracking}
-                title="Copy tracking number to clipboard"
+                disabled={!trackingNumber || trackingNumber === '—'}
+                title={trackingNumber && trackingNumber !== '—' ? 'Copy tracking number to clipboard' : 'Tracking number pending'}
                 aria-label="Copy tracking number"
               >
                 {copied ? <CheckCircle2 size={15} /> : <Copy size={15} />}
@@ -121,43 +125,51 @@ export const TrackingStatus: React.FC = () => {
       {/* TIMELINE PROGRESS STEPS */}
       <div className="tracking-timeline-wrapper">
         <div className="tracking-steps-container">
-          {steps.map((step, idx) => (
-            <div
-              key={step.id}
-              className={`tracking-step-item step-${step.status}`}
-            >
-              {/* Connector line between steps */}
-              {idx < steps.length - 1 && (
-                <div
-                  className={`step-connector ${
-                    step.status === 'completed' && steps[idx + 1].status !== 'upcoming'
-                      ? 'connector-active'
-                      : ''
-                  }`}
-                />
-              )}
+          {TRACKING_STAGES.map((stage, idx) => {
+            const isCompleted = idx <= currentStageIndex;
+            const statusClass = isCompleted ? 'step-completed' : 'step-upcoming';
+            const isConnectorActive = idx < currentStageIndex;
 
-              {/* Step Circle Indicator */}
-              <div className="step-circle-wrap">
-                <div className="step-circle">
-                  {step.icon}
+            return (
+              <div
+                key={stage.key}
+                className={`tracking-step-item ${statusClass}`}
+              >
+                {/* Connector line between steps */}
+                {idx < TRACKING_STAGES.length - 1 && (
+                  <div
+                    className={`step-connector ${
+                      isConnectorActive ? 'connector-active' : ''
+                    }`}
+                  />
+                )}
+
+                {/* Step Circle Indicator - Always renders the stage icon */}
+                <div className="step-circle-wrap">
+                  <div className="step-circle" title={stage.title}>
+                    {stage.icon}
+                  </div>
+                </div>
+
+                {/* Step Details */}
+                <div className="step-content">
+                  {isCompleted && orderDate && idx === 0 && (
+                    <div className="step-header-meta">
+                      <span className="step-time">{orderDate}</span>
+                    </div>
+                  )}
+                  <h3 className="step-title">{stage.title}</h3>
+                  <p className="step-desc">
+                    {isCompleted ? stage.activeDescription : stage.inactiveDescription}
+                  </p>
                 </div>
               </div>
+            );
+          })}
+        </div>
 
-              {/* Step Details */}
-              <div className="step-content">
-                <div className="step-header-meta">
-                  <span className="step-time">{step.date} • {step.time}</span>
-                </div>
-                <h3 className="step-title">{step.title}</h3>
-                <p className="step-desc">{step.description}</p>
-                <span className="step-location">
-                  <MapPin size={12} />
-                  <span>{step.location}</span>
-                </span>
-              </div>
-            </div>
-          ))}
+        <div className="tracking-pending-notice">
+          <p>Remaining tracking information will appear when provided by the backend.</p>
         </div>
       </div>
     </div>

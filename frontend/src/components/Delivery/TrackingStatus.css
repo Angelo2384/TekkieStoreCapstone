@@ -49,6 +49,16 @@
   border: 1px solid rgba(253, 103, 1, 0.25);
 }
 
+.tracking-status-pill.order-confirmed {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.tracking-status-pill.order-confirmed .pulse-dot {
+  background-color: #10B981;
+}
+
 .pulse-dot {
   width: 8px;
   height: 8px;
@@ -158,6 +168,31 @@
   background-color: #ECFDF5;
   border-color: #10B981;
   color: #059669;
+}
+
+.btn-copy-tracking:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #E5E5E5;
+  color: var(--text-muted);
+}
+
+.btn-copy-tracking:disabled:hover {
+  border-color: #E5E5E5;
+  color: var(--text-muted);
+}
+
+.tracking-pending-notice {
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px dashed #E5E5E5;
+}
+
+.tracking-pending-notice p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 /* ==========================================================================
