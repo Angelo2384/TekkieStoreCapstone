@@ -7,16 +7,26 @@ Date: 18 July 2026
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
-import java.time.LocalDate;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+
+import java.time.LocalDate;
 
 @Entity
 public class DeliveryDetails {
     @Id
     private String deliveryId;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id", nullable = false, unique = true)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    private Order order;
+
     @Embedded
     private Address address;
     private String courier;
@@ -27,6 +37,7 @@ public class DeliveryDetails {
 
     private DeliveryDetails(Builder build){
         this.deliveryId= build.deliveryId;
+        this.order = build.order;
         this.address= build.address;
         this.courier= build.courier;
         this.trackingNumber= build.trackingNumber;
@@ -35,6 +46,10 @@ public class DeliveryDetails {
 
     public String getDeliveryId() {
         return deliveryId;
+    }
+
+    public Order getOrder() {
+        return order;
     }
 
     public Address getAddress() {
@@ -57,6 +72,7 @@ public class DeliveryDetails {
     public String toString() {
         return "DeliveryDetails{" +
                 "deliveryId='" + deliveryId + '\'' +
+                ", orderId=" + (order != null ? order.getOrderId() : "null") +
                 ", address=" + address +
                 ", courier='" + courier + '\'' +
                 ", trackingNumber='" + trackingNumber + '\'' +
@@ -66,6 +82,7 @@ public class DeliveryDetails {
 
     public static class Builder{
         private String deliveryId;
+        private Order order;
         private Address address;
         private String courier;
         private String trackingNumber;
@@ -73,6 +90,11 @@ public class DeliveryDetails {
 
         public Builder setDeliveryId(String deliveryId) {
             this.deliveryId = deliveryId;
+            return this;
+        }
+
+        public Builder setOrder(Order order) {
+            this.order = order;
             return this;
         }
 
@@ -98,6 +120,7 @@ public class DeliveryDetails {
 
         public Builder copy(DeliveryDetails deliveryDetails){
             this.deliveryId= deliveryDetails.deliveryId;
+            this.order = deliveryDetails.order;
             this.address= deliveryDetails.address;
             this.courier= deliveryDetails.courier;
             this.trackingNumber= deliveryDetails.trackingNumber;

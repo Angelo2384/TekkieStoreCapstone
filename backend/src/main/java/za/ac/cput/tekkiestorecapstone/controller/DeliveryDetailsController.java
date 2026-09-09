@@ -47,4 +47,9 @@ public class DeliveryDetailsController {
     public List<DeliveryDetails> getAll() {
         return service.getAll();
     }
-}
+
+    @GetMapping("/order/{orderId}")
+    public DeliveryDetails getByOrderId(@PathVariable String orderId) {
+        return service.getByOrderId(orderId);
+    }
+}

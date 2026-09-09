@@ -46,4 +46,10 @@ public class DeliveryDetailsService implements IDeliveryDetailsService {
     public List<DeliveryDetails> getAll() {
         return this.repo.findAll();
     }
+
+    @Override
+    public DeliveryDetails getByOrderId(String orderId) {
+        return repo.findByOrder_OrderId(orderId).orElse(null);
+    }
 }
+
