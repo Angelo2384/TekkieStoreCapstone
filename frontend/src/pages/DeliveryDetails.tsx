@@ -15,10 +15,10 @@ export const DeliveryDetails: React.FC = () => {
 
   const order = (orderId ? getOrderById(orderId) : null) || activeOrder;
 
-  const orderNumber = order?.orderNumber || '#TK-84920';
-  const datePlaced = order?.dateFormatted || '28 Aug 2026';
-  const estimatedDelivery = order?.estimatedArrival || '03 Sep 2026';
-  const shipmentMethod = order?.shippingMethod || 'DSV Express Air';
+  const orderNumber = order?.orderNumber || (orderId ? `#${orderId}` : '—');
+  const datePlaced = order?.dateFormatted || '—';
+  const estimatedDelivery = '—';
+  const shipmentMethod = order?.shippingMethod || 'Standard Express Delivery';
 
   return (
     <div className="delivery-details-page">
