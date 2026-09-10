@@ -48,24 +48,48 @@ public class DeliveryDetails {
         return deliveryId;
     }
 
+    public void setDeliveryId(String deliveryId) {
+        this.deliveryId = deliveryId;
+    }
+
     public Order getOrder() {
         return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 
     public Address getAddress() {
         return address;
     }
 
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
     public String getCourier() {
         return courier;
+    }
+
+    public void setCourier(String courier) {
+        this.courier = courier;
     }
 
     public String getTrackingNumber() {
         return trackingNumber;
     }
 
+    public void setTrackingNumber(String trackingNumber) {
+        this.trackingNumber = trackingNumber;
+    }
+
     public LocalDate getEstimatedDeliveryDate() {
         return estimatedDeliveryDate;
+    }
+
+    public void setEstimatedDeliveryDate(LocalDate estimatedDeliveryDate) {
+        this.estimatedDeliveryDate = estimatedDeliveryDate;
     }
 
     @Override
