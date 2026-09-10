@@ -71,6 +71,7 @@ class DeliveryDetailsServiceTest {
         assertEquals(created.getDeliveryId(),  deliveryDetails.getDeliveryId());
         assertNotNull(created.getOrder());
         assertEquals("ORD-001", created.getOrder().getOrderId());
+        assertNotNull(created.getCreatedAt());
 
         System.out.println("Success: " + created);
     }
