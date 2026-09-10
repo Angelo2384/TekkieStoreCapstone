@@ -14,6 +14,7 @@ public class Address {
     private String streetName;
     private String suburb;
     private String city;
+    private String province;
     private String postalCode;
 
     protected Address(){}
@@ -23,26 +24,56 @@ public class Address {
         this.streetName= build.streetName;
         this.suburb= build.suburb;
         this.city= build.city;
+        this.province= build.province;
         this.postalCode= build.postalCode;
     }
+
     public String getStreetNumber() {
         return streetNumber;
+    }
+
+    public void setStreetNumber(String streetNumber) {
+        this.streetNumber = streetNumber;
     }
 
     public String getStreetName() {
         return streetName;
     }
 
+    public void setStreetName(String streetName) {
+        this.streetName = streetName;
+    }
+
     public String getSuburb() {
         return suburb;
+    }
+
+    public void setSuburb(String suburb) {
+        this.suburb = suburb;
     }
 
     public String getCity() {
         return city;
     }
 
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
+    }
+
     public String getPostalCode() {
         return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
     }
 
     @Override
@@ -52,6 +83,7 @@ public class Address {
                 ", streetName='" + streetName + '\'' +
                 ", suburb='" + suburb + '\'' +
                 ", city='" + city + '\'' +
+                ", province='" + province + '\'' +
                 ", postalCode='" + postalCode + '\'' +
                 '}';
     }
@@ -61,6 +93,7 @@ public class Address {
         private String streetName;
         private String suburb;
         private String city;
+        private String province;
         private String postalCode;
 
         public Builder setStreetNumber(String streetNumber) {
@@ -83,16 +116,22 @@ public class Address {
             return this;
         }
 
+        public Builder setProvince(String province) {
+            this.province = province;
+            return this;
+        }
+
         public Builder setPostalCode(String postalCode) {
             this.postalCode = postalCode;
             return this;
         }
 
         public Builder copy(Address address){
-            this.streetNumber =address.streetNumber;
+            this.streetNumber = address.streetNumber;
             this.streetName= address.streetName;
             this.suburb= address.suburb;
             this.city= address.city;
+            this.province= address.province;
             this.postalCode= address.postalCode;
             return this;
         }
