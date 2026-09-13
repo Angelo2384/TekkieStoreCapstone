@@ -55,7 +55,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         {/* Main Image */}
         <div className="main-image-viewport">
           <ProductImage
-            key={currentImage.url}
             src={currentImage.url}
             alt={`${product.brand} ${product.name} - ${currentImage.label}`}
             className="main-gallery-image"

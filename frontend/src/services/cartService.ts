@@ -3,6 +3,7 @@ import api from './api';
 export interface BackendCart {
   cartId: string;
   totalAmount: number;
+  customer?: { customerId: string };
 }
 
 export interface BackendShoeRef {

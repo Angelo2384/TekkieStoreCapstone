@@ -12,8 +12,10 @@ import za.ac.cput.tekkiestorecapstone.domain.Customer;
 import za.ac.cput.tekkiestorecapstone.domain.Order;
 import za.ac.cput.tekkiestorecapstone.domain.OrderItem;
 import za.ac.cput.tekkiestorecapstone.domain.OrderStatus;
+import za.ac.cput.tekkiestorecapstone.domain.ShoeVariant;
 import za.ac.cput.tekkiestorecapstone.repository.CustomerRepository;
 import za.ac.cput.tekkiestorecapstone.repository.OrderRepository;
+import za.ac.cput.tekkiestorecapstone.repository.ShoeVariantRepository;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -24,17 +26,54 @@ public class OrderService implements IOrderService {
 
     private final OrderRepository repo;
     private final CustomerRepository customerRepo;
+    private final ShoeVariantRepository shoeVariantRepo;
 
     @Autowired
-    public OrderService(OrderRepository repo, CustomerRepository customerRepo) {
+    public OrderService(OrderRepository repo, CustomerRepository customerRepo, ShoeVariantRepository shoeVariantRepo) {
         this.repo = repo;
         this.customerRepo = customerRepo;
+        this.shoeVariantRepo = shoeVariantRepo;
+    }
+
+    // Finds the ShoeVariant matching an order item's shoeId + size (e.g. "UK 10")
+    // and reduces its stock by the ordered quantity, never going below 0.
+    private void decreaseVariantStock(OrderItem item) {
+        String[] parts = item.getSize() != null ? item.getSize().trim().split("\\s+") : new String[0];
+        if (parts.length < 2) return;
+
+        String region = parts[0];
+        double value;
+        try {
+            value = Double.parseDouble(parts[1]);
+        } catch (NumberFormatException e) {
+            return;
+        }
+
+        ShoeVariant match = shoeVariantRepo.findByShoe_ShoeId(item.getShoeId()).stream()
+                .filter(v -> v.getSize() != null
+                        && v.getSize().getSizeValue() == value
+                        && region.equalsIgnoreCase(v.getSize().getSizeRegion()))
+                .findFirst()
+                .orElse(null);
+        if (match == null) return;
+
+        int newStock = Math.max(0, match.getStockQuantity() - item.getQuantity());
+        ShoeVariant updated = new ShoeVariant.Builder()
+                .copy(match)
+                .setStockQuantity(newStock)
+                .build();
+        shoeVariantRepo.save(updated);
     }
 
     @Override
     public Order create(Order order) {
         if (order == null || order.getCustomer() == null || order.getCustomer().getCustomerId() == null) {
             return null;
+        }
+
+        // Re-submitting the same order (e.g. a retried request) must not decrease stock twice
+        if (order.getOrderId() != null && this.repo.existsById(order.getOrderId())) {
+            return this.repo.findById(order.getOrderId()).orElse(null);
         }
 
         Customer customer = this.customerRepo.findById(order.getCustomer().getCustomerId()).orElse(null);
@@ -69,7 +108,15 @@ public class OrderService implements IOrderService {
                     .build();
         }
 
-        return this.repo.save(builtOrder);
+        Order savedOrder = this.repo.save(builtOrder);
+
+        if (savedOrder.getOrderItems() != null) {
+            for (OrderItem item : savedOrder.getOrderItems()) {
+                decreaseVariantStock(item);
+            }
+        }
+
+        return savedOrder;
     }
 
     @Override

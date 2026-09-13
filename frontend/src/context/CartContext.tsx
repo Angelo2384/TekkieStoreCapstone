@@ -3,7 +3,8 @@ import { ShoeProduct } from '../types/catalogue';
 import { useAuth } from './AuthContext';
 import { router } from '../routes';
 import cartService, { BackendCartItem } from '../services/cartService';
-import { fetchAllShoes, mapBackendShoeToProduct, fetchShoeById } from '../services/shoeService';
+import { mapBackendShoeToProduct, fetchShoeById } from '../services/shoeService';
+import { loadShoes } from '../hooks/useShoes';
 import { ShoeVariant, ShoeSize } from '../types/shoeVariant';
 
 export interface CartItem {
@@ -102,8 +103,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 2. Retrieve user's cart items from backend
       const backendItems = await cartService.getCartItemsByCartId(userCartId);
 
-      // 3. Retrieve shoe catalogue to enrich cart lines with full product metadata
-      const shoes = await fetchAllShoes();
+      // 3. Retrieve shoe catalogue (shared cache) to enrich cart lines with full product metadata
+      const shoes = await loadShoes();
       const shoeMap = new Map<string, ShoeProduct>(shoes.map((s) => [s.id, s]));
 
       const loadedCart: CartItem[] = [];
@@ -173,6 +174,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await cartService.updateCart({
         cartId: userCartId,
         totalAmount: calculatedTotal,
+        customer: { customerId: userCartId },
       });
     } catch (err: any) {
       if (err?.response?.status === 401 || err?.response?.status === 403) {
@@ -262,25 +264,18 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     try {
-      if (isExisting) {
-        // EXISTING ITEM: Reuse backend cartItemId and POST /cartitem/update
-        await cartService.updateCartItem(backendPayload);
-      } else {
-        // NEW ITEM: Persist newly generated UUID and POST /cartitem/create
-        await cartService.createCartItem(backendPayload);
-      }
-
-      // Update backend cart total amount
+      // Item write and total update don't depend on each other's result, so run them
+      // in parallel instead of one after another - halves the wait for the user.
       const newTotal = cart.reduce((acc, curr) => {
         const price = getEffectivePrice(curr.product);
         const q = curr.cartItemId === targetCartItemId ? newQuantity : curr.quantity;
         return acc + price * q;
       }, isExisting ? 0 : unitPrice * quantity);
 
-      await cartService.updateCart({
-        cartId: userCartId,
-        totalAmount: newTotal,
-      });
+      await Promise.all([
+        isExisting ? cartService.updateCartItem(backendPayload) : cartService.createCartItem(backendPayload),
+        cartService.updateCart({ cartId: userCartId, totalAmount: newTotal, customer: { customerId: userCartId } }),
+      ]);
 
       // ONLY update React state after the backend operation succeeds!
       setCart((prev) => {
@@ -373,6 +368,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await cartService.updateCart({
         cartId: userCartId,
         totalAmount: newTotal,
+        customer: { customerId: userCartId },
       });
 
       // ONLY update React state after backend succeeds
@@ -411,6 +407,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await cartService.updateCart({
         cartId: userCartId,
         totalAmount: newTotal,
+        customer: { customerId: userCartId },
       });
 
       // 3. ONLY update React state after backend succeeds
@@ -439,6 +436,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         await cartService.updateCart({
           cartId: userCartId,
           totalAmount: 0,
+          customer: { customerId: userCartId },
         });
         setCart([]);
       } catch (err: any) {
