@@ -25,6 +25,7 @@ import za.ac.cput.tekkiestorecapstone.factory.OrderFactory;
 import za.ac.cput.tekkiestorecapstone.factory.OrderItemFactory;
 import za.ac.cput.tekkiestorecapstone.repository.CustomerRepository;
 import za.ac.cput.tekkiestorecapstone.repository.OrderRepository;
+import za.ac.cput.tekkiestorecapstone.repository.ShoeVariantRepository;
 
 import java.util.Date;
 import java.util.List;
@@ -45,6 +46,9 @@ class OrderServiceTest {
 
     @Mock
     CustomerRepository customerRepo;
+
+    @Mock
+    ShoeVariantRepository shoeVariantRepo;
 
     @InjectMocks
     OrderService service;

@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Minus, Plus, ShoppingBag, Zap, ShieldCheck, Truck, RotateCcw, AlertCircle, Check } from 'lucide-react';
+import { Minus, Plus, ShoppingBag, Zap, ShieldCheck, Truck, RotateCcw, AlertCircle, Check, Loader2 } from 'lucide-react';
 import Skeleton from '@mui/material/Skeleton';
 import { ShoeProduct } from '../../types/catalogue';
 import { ShoeVariant } from '../../types/shoeVariant';
@@ -111,6 +111,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [addedFeedback, setAddedFeedback] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   // If colour changes and current size is out of stock in new colour, reset size
   useEffect(() => {
@@ -207,7 +208,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
   };
 
   const handleAddToCartClick = async () => {
-    if (variantsLoading) return;
+    if (variantsLoading || isSubmitting) return;
 
     if (variantsError) {
       setValidationError('Unable to add to cart: variant stock could not be verified from the server.');
@@ -233,10 +234,15 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
     const sizeToPass = `${selectedVariant.size.sizeRegion} ${selectedVariant.size.sizeValue}`;
 
     if (onAddToCart) {
-      const result = await onAddToCart(sizeToPass, quantity, selectedVariant);
-      if (result !== false) {
-        setAddedFeedback(true);
-        setTimeout(() => setAddedFeedback(false), 1800);
+      setIsSubmitting(true);
+      try {
+        const result = await onAddToCart(sizeToPass, quantity, selectedVariant);
+        if (result !== false) {
+          setAddedFeedback(true);
+          setTimeout(() => setAddedFeedback(false), 1800);
+        }
+      } finally {
+        setIsSubmitting(false);
       }
     } else if (onProceedToCheckout) {
       onProceedToCheckout(sizeToPass, quantity, selectedVariant);
@@ -244,7 +250,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
   };
 
   const handleBuyNowClick = async () => {
-    if (variantsLoading) return;
+    if (variantsLoading || isSubmitting) return;
 
     if (variantsError) {
       setValidationError('Unable to proceed: variant stock could not be verified from the server.');
@@ -268,12 +274,18 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
     setValidationError(null);
     const sizeToPass = `${selectedVariant.size.sizeRegion} ${selectedVariant.size.sizeValue}`;
-    await onBuyItNow(sizeToPass, quantity, selectedVariant);
+    setIsSubmitting(true);
+    try {
+      await onBuyItNow(sizeToPass, quantity, selectedVariant);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isAddToCartDisabled =
     variantsLoading ||
     variantsError ||
+    isSubmitting ||
     (!variantsLoading && !hasVariants) ||
     Boolean(selectedVariant && selectedVariant.stockQuantity <= 0);
 
@@ -509,13 +521,18 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           type="button"
           className={`btn-proceed-checkout ${addedFeedback ? 'added' : ''}`}
           onClick={handleAddToCartClick}
-          aria-label={addedFeedback ? 'Added to Cart' : 'Add to Cart'}
+          aria-label={addedFeedback ? 'Added to Cart' : isSubmitting ? 'Adding to Cart' : 'Add to Cart'}
           disabled={isAddToCartDisabled}
         >
           {addedFeedback ? (
             <>
               <Check size={18} />
               <span>ADDED TO CART</span>
+            </>
+          ) : isSubmitting ? (
+            <>
+              <Loader2 size={18} className="spin-icon" />
+              <span>ADDING TO CART...</span>
             </>
           ) : (
             <>
@@ -531,7 +548,11 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           onClick={handleBuyNowClick}
           disabled={isAddToCartDisabled}
         >
-          <Zap size={18} />
+          {isSubmitting ? (
+            <Loader2 size={18} className="spin-icon" />
+          ) : (
+            <Zap size={18} />
+          )}
           <span>BUY IT NOW</span>
         </button>
       </div>

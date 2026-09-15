@@ -5,7 +5,7 @@ import { fetchAllShoes } from '../services/shoeService';
 let cache: ShoeProduct[] | null = null;
 let inFlight: Promise<ShoeProduct[]> | null = null;
 
-const loadShoes = (): Promise<ShoeProduct[]> => {
+export const loadShoes = (): Promise<ShoeProduct[]> => {
   if (cache) return Promise.resolve(cache);
   if (!inFlight) {
     inFlight = fetchAllShoes().then((data) => {

@@ -31,23 +31,11 @@
   width: 94.5%;
   height: 94.5%;
   object-fit: cover;
-  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
-  animation: fadeInImage 0.35s ease;
-}
-
-@keyframes fadeInImage {
-  from {
-    opacity: 0.7;
-    transform: scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .main-image-container:hover .main-gallery-image {
-  transform: scale(1.02);
+  transform: scale(1.03);
 }
 
 /* Badges */
