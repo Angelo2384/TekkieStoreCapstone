@@ -1,0 +1,426 @@
+/* ==========================================================================
+   ADMIN LAYOUT STYLES - TekkieStore
+   ========================================================================== */
+
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--off-white);
+  color: var(--text-main);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   1. ADMIN LEFT SIDEBAR
+   -------------------------------------------------------------------------- */
+.admin-sidebar {
+  width: 260px;
+  background-color: var(--obsidian);
+  color: var(--pure-white);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 100;
+  border-right: 1px solid #1E2330;
+}
+
+.admin-sidebar-header {
+  padding: 1.5rem 1.25rem;
+  border-bottom: 1px solid #1E2330;
+}
+
+.admin-logo-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+}
+
+.admin-logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.admin-logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--pure-white);
+}
+
+.admin-portal-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--brand-orange);
+  margin-top: 2px;
+}
+
+.admin-nav-menu {
+  flex: 1;
+  padding: 1.25rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  overflow-y: auto;
+}
+
+.admin-nav-section-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #717A8C;
+  padding: 0.6rem 0.75rem 0.35rem;
+}
+
+.admin-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #A3AAB8;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-nav-link:hover {
+  color: var(--pure-white);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.admin-nav-link.active {
+  color: var(--pure-white);
+  background-color: var(--brand-orange);
+  box-shadow: 0 2px 8px rgba(253, 103, 1, 0.3);
+}
+
+.admin-nav-link.active .admin-nav-icon {
+  color: var(--pure-white);
+}
+
+.admin-nav-icon {
+  flex-shrink: 0;
+}
+
+.admin-nav-divider {
+  height: 1px;
+  background-color: #1E2330;
+  margin: 0.85rem 0.5rem;
+}
+
+.exit-link {
+  color: #8E97A6;
+}
+
+.exit-link:hover {
+  color: var(--brand-orange);
+}
+
+.external-badge-icon {
+  margin-left: auto;
+  opacity: 0.6;
+}
+
+.admin-sidebar-footer {
+  padding: 1.25rem 1rem;
+  border-top: 1px solid #1E2330;
+}
+
+.admin-security-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #717A8C;
+}
+
+.security-icon {
+  color: #10B981;
+}
+
+/* --------------------------------------------------------------------------
+   2. ADMIN MAIN WRAPPER & TOP NAVBAR
+   -------------------------------------------------------------------------- */
+.admin-main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.admin-top-navbar {
+  height: 64px;
+  background-color: var(--pure-white);
+  border-bottom: 1px solid #E4E4E7;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.admin-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.breadcrumb-root {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.breadcrumb-separator {
+  color: #D1D5DB;
+}
+
+.breadcrumb-current {
+  color: var(--obsidian);
+  font-weight: 700;
+}
+
+.admin-top-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.admin-status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #047857;
+  background-color: #ECFDF5;
+  border: 1px solid #A7F3D0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 99px;
+}
+
+.status-dot-pulse {
+  width: 7px;
+  height: 7px;
+  background-color: #10B981;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.admin-quick-store-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background-color: #F4F4F5;
+  border: 1px solid #E4E4E7;
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.admin-quick-store-btn:hover {
+  background-color: #E5E7EB;
+  color: var(--brand-orange);
+}
+
+.admin-icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  border: 1px solid #E4E4E7;
+  background-color: var(--pure-white);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.admin-icon-btn:hover {
+  color: var(--obsidian);
+  border-color: #D1D5DB;
+}
+
+.admin-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding-left: 0.5rem;
+  border-left: 1px solid #E4E4E7;
+}
+
+.admin-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--obsidian);
+  color: var(--pure-white);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--obsidian);
+  line-height: 1.2;
+}
+
+.admin-role {
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* --------------------------------------------------------------------------
+   3. CONTENT AREA
+   -------------------------------------------------------------------------- */
+.admin-content-area {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1440px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* --------------------------------------------------------------------------
+   4. SHARED ADMIN PAGE STYLES
+   -------------------------------------------------------------------------- */
+.admin-page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--obsidian);
+  margin: 0;
+}
+
+.admin-page-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0.25rem 0 0 0;
+}
+
+.admin-toolbar-card {
+  background-color: var(--pure-white);
+  border: 1px solid #E4E4E7;
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.admin-search-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #F4F4F5;
+  border: 1px solid #E4E4E7;
+  padding: 0.5rem 0.85rem;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.admin-search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.admin-search-box .search-icon {
+  color: var(--text-muted);
+}
+
+.admin-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.admin-filter-group select {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #E4E4E7;
+  border-radius: 6px;
+  background-color: var(--pure-white);
+  font-size: 0.85rem;
+}
+
+.admin-prod-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.admin-prod-img-box {
+  width: 44px;
+  height: 44px;
+  border-radius: 6px;
+  background-color: #F4F4F5;
+  border: 1px solid #E4E4E7;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.admin-prod-img-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.admin-prod-info {
+  display: flex;
+  flex-direction: column;
+}
+
