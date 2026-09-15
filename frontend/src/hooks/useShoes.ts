@@ -27,34 +27,41 @@ export const useShoes = () => {
   const [loading, setLoading] = useState<boolean>(!cache);
   const [error, setError] = useState<string | null>(null);
 
+  // Internal helper to fetch shoes and update state
+  const fetchAndSetShoes = () => {
+    setLoading(true);
+    return loadShoes()
+      .then((data) => {
+        setShoes(data);
+        setError(null);
+        return data;
+      })
+      .catch(() => {
+        setError('Failed to fetch shoes from the database.');
+        // Return empty array to keep type consistency
+        return [] as ShoeProduct[];
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     if (cache) {
       setShoes(cache);
       setLoading(false);
       return;
     }
-
-    let isMounted = true;
-    setLoading(true);
-
-    loadShoes()
-      .then((data) => {
-        if (isMounted) {
-          setShoes(data);
-          setError(null);
-        }
-      })
-      .catch(() => {
-        if (isMounted) setError('Failed to fetch shoes from the database.');
-      })
-      .finally(() => {
-        if (isMounted) setLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
+    // Load initially
+    fetchAndSetShoes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return { shoes, loading, error };
+  // Refresh function clears cache and re-fetches shoes
+  const refresh = () => {
+    cache = null; // clear memoized cache
+    return fetchAndSetShoes();
+  };
+
+  return { shoes, loading, error, refresh };
 };
