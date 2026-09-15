@@ -63,7 +63,7 @@ class DeliveryDetailsServiceTest {
 
     @Test
     void a_create() {
-        when(repo.save(any(DeliveryDetails.class))).thenReturn(deliveryDetails);
+        when(repo.save(any(DeliveryDetails.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         DeliveryDetails created =  service.create(deliveryDetails);
 
