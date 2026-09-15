@@ -18,6 +18,9 @@ export interface DeliveryDetailsData {
   courier: string;
   trackingNumber: string;
   estimatedDeliveryDate: string; // YYYY-MM-DD
+  fullName?: string;
+  phone?: string;
+  createdAt?: string;
 }
 
 // Backward-compatibility aliases for components importing old type names

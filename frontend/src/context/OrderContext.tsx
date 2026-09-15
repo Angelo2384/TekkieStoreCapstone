@@ -169,7 +169,7 @@ const mapBackendOrderToOrder = (
     subtotal: bo.subtotal,
     shippingFee: bo.shippingFee,
     shippingMethod: 'DSV EXPRESS AIR',
-    vat: bo.vat,
+    vat: bo.vat ?? Math.round((bo.subtotal || 0) * 0.15),
     total: bo.totalAmount,
     shippingAddress: defaultAddress,
     paymentMethod: (bo.paymentMethod as any) || 'card',
