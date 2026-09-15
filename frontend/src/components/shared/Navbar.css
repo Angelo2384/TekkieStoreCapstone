@@ -238,3 +238,15 @@
   border-color: var(--brand-orange-hover);
 }
 
+.navAdminBtn {
+  background-color: var(--obsidian);
+  color: var(--pure-white);
+  border: 1px solid var(--obsidian);
+}
+
+.navAdminBtn:hover {
+  background-color: var(--brand-orange);
+  border-color: var(--brand-orange);
+  color: var(--pure-white);
+}
+

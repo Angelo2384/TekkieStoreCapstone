@@ -138,17 +138,18 @@ export const Navbar = () => {
 
             {/* Conditional Profile Avatar or Log In / Sign Up */}
             {isAuthenticated ? (
-              <Link to="/profile" className="profileAvatar" aria-label="My Account" title="My Account">
-                <User className="actionIcon" strokeWidth={1.75} />
-              </Link>
+              <div className="navAuthGroup">
+                <Link to="/profile" className="profileAvatar" aria-label="My Account" title="My Account">
+                  <User className="actionIcon" strokeWidth={1.75} />
+                </Link>
+                <Link to="/admin" className="navAuthBtn navAdminBtn" aria-label="Admin Dashboard" title="Admin Dashboard">
+                  Admin
+                </Link>
+              </div>
             ) : (
               <div className="navAuthGroup">
-                <Link to="/login" className="navAuthBtn navLoginBtn">
-                  Log In
-                </Link>
-                <Link to="/signup" className="navAuthBtn navSignupBtn">
-                  Sign Up
-                </Link>
+                <Link to="/login" className="navAuthBtn navLoginBtn">Log In</Link>
+                <Link to="/signup" className="navAuthBtn navSignupBtn">Sign Up</Link>
               </div>
             )}
           </div>
