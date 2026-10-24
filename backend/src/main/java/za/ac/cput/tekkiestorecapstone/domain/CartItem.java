@@ -18,7 +18,8 @@ public class CartItem {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cart_id")
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    // "cartItems" stops item -> cart -> items -> cart... looping forever when sent as JSON
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "cartItems"})
     private Cart cart;
 
     @ManyToOne(fetch = FetchType.LAZY)

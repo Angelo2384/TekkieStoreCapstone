@@ -121,9 +121,9 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
           className="btn-place-order"
           onClick={onPlaceOrder}
           disabled={isSubmitting || cart.length === 0}
-          aria-label="Place Secure Order"
+          aria-label="Pay with Paystack"
         >
-          <span>{isSubmitting ? 'PROCESSING ORDER...' : 'PLACE SECURE ORDER'}</span>
+          <span>{isSubmitting ? 'REDIRECTING TO PAYSTACK...' : 'PAY WITH PAYSTACK'}</span>
         </button>
 
         {/* Terms Agreement */}

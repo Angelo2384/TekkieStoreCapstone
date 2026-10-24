@@ -1,35 +1,27 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { useOrder } from '../context/OrderContext';
 import { useAuth } from '../context/AuthContext';
 import {
   ShippingAddressSection,
   ShippingAddressData,
   ShippingAddressErrors,
 } from '../components/checkout/ShippingAddressSection';
-import {
-  PaymentMethodSection,
-  PaymentOption,
-  CardFormData,
-  CardFormErrors,
-} from '../components/checkout/PaymentMethodSection';
+import { PaymentMethodSection } from '../components/checkout/PaymentMethodSection';
 import { ShipmentMethodCard } from '../components/checkout/ShipmentMethodCard';
 import { CheckoutOrderSummary } from '../components/checkout/CheckoutOrderSummary';
-import { detectCardType } from '../utils/checkoutUtils';
-import { deliveryService } from '../services/deliveryService';
+import { paymentService } from '../services/paymentService';
+import { SAVED_SHIPPING_KEY } from '../utils/checkoutUtils';
 import './CheckoutPage.css';
 
 const FREE_SHIPPING_THRESHOLD = 1000;
 const STANDARD_SHIPPING_FEE = 150;
-const SAVED_SHIPPING_KEY = 'tekkie_store_saved_shipping';
-const SAVED_PAYMENT_KEY = 'tekkie_store_saved_payment';
-const SAVED_METHOD_KEY = 'tekkie_store_saved_payment_method';
+// The old card form saved card details under these keys
+const OLD_SAVED_CARD_KEYS = ['tekkie_store_saved_payment', 'tekkie_store_saved_payment_method'];
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, cartCount, cartTotal, clearCart } = useCart();
-  const { createOrder, refreshOrders } = useOrder();
+  const { cart, cartCount, cartTotal } = useCart();
   const { user } = useAuth();
 
   // Redirect to login if user is not authenticated
@@ -61,34 +53,7 @@ export const CheckoutPage: React.FC = () => {
   const [shippingErrors, setShippingErrors] = useState<ShippingAddressErrors>({});
   const [shippingTouched, setShippingTouched] = useState<Record<string, boolean>>({});
 
-  // Payment Form State (Restores previously saved payment details if available)
-  const [paymentMethod, setPaymentMethod] = useState<PaymentOption>(() => {
-    try {
-      const saved = localStorage.getItem(SAVED_METHOD_KEY);
-      if (saved === 'card' || saved === 'eft') return saved;
-    } catch {
-      // fallback
-    }
-    return 'card';
-  });
-
-  const [cardData, setCardData] = useState<CardFormData>(() => {
-    try {
-      const saved = localStorage.getItem(SAVED_PAYMENT_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Failed to load saved payment details', e);
-    }
-    return {
-      cardNumber: '',
-      expiryDate: '',
-      cvc: '',
-    };
-  });
-  const [cardErrors, setCardErrors] = useState<CardFormErrors>({});
-  const [cardTouched, setCardTouched] = useState<Record<string, boolean>>({});
-
-  // Persist payment & shipping details in localStorage for client caching
+  // Persist shipping details in localStorage for client caching
   useEffect(() => {
     try {
       localStorage.setItem(SAVED_SHIPPING_KEY, JSON.stringify(shippingData));
@@ -97,20 +62,24 @@ export const CheckoutPage: React.FC = () => {
     }
   }, [shippingData]);
 
+  // Card details must never sit in the browser; Paystack collects them now, so delete any old copies
   useEffect(() => {
-    try {
-      localStorage.setItem(SAVED_PAYMENT_KEY, JSON.stringify(cardData));
-      localStorage.setItem(SAVED_METHOD_KEY, paymentMethod);
-    } catch (e) {
-      console.error('Failed to persist payment details', e);
-    }
-  }, [cardData, paymentMethod]);
+    OLD_SAVED_CARD_KEYS.forEach((key) => localStorage.removeItem(key));
+  }, []);
 
   // Order Submission State
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const mainFormRef = useRef<HTMLDivElement>(null);
-  const pendingOrderRef = useRef<any | null>(null);
+
+  // Back from Paystack can restore this page with the button still disabled
+  useEffect(() => {
+    const onPageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) setIsSubmitting(false);
+    };
+    window.addEventListener('pageshow', onPageShow);
+    return () => window.removeEventListener('pageshow', onPageShow);
+  }, []);
 
   // Financial Calculations: Total = Subtotal + Shipping (No VAT during checkout)
   const subtotal = cartTotal;
@@ -190,61 +159,6 @@ export const CheckoutPage: React.FC = () => {
     }
   };
 
-  // Real-time Card Validation Logic
-  const validateCardField = (
-    field: keyof CardFormData,
-    value: string
-  ): string | undefined => {
-    const trimmed = value.trim();
-
-    switch (field) {
-      case 'cardNumber': {
-        if (!trimmed) return 'Please enter your card number.';
-        const clean = trimmed.replace(/\s+/g, '');
-        if (clean.length < 16) {
-          return 'Card number must contain exactly 16 digits.';
-        }
-        if (clean.length > 16 || !/^\d{16}$/.test(clean)) {
-          return 'Card number must contain exactly 16 digits.';
-        }
-        return undefined;
-      }
-      case 'expiryDate': {
-        if (!trimmed) return 'Expiry date must be in MM/YY format.';
-        if (!/^\d{2}\/\d{2}$/.test(trimmed)) {
-          return 'Expiry date must be in MM/YY format.';
-        }
-
-        const [monthStr, yearStr] = trimmed.split('/');
-        const month = parseInt(monthStr, 10);
-        const year = parseInt(`20${yearStr}`, 10);
-
-        if (month < 1 || month > 12) {
-          return 'Month must be between 01 and 12.';
-        }
-
-        const now = new Date();
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth() + 1;
-
-        if (year < currentYear || (year === currentYear && month < currentMonth)) {
-          return 'This card has expired.';
-        }
-
-        return undefined;
-      }
-      case 'cvc': {
-        if (!trimmed) return 'Please enter CVC.';
-        if (!/^\d{3,4}$/.test(trimmed)) {
-          return 'CVC must contain 3 digits.';
-        }
-        return undefined;
-      }
-      default:
-        return undefined;
-    }
-  };
-
   const handleShippingChange = (field: keyof ShippingAddressData, value: string) => {
     setShippingData((prev) => ({ ...prev, [field]: value }));
     if (shippingTouched[field]) {
@@ -259,20 +173,6 @@ export const CheckoutPage: React.FC = () => {
     setShippingErrors((prev) => ({ ...prev, [field]: error }));
   };
 
-  const handleCardChange = (field: keyof CardFormData, value: string) => {
-    setCardData((prev) => ({ ...prev, [field]: value }));
-    if (cardTouched[field]) {
-      const error = validateCardField(field, value);
-      setCardErrors((prev) => ({ ...prev, [field]: error }));
-    }
-  };
-
-  const handleCardBlur = (field: keyof CardFormData) => {
-    setCardTouched((prev) => ({ ...prev, [field]: true }));
-    const error = validateCardField(field, cardData[field]);
-    setCardErrors((prev) => ({ ...prev, [field]: error }));
-  };
-
   // Full Form Validation & Checkout Submission
   const handlePlaceOrder = async () => {
     if (cart.length === 0) {
@@ -280,7 +180,6 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // 1. Validate All Shipping Fields
     const newShippingErrors: ShippingAddressErrors = {};
     const newShippingTouched: Record<string, boolean> = {};
     let isShippingValid = true;
@@ -297,26 +196,7 @@ export const CheckoutPage: React.FC = () => {
     setShippingTouched(newShippingTouched);
     setShippingErrors(newShippingErrors);
 
-    // 2. Validate Payment Fields (if card)
-    let isPaymentValid = true;
-    const newCardErrors: CardFormErrors = {};
-    const newCardTouched: Record<string, boolean> = {};
-
-    if (paymentMethod === 'card') {
-      (Object.keys(cardData) as Array<keyof CardFormData>).forEach((field) => {
-        newCardTouched[field] = true;
-        const error = validateCardField(field, cardData[field]);
-        if (error) {
-          newCardErrors[field] = error;
-          isPaymentValid = false;
-        }
-      });
-      setCardTouched(newCardTouched);
-      setCardErrors(newCardErrors);
-    }
-
-    // 3. If validation fails, scroll to first error
-    if (!isShippingValid || !isPaymentValid) {
+    if (!isShippingValid) {
       const firstInvalidElement = document.querySelector('.input-error, [aria-invalid="true"]');
       if (firstInvalidElement) {
         firstInvalidElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -325,106 +205,38 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // 4. Successful validation: Create Order -> Save Delivery Details
+    // Nothing is saved until Paystack confirms payment, so Back or Cancel leaves the cart untouched
     setIsSubmitting(true);
 
     try {
-      const recipientName = shippingData.fullName || (user ? `${user.firstName} ${user.lastName}` : 'Valued Customer');
-
-      const cardClean = cardData.cardNumber.replace(/\s+/g, '');
-      const cardLastFour = cardClean.slice(-4) || '4921';
-      const cardBrand = detectCardType(cardData.cardNumber);
-
-      const randomTrack = Math.floor(10000000 + Math.random() * 90000000).toString();
-      const trackingNumber = `DSV-ZA-${randomTrack}`;
-
-      // 1. Create or retrieve already created Order (prevents duplicate orders on retry)
-      let activeOrder = pendingOrderRef.current;
-      if (!activeOrder) {
-        activeOrder = await createOrder({
-          items: cart,
-          shippingData,
-          recipientName,
-          paymentMethod,
-          cardLastFour,
-          cardBrand,
-          subtotal,
-          vat: 0,
-          shippingFee,
-          total: finalTotal,
-          trackingNumber,
-        });
-        pendingOrderRef.current = activeOrder;
-      }
-
-      // 2. Save DeliveryDetails linked to that Order
-      const deliveryId = `DD-${activeOrder.id}`;
-
-      // Calculate estimated delivery date: 3 business days from now
-      const estDate = new Date();
-      let added = 0;
-      while (added < 3) {
-        estDate.setDate(estDate.getDate() + 1);
-        const day = estDate.getDay();
-        if (day !== 0 && day !== 6) {
-          added++;
-        }
-      }
-      const estimatedDeliveryDate = estDate.toISOString().split('T')[0];
-
-      // 3. Save DeliveryDetails with real orderId and full address including province
-      await deliveryService.saveDeliveryDetails({
-        deliveryId,
-        order: {
-          orderId: activeOrder.id,
-        },
-        address: {
-          streetNumber: shippingData.streetNumber.trim(),
-          streetName: shippingData.streetName.trim(),
-          suburb: shippingData.suburb.trim(),
-          city: shippingData.city.trim(),
-          province: shippingData.province.trim(),
-          postalCode: shippingData.postalCode.trim(),
-        },
-        courier: 'DSV Express Logistics',
-        trackingNumber,
-        estimatedDeliveryDate,
-      });
-
-      // Clear pending order reference on success
-      pendingOrderRef.current = null;
-
-      await refreshOrders();
-
-      // Clear the cart on successful checkout
-      await clearCart();
-      setIsSubmitting(false);
-
-      // Navigate to the Order Confirmation Page
-      navigate(`/order-confirmation/${activeOrder.id}`);
+      const checkout = await paymentService.startCheckout();
+      window.location.href = checkout.authorizationUrl;
     } catch (err: any) {
       console.error('[CheckoutPage] Checkout submission error:', err);
-      alert(err?.response?.data?.message || err.message || 'Unable to finalize order and delivery details. Please try again.');
+      if (err?.response?.status === 401 || err?.response?.status === 403) {
+        alert('Your session has expired. Please log in again.');
+        navigate('/login');
+      } else {
+        alert(err?.response?.data?.message || err.message || 'Unable to start payment. Please try again.');
+      }
       setIsSubmitting(false);
     }
   };
 
   return (
     <div className="checkout-page">
-      {/* OBSIDIAN CHECKOUT HEADER SECTION */}
       <section className="checkout-header-section">
         <div className="checkout-container">
           <div className="checkout-header-content">
             <span className="checkout-eyebrow">CHECKOUT & PAYMENT</span>
             <h1 className="checkout-main-title">SECURE CHECKOUT</h1>
             <p className="checkout-header-subtitle">
-              Please complete your shipping address and payment details below to finalize your order.
+              Please complete your shipping address below, then pay securely on Paystack.
             </p>
           </div>
         </div>
       </section>
 
-      {/* BREADCRUMB BAR */}
       <div className="checkout-container">
         <div className="checkout-breadcrumb-bar">
           <nav className="checkout-breadcrumbs" aria-label="Breadcrumb">
@@ -437,10 +249,8 @@ export const CheckoutPage: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN CHECKOUT BODY SECTION */}
       <main className="checkout-body-section" ref={mainFormRef}>
         <div className="checkout-container">
-          {/* 2-COLUMN CHECKOUT LAYOUT */}
           <div className="checkout-layout-grid">
             {/* LEFT COLUMN: Shipping + Payment + Shipment Method */}
             <div className="checkout-main-column">
@@ -454,15 +264,7 @@ export const CheckoutPage: React.FC = () => {
               />
 
               {/* Payment Method Section */}
-              <PaymentMethodSection
-                paymentMethod={paymentMethod}
-                cardData={cardData}
-                cardErrors={cardErrors}
-                cardTouched={cardTouched}
-                onPaymentMethodChange={setPaymentMethod}
-                onCardChange={handleCardChange}
-                onCardBlur={handleCardBlur}
-              />
+              <PaymentMethodSection />
 
               {/* Shipment Method Card */}
               <ShipmentMethodCard />

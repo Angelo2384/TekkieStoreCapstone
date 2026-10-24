@@ -1,3 +1,6 @@
+/** Shipping form saved by the checkout page, sent with the order once payment is confirmed */
+export const SAVED_SHIPPING_KEY = 'tekkie_store_saved_shipping';
+
 /**
  * South African Provinces for Address Selection
  */
