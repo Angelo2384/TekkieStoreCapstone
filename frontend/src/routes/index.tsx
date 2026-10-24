@@ -12,6 +12,7 @@ import { DeliveryDetails } from '../pages/DeliveryDetails';
 import { ProductDetails } from '../pages/ProductDetails';
 import { CartPage } from '../pages/CartPage';
 import { CheckoutPage } from '../pages/CheckoutPage';
+import { PaymentReturn } from '../pages/PaymentReturn';
 import { OrderConfirmation } from '../pages/OrderConfirmation';
 import { PrivacyPolicy } from '../pages/PrivacyPolicy';
 import { TermsOfService } from '../pages/TermsOfService';
@@ -26,6 +27,7 @@ import { Products } from '../pages/admin/Products/Products';
 import { Inventory } from '../pages/admin/Inventory/Inventory';
 import { Orders } from '../pages/admin/Orders/Orders';
 import { Customers } from '../pages/admin/Customers/Customers';
+import { AdminLogins } from '../pages/admin/AdminLogins/AdminLogins';
 
 export const router = createBrowserRouter([
   {
@@ -88,6 +90,14 @@ export const router = createBrowserRouter([
         element: <CheckoutPage />,
       },
       {
+        path: '/payment/return/:orderId',
+        element: <PaymentReturn />,
+      },
+      {
+        path: '/payment/cancel/:orderId',
+        element: <PaymentReturn />,
+      },
+      {
         path: '/order-confirmation',
         element: <OrderConfirmation />,
       },
@@ -130,6 +140,7 @@ export const router = createBrowserRouter([
       { path: 'inventory', element: <Inventory /> },
       { path: 'orders', element: <Orders /> },
       { path: 'customers', element: <Customers /> },
+      { path: 'logins', element: <AdminLogins /> },
     ],
   },
   {

@@ -110,7 +110,6 @@ export const ProductDetails: React.FC = () => {
         <main className="product-details-main">
           <div className="product-details-container">
             <div className="product-details-grid">
-              {/* SKELETON GALLERY */}
               <div className="product-gallery-col">
                 <Skeleton
                   variant="rounded"
@@ -126,7 +125,6 @@ export const ProductDetails: React.FC = () => {
                 </div>
               </div>
 
-              {/* SKELETON INFO */}
               <div className="product-info-col">
                 <Skeleton variant="text" width="25%" height={18} animation="wave" sx={{ mb: 1.5 }} />
                 <Skeleton variant="text" width="85%" height={42} animation="wave" sx={{ mb: 1.5 }} />
@@ -193,7 +191,6 @@ export const ProductDetails: React.FC = () => {
 
   return (
     <div className="product-details-page">
-      {/* BREADCRUMB & BACK NAVIGATION BAR */}
       <div className="details-breadcrumb-bar">
         <div className="product-details-container">
           <div className="breadcrumb-row">
@@ -220,11 +217,9 @@ export const ProductDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN TWO-COLUMN PRODUCT HERO SECTION */}
       <main className="product-details-main">
         <div className="product-details-container">
           <div className="product-details-grid">
-            {/* LEFT COLUMN: 3-VIEW IMAGE GALLERY */}
             <div className="product-gallery-col">
               <ProductGallery
                 product={product}
@@ -235,7 +230,6 @@ export const ProductDetails: React.FC = () => {
               />
             </div>
 
-            {/* RIGHT COLUMN: INFORMATION & PURCHASE CONTROLS */}
             <div className="product-info-col">
               <ProductInfo
                 product={product}
@@ -250,7 +244,6 @@ export const ProductDetails: React.FC = () => {
         </div>
       </main>
 
-      {/* RELATED PRODUCTS SECTION */}
       {relatedProducts.length > 0 && (
         <section className="related-products-section">
           <div className="product-details-container">

@@ -192,7 +192,7 @@ export const CataloguePage = () => {
 
   const { shoes: allProducts, loading } = useShoes();
 
-  // 1. Filter shoes by page route (e.g. /sale, /men, /women, /new-drops)
+  // Products for the current route (/sale, /men, /women, /new-drops)
   const baseProducts = useMemo(() => {
     switch (routeMode) {
       case 'sale':
@@ -209,7 +209,6 @@ export const CataloguePage = () => {
     }
   }, [allProducts, routeMode]);
 
-  // 2. APPLY SIDEBAR FILTERS & SEARCH ON TOP OF BASE ROUTE PRODUCTS
   const filteredProducts = useMemo(() => {
     return baseProducts.filter((product) => {
       // Brand filter (case-insensitive)
@@ -259,7 +258,6 @@ export const CataloguePage = () => {
     });
   }, [baseProducts, selectedBrands, selectedCategories, selectedSizes, currentMaxPrice, searchQuery]);
 
-  // 3. APPLY SORTING (BEFORE PAGINATION)
   const sortedProducts = useMemo(() => {
     const list = [...filteredProducts];
     switch (sortBy) {
@@ -282,7 +280,6 @@ export const CataloguePage = () => {
     }
   }, [filteredProducts, sortBy]);
 
-  // 4. CALCULATE PAGINATION
   const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE);
   // Safely derive active page without cascading effects
   const activePage = totalPages > 0 ? Math.min(Math.max(1, currentPage), totalPages) : 1;
@@ -318,7 +315,6 @@ export const CataloguePage = () => {
 
   return (
     <div className="catalogue-page">
-      {/* CATALOGUE HEADER SECTION */}
       <section className="catalogue-header-section">
         <div className="catalogue-container">
           <div className="catalogue-header-content">
@@ -329,11 +325,9 @@ export const CataloguePage = () => {
         </div>
       </section>
 
-      {/* CATALOGUE BODY SECTION */}
       <section className="catalogue-body-section">
         <div className="catalogue-container">
           <div className="catalogue-layout">
-            {/* DESKTOP FILTER SIDEBAR */}
             <div className="catalogue-sidebar-col">
               <CatalogueFilters
                 selectedBrands={selectedBrands}
@@ -351,9 +345,7 @@ export const CataloguePage = () => {
               />
             </div>
 
-            {/* MAIN CONTENT AREA */}
             <main className="catalogue-main-col" ref={mainColRef}>
-              {/* TOOLBAR */}
               <CatalogueToolbar
                 displayedCount={paginatedProducts.length}
                 filteredCount={sortedProducts.length}
@@ -373,7 +365,6 @@ export const CataloguePage = () => {
                 activeFilterCount={activeFilterCount}
               />
 
-              {/* PRODUCT GRID OR EMPTY STATE */}
               {paginatedProducts.length > 0 ? (
                 <>
                   <div className="catalogue-product-grid">
@@ -387,7 +378,6 @@ export const CataloguePage = () => {
                     ))}
                   </div>
 
-                  {/* PAGINATION CONTROLS */}
                   <CataloguePagination
                     currentPage={activePage}
                     totalPages={totalPages}
@@ -449,7 +439,6 @@ export const CataloguePage = () => {
         </div>
       </section>
 
-      {/* MOBILE FILTERS DRAWER / MODAL */}
       {mobileFiltersOpen && (
         <div className="mobile-filter-overlay" onClick={() => setMobileFiltersOpen(false)}>
           <div

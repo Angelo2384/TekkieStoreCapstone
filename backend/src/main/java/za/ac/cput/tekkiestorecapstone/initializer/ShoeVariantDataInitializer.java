@@ -47,6 +47,12 @@ public class ShoeVariantDataInitializer implements ApplicationRunner {
     }
 
     public int seedShoeVariants() {
+        // Only a fresh database gets sizes, so new shoes and shoes whose sizes were removed aren't refilled with stock
+        if (shoeVariantRepository.count() > 0) {
+            log.info("[ShoeVariantInitializer] Sizes already exist. No new variants seeded.");
+            return 0;
+        }
+
         List<Shoe> existingShoes = shoeRepository.findAll();
         if (existingShoes.isEmpty()) {
             log.info("[ShoeVariantInitializer] No existing shoes found in database to seed variants for.");
@@ -89,7 +95,9 @@ public class ShoeVariantDataInitializer implements ApplicationRunner {
     public List<ShoeVariant> generateVariantsForShoe(Shoe shoe) {
         List<ShoeVariant> variants = new ArrayList<>();
         double[] sizes = determineSizesByGender(shoe.getGender());
-        String colour = extractColour(shoe.getShoeName());
+        // Uses the shoe's own colour once it has one
+        String colour = (shoe.getColour() != null && !shoe.getColour().isBlank())
+                ? shoe.getColour() : extractColour(shoe.getShoeName());
 
         for (int i = 0; i < sizes.length; i++) {
             double sizeVal = sizes[i];

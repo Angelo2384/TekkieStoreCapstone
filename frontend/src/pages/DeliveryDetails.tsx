@@ -53,7 +53,6 @@ export const DeliveryDetails: React.FC = () => {
 
   return (
     <div className="delivery-details-page">
-      {/* OBSIDIAN HEADER SECTION */}
       <section className="delivery-header-section">
         <div className="delivery-details-container">
           <div className="delivery-header-content">
@@ -66,7 +65,6 @@ export const DeliveryDetails: React.FC = () => {
         </div>
       </section>
 
-      {/* BREADCRUMB BAR */}
       <div className="delivery-details-container">
         <div className="delivery-breadcrumb-bar">
           <nav className="delivery-breadcrumbs" aria-label="Breadcrumb">
@@ -79,10 +77,8 @@ export const DeliveryDetails: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN CONTENT SECTION */}
       <main className="delivery-body-section">
         <div className="delivery-details-container">
-          {/* ORDER META SUMMARY BAR */}
           <div className="order-meta-summary-card">
             <div className="order-meta-info-group">
               <div className="order-meta-unit">
@@ -109,19 +105,15 @@ export const DeliveryDetails: React.FC = () => {
             </Link>
           </div>
 
-          {/* 1. TRACKING PROGRESS STATUS */}
           <TrackingStatus />
 
-          {/* 2. TWO-COLUMN: DELIVERY ADDRESS & CARRIER DETAILS */}
           <div className="delivery-two-col-grid">
             <DeliveryAddress deliveryData={backendDelivery || undefined} />
             <CarrierDetails deliveryData={backendDelivery || undefined} />
           </div>
 
-          {/* 3. SHIPMENT ITEMS */}
           <ShipmentItems />
 
-          {/* 4. REUSED DELIVERY & LOGISTICS OVERVIEW CARD */}
           <DeliveryDetailsCard />
         </div>
       </main>

@@ -37,22 +37,6 @@ export interface BackendOrder {
   orderItems: BackendOrderItem[];
 }
 
-export interface CreateOrderPayload {
-  orderId: string;
-  orderDate?: string;
-  subtotal: number;
-  shippingFee: number;
-  vat?: number;
-  totalAmount: number;
-  paymentMethod: string;
-  paymentReference: string;
-  status?: string;
-  customer: {
-    customerId: string;
-  };
-  orderItems: BackendOrderItem[];
-}
-
 export type BackendOrderStatus =
   | 'PENDING'
   | 'PAID'
@@ -119,15 +103,7 @@ export const getOrderStatusConfig = (status?: string): OrderStatusConfig => {
   );
 };
 
-/**
- * Maps backend OrderStatus enum strings to user-friendly UI status labels.
- * Section 27 requirement:
- * PENDING -> Order Confirmed
- * PAID / PACKED -> Processing
- * SHIPPED -> Dispatched
- * DELIVERED -> Delivered
- * CANCELLED -> Cancelled
- */
+/** Turns a backend order status (e.g. PAID) into the label customers see (e.g. Processing). */
 export const formatOrderStatus = (status?: string): string => {
   switch (status?.toUpperCase()) {
     case 'PENDING':
@@ -147,15 +123,6 @@ export const formatOrderStatus = (status?: string): string => {
 };
 
 export const orderService = {
-  /**
-   * Submits a new Order with connected Customer reference and OrderItems to Spring Boot.
-   * Endpoint: POST /order/create
-   */
-  createOrder: async (payload: CreateOrderPayload): Promise<BackendOrder> => {
-    const response = await api.post<BackendOrder>('/order/create', payload);
-    return response.data;
-  },
-
   /**
    * Retrieves an Order by its ID from Spring Boot.
    * Endpoint: GET /order/read/{id}

@@ -16,6 +16,8 @@ public class RegisterRequest {
     private String lastName;
     private String mobileNumber;
     private String role;
+    // 6-digit email verification code
+    private String code;
 
     public RegisterRequest() {}
 
@@ -97,6 +99,14 @@ public class RegisterRequest {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     public Customer toCustomer() {

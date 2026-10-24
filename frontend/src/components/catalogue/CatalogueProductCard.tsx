@@ -127,7 +127,6 @@ export const CatalogueProductCard: React.FC<CatalogueProductCardProps> = ({
         </div>
       </div>
 
-      {/* REUSABLE SIZE SELECTOR MODAL FOR CART */}
       <SizeSelector
         product={product}
         actionType="cart"

@@ -143,7 +143,6 @@ export const ContactUs: React.FC = () => {
 
   return (
     <div className="contact-page">
-      {/* OBSIDIAN HEADER SECTION */}
       <section className="contact-header-section">
         <div className="contact-container">
           <div className="contact-header-content">
@@ -157,7 +156,6 @@ export const ContactUs: React.FC = () => {
         </div>
       </section>
 
-      {/* BREADCRUMB BAR */}
       <div className="contact-container">
         <div className="contact-breadcrumb-bar">
           <nav className="contact-breadcrumbs" aria-label="Breadcrumb">
@@ -168,12 +166,10 @@ export const ContactUs: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN BODY CONTENT */}
       <main className="contact-body-section">
         <div className="contact-container">
           <div className="contact-layout-grid">
             
-            {/* LEFT COLUMN: FORM */}
             <div className="contact-card">
               <div className="contact-card-header">
                 <h2 className="contact-card-title">Send a Message</h2>
@@ -182,7 +178,6 @@ export const ContactUs: React.FC = () => {
                 </p>
               </div>
 
-              {/* FRIENDLY MESSAGE ON TOPIC ASSISTANCE */}
               <div className="contact-help-topics">
                 <div className="contact-help-intro">
                   We are here to help you with:
@@ -212,7 +207,6 @@ export const ContactUs: React.FC = () => {
 
               <form className="contact-form" onSubmit={handleSubmit} noValidate>
                 <div className="contact-form-row">
-                  {/* FULL NAME */}
                   <div className="contact-form-group">
                     <label htmlFor="fullName" className="contact-form-label">
                       Full Name *
@@ -240,7 +234,6 @@ export const ContactUs: React.FC = () => {
                     )}
                   </div>
 
-                  {/* EMAIL ADDRESS */}
                   <div className="contact-form-group">
                     <label htmlFor="email" className="contact-form-label">
                       Email Address *
@@ -269,7 +262,6 @@ export const ContactUs: React.FC = () => {
                   </div>
                 </div>
 
-                {/* SUBJECT */}
                 <div className="contact-form-group">
                   <label htmlFor="subject" className="contact-form-label">
                     Subject *
@@ -297,7 +289,6 @@ export const ContactUs: React.FC = () => {
                   )}
                 </div>
 
-                {/* MESSAGE */}
                 <div className="contact-form-group">
                   <label htmlFor="message" className="contact-form-label">
                     Message *
@@ -336,7 +327,6 @@ export const ContactUs: React.FC = () => {
               </form>
             </div>
 
-            {/* RIGHT COLUMN: CONTACT INFO */}
             <aside className="contact-info-col" aria-label="TekkieStore Contact Information">
               <div className="contact-info-box">
                 <div className="info-box-header">
@@ -347,7 +337,6 @@ export const ContactUs: React.FC = () => {
                 </div>
 
                 <div className="info-box-list">
-                  {/* EMAIL */}
                   <div className="info-item">
                     <Mail size={20} className="info-item-icon" />
                     <div className="info-item-content">
@@ -359,7 +348,6 @@ export const ContactUs: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* PHONE / CUSTOMER SUPPORT */}
                   <div className="info-item">
                     <Phone size={20} className="info-item-icon" />
                     <div className="info-item-content">
@@ -371,7 +359,6 @@ export const ContactUs: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* BUSINESS HOURS */}
                   <div className="info-item">
                     <Clock size={20} className="info-item-icon" />
                     <div className="info-item-content">
@@ -384,7 +371,6 @@ export const ContactUs: React.FC = () => {
                 </div>
               </div>
 
-              {/* FAQ QUICK LINK */}
               <div className="contact-faq-callout">
                 <h3 className="faq-callout-title">Quick Answers</h3>
                 <p className="faq-callout-desc">

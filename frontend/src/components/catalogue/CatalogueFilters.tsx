@@ -67,7 +67,6 @@ export const CatalogueFilters: React.FC<CatalogueFiltersProps> = ({
         )}
       </div>
 
-      {/* CATEGORY FILTER */}
       <div className="filter-group">
         <h3 className="filter-group-title">CATEGORY</h3>
         <div className="filter-options">
@@ -89,7 +88,6 @@ export const CatalogueFilters: React.FC<CatalogueFiltersProps> = ({
         </div>
       </div>
 
-      {/* BRAND FILTER */}
       <div className="filter-group">
         <h3 className="filter-group-title">BRAND</h3>
         <div className="filter-options">
@@ -111,7 +109,6 @@ export const CatalogueFilters: React.FC<CatalogueFiltersProps> = ({
         </div>
       </div>
 
-      {/* SIZE FILTER */}
       <div className="filter-group">
         <h3 className="filter-group-title">SIZE (UK)</h3>
         <div className="size-pill-grid">
@@ -132,7 +129,6 @@ export const CatalogueFilters: React.FC<CatalogueFiltersProps> = ({
         </div>
       </div>
 
-      {/* PRICE RANGE FILTER */}
       <div className="filter-group">
         <div className="price-header-row">
           <h3 className="filter-group-title">MAX PRICE</h3>
@@ -156,7 +152,6 @@ export const CatalogueFilters: React.FC<CatalogueFiltersProps> = ({
         </div>
       </div>
 
-      {/* MOBILE ACTION BUTTON */}
       {onCloseMobile && (
         <div className="mobile-filters-apply">
           <button 
