@@ -59,7 +59,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
         </span>
       </div>
 
-      {/* FREE SHIPPING PROGRESS BAR */}
       <div className="free-shipping-tracker">
         {isFreeShipping ? (
           <div className="shipping-progress-text success">
@@ -81,7 +80,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
         </div>
       </div>
 
-      {/* FINANCIAL LINES */}
       <div className="summary-financials">
         <div className="financial-row">
           <span className="financial-label">Subtotal</span>
@@ -117,7 +115,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
           <span className="financial-val-small">Included in price</span>
         </div>
 
-        {/* PROMO INPUT ACCORDION */}
         <form className="promo-code-form" onSubmit={handleApplyPromo}>
           <div className="promo-input-group">
             <input
@@ -149,7 +146,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
 
         <div className="financial-divider" />
 
-        {/* FINAL TOTAL */}
         <div className="financial-row total-row">
           <div>
             <span className="total-title">Total</span>
@@ -177,7 +173,6 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
         </Link>
       </div>
 
-      {/* TRUST GUARANTEES */}
       <div className="summary-trust-perks">
         <div className="trust-perk-item">
           <ShieldCheck size={18} className="perk-icon" />

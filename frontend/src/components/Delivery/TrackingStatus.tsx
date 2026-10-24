@@ -122,7 +122,6 @@ export const TrackingStatus: React.FC = () => {
         </div>
       </div>
 
-      {/* TIMELINE PROGRESS STEPS */}
       <div className="tracking-timeline-wrapper">
         <div className="tracking-steps-container">
           {TRACKING_STAGES.map((stage, idx) => {

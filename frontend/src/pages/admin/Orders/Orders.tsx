@@ -33,7 +33,6 @@ export const Orders: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<BackendOrder | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
-  // 1. Fetch real backend orders using orderService
   const loadOrders = useCallback(async (isManualRefresh = false) => {
     if (isManualRefresh) {
       setIsRefreshing(true);
@@ -61,7 +60,6 @@ export const Orders: React.FC = () => {
     loadOrders();
   }, [loadOrders]);
 
-  // 2. Derive dynamic status queue counts from real orders
   const queueCounts: OrderQueueCounts = useMemo(() => {
     const counts: OrderQueueCounts = {
       all: orders.length,
@@ -83,7 +81,6 @@ export const Orders: React.FC = () => {
     return counts;
   }, [orders]);
 
-  // 3. Extract unique payment methods available in fetched data
   const paymentMethods = useMemo(() => {
     const methods = new Set<string>();
     orders.forEach((o) => {
@@ -94,7 +91,6 @@ export const Orders: React.FC = () => {
     return Array.from(methods);
   }, [orders]);
 
-  // 4. Filtering and searching logic
   const filteredOrders = useMemo(() => {
     return orders.filter((ord) => {
       // Status filter
@@ -134,7 +130,6 @@ export const Orders: React.FC = () => {
     });
   }, [orders, selectedStatus, paymentFilter, searchTerm]);
 
-  // 5. Sorting logic
   const sortedOrders = useMemo(() => {
     const list = [...filteredOrders];
 
@@ -181,7 +176,6 @@ export const Orders: React.FC = () => {
     setCurrentPage(1);
   };
 
-  // 7. Pagination slice computation
   const totalPages = Math.max(1, Math.ceil(sortedOrders.length / pageSize));
   const paginatedOrders = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
@@ -215,7 +209,6 @@ export const Orders: React.FC = () => {
     setIsDrawerOpen(false);
   };
 
-  // 8. Order status update handler (safely preserves entire order entity)
   const handleUpdateStatus = async (
     orderToUpdate: BackendOrder,
     newStatus: BackendOrderStatus
@@ -237,7 +230,6 @@ export const Orders: React.FC = () => {
     }
   };
 
-  // 9. Client-side CSV export of filtered orders
   const handleExportCSV = () => {
     if (sortedOrders.length === 0) return;
 
@@ -308,7 +300,6 @@ export const Orders: React.FC = () => {
 
   return (
     <div className="admin-orders-page">
-      {/* 1. TOP HEADER & OPERATIONAL ACTIONS */}
       <header className="orders-page-header">
         <div className="orders-title-wrap">
           <h1 className="orders-page-title">Orders Management</h1>
@@ -342,14 +333,12 @@ export const Orders: React.FC = () => {
         </div>
       </header>
 
-      {/* 2. ORDER QUEUE NAVIGATION STRIP */}
       <OrderQueueStrip
         selectedStatus={selectedStatus}
         onSelectStatus={handleStatusChange}
         counts={queueCounts}
       />
 
-      {/* 3. SEARCH & MULTI-CRITERIA FILTERS TOOLBAR */}
       <OrderFilters
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
@@ -365,7 +354,6 @@ export const Orders: React.FC = () => {
         totalFiltered={sortedOrders.length}
       />
 
-      {/* 4. MAIN ORDERS TABLE CARD */}
       <div className="orders-table-card">
         <OrdersTable
           orders={paginatedOrders}
@@ -377,7 +365,6 @@ export const Orders: React.FC = () => {
           onClearFilters={handleClearFilters}
         />
 
-        {/* 5. COMPACT CLIENT-SIDE PAGINATION */}
         {!loading && !error && sortedOrders.length > 0 && (
           <OrderPagination
             currentPage={currentPage}
@@ -393,7 +380,6 @@ export const Orders: React.FC = () => {
         )}
       </div>
 
-      {/* 6. RIGHT-SIDE SLIDE-OVER ORDER DETAILS DRAWER */}
       <OrderDetailsDrawer
         order={selectedOrder}
         isOpen={isDrawerOpen}

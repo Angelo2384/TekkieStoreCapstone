@@ -94,7 +94,6 @@ export const CatalogueToolbar: React.FC<CatalogueToolbarProps> = ({
         </div>
       </div>
 
-      {/* ACTIVE FILTER CHIPS ROW */}
       {hasChips && (
         <div className="active-filter-chips">
           {searchQuery && (

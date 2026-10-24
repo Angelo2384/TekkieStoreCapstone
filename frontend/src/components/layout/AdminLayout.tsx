@@ -47,7 +47,6 @@ export const AdminLayout: React.FC = () => {
 
   return (
     <div className="admin-container">
-      {/* 1. LEFT ADMIN SIDEBAR */}
       <aside className="admin-sidebar" aria-label="Admin Navigation">
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-logo-link">
@@ -136,9 +135,7 @@ export const AdminLayout: React.FC = () => {
         </nav>
       </aside>
 
-      {/* 2. ADMIN MAIN WRAPPER */}
       <div className="admin-main-wrapper">
-        {/* TOP ADMIN NAVBAR */}
         <header className="admin-top-navbar">
           <div className="admin-top-left">
             <div className="admin-breadcrumbs">
@@ -164,7 +161,6 @@ export const AdminLayout: React.FC = () => {
           </div>
         </header>
 
-        {/* 3. MAIN DASHBOARD CONTENT AREA */}
         <main className="admin-content-area">
           <Outlet />
         </main>

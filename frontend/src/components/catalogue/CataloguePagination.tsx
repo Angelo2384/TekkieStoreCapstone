@@ -59,7 +59,6 @@ export const CataloguePagination: React.FC<CataloguePaginationProps> = ({
 
   return (
     <nav className="catalogue-pagination" aria-label="Catalogue pagination">
-      {/* PREVIOUS BUTTON */}
       <button
         type="button"
         className="pagination-btn pagination-arrow"
@@ -71,7 +70,6 @@ export const CataloguePagination: React.FC<CataloguePaginationProps> = ({
         <ChevronLeft size={18} strokeWidth={2.2} />
       </button>
 
-      {/* PAGE NUMBERS & ELLIPSIS */}
       <div className="pagination-pages">
         {pageItems.map((item, index) => {
           if (typeof item === 'string') {
@@ -98,7 +96,6 @@ export const CataloguePagination: React.FC<CataloguePaginationProps> = ({
         })}
       </div>
 
-      {/* NEXT BUTTON */}
       <button
         type="button"
         className="pagination-btn pagination-arrow"
