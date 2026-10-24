@@ -129,6 +129,18 @@ class ShoeVariantDataInitializerTest {
     }
 
     @Test
+    void testSeedShoeVariants_whenAnySizesExist_seedsNothing() {
+        // e.g. a shoe added by an admin with no sizes yet must not get sizes and stock on restart
+        when(shoeVariantRepository.count()).thenReturn(343L);
+
+        int seeded = initializer.seedShoeVariants();
+
+        assertEquals(0, seeded);
+        verify(shoeRepository, never()).findAll();
+        verify(shoeVariantRepository, never()).saveAll(anyList());
+    }
+
+    @Test
     void testDetermineSizesByGender() {
         double[] menSizes = ShoeVariantDataInitializer.determineSizesByGender("Men");
         assertArrayEquals(new double[]{6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0}, menSizes);
@@ -169,5 +181,16 @@ class ShoeVariantDataInitializerTest {
     void testCalculateStockQuantity() {
         int stock = ShoeVariantDataInitializer.calculateStockQuantity("NIKE-001", 0, 7);
         assertTrue(stock >= 0 && stock <= 15);
+    }
+
+    @Test
+    void testGeneratedSizesUseTheShoesOwnColour() {
+        Shoe navy = new Shoe.Builder().copy(menShoe).setColour("Navy").build();
+
+        List<ShoeVariant> variants = initializer.generateVariantsForShoe(navy);
+
+        assertFalse(variants.isEmpty());
+        // The name ends in "Black", but the shoe's own colour wins
+        assertTrue(variants.stream().allMatch(v -> v.getColour().equals("Navy")));
     }
 }

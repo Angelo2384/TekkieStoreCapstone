@@ -17,9 +17,28 @@ export interface RegisterPayload {
   phone?: string;
   mobileNumber?: string;
   role?: 'CUSTOMER' | 'ADMIN';
+  code?: string;
 }
 
 export const authService = {
+  // Emails a 6-digit code that /auth/register needs before it creates the account
+  sendCode: async (email: string): Promise<void> => {
+    await api.post('/auth/send-code', { email });
+  },
+
+  // Forgot password: email a code, check it, then set the new password (the code is checked again there)
+  sendResetCode: async (email: string): Promise<void> => {
+    await api.post('/auth/forgot-password/send-code', { email });
+  },
+
+  verifyResetCode: async (email: string, code: string): Promise<void> => {
+    await api.post('/auth/forgot-password/verify-code', { email, code });
+  },
+
+  resetPassword: async (email: string, code: string, password: string): Promise<void> => {
+    await api.post('/auth/forgot-password/reset', { email, code, password });
+  },
+
   login: async (email: string, password?: string): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>('/auth/login', { email, password });
     return response.data;

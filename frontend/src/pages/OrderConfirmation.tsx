@@ -143,7 +143,7 @@ export const OrderConfirmation: React.FC = () => {
               <div class="box-title">Dispatch &amp; Payment Details</div>
               Courier: ${order.shippingMethod}<br/>
               Tracking Ref: ${order.trackingNumber}<br/>
-              Payment Method: ${order.paymentMethod === 'card' ? 'Credit / Debit Card' : 'Instant EFT'}<br/>
+              Payment Method: ${order.paymentMethod === 'PAYSTACK' ? 'Paystack (Test mode)' : order.paymentMethod === 'card' ? 'Credit / Debit Card' : 'Instant EFT'}<br/>
               Payment Ref: ${order.paymentReference}<br/>
               Estimated Arrival: ${order.estimatedArrival}
             </div>
@@ -185,7 +185,6 @@ export const OrderConfirmation: React.FC = () => {
 
   return (
     <div className="order-confirmation-page">
-      {/* 1. OBSIDIAN HERO HEADER */}
       <section className="confirmation-hero-section">
         <div className="confirmation-container">
           <div className="confirmation-hero-content">
@@ -198,7 +197,6 @@ export const OrderConfirmation: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. BREADCRUMB BAR */}
       <div className="confirmation-container">
         <div className="confirmation-breadcrumb-bar">
           <nav className="confirmation-breadcrumbs" aria-label="Breadcrumb">
@@ -211,10 +209,8 @@ export const OrderConfirmation: React.FC = () => {
         </div>
       </div>
 
-      {/* 3. MAIN CONTENT BODY */}
       <main className="confirmation-body-section">
         <div className="confirmation-container">
-          {/* 3A. HORIZONTAL ORDER INFORMATION CARD */}
           <div className="order-info-horizontal-bar" aria-label="Order summary details">
             <div className="order-info-unit">
               <span className="info-unit-label">ORDER NUMBER</span>
@@ -237,9 +233,7 @@ export const OrderConfirmation: React.FC = () => {
             </div>
           </div>
 
-          {/* 3B. TWO-COLUMN LAYOUT: ORDER SUMMARY (LEFT) & DELIVERY (RIGHT) */}
           <div className="confirmation-layout-grid">
-            {/* LEFT COLUMN: ORDER SUMMARY */}
             <div className="confirmation-left-col">
               {/* Order Summary Card */}
               <div className="confirm-card order-summary-card" aria-label="Order Summary">
@@ -310,7 +304,6 @@ export const OrderConfirmation: React.FC = () => {
               </div>
             </div>
 
-            {/* RIGHT COLUMN: DELIVERY DETAILS & ACTIONS */}
             <div className="confirmation-right-col">
               {/* Delivery Card */}
               <div className="confirm-card delivery-info-card" aria-label="Delivery information">
@@ -373,7 +366,6 @@ export const OrderConfirmation: React.FC = () => {
                 </div>
               </div>
 
-              {/* ACTION BUTTONS & PDF DOWNLOAD */}
               <div className="confirmation-actions-group">
                 <button
                   type="button"

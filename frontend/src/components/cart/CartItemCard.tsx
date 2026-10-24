@@ -33,7 +33,6 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
 
   return (
     <div className="cart-item-card" data-cart-id={cartId}>
-      {/* THUMBNAIL */}
       <div className="cart-item-thumb-wrapper">
         {product.isOnSale ? (
           <span className="cart-item-tag tag-orange">SALE</span>
@@ -52,7 +51,6 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
         </Link>
       </div>
 
-      {/* INFO SECTION */}
       <div className="cart-item-info">
         <div className="cart-item-meta-row">
           <span className="cart-item-brand">{product.brand}</span>
@@ -78,7 +76,6 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
         </div>
       </div>
 
-      {/* QUANTITY CONTROLS */}
       <div className="cart-item-qty-section">
         <span className="qty-label">Quantity</span>
         <div className="cart-qty-control" role="group" aria-label={`Quantity for ${product.name}`}>
@@ -107,7 +104,6 @@ export const CartItemCard: React.FC<CartItemCardProps> = ({
         </div>
       </div>
 
-      {/* PRICE & REMOVE */}
       <div className="cart-item-price-actions">
         <div className="cart-price-col">
           <span className="cart-line-total">{formatPrice(lineTotal)}</span>

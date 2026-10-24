@@ -38,7 +38,9 @@ public class Shoe {
     private String description;
     @NotBlank(message = "Gender is required")
     private String gender;
-    
+    // Every size of the shoe shares this colour
+    private String colour;
+
     @PositiveOrZero(message = "Base price cannot be negative")
     private BigDecimal basePrice;
     @PositiveOrZero(message = "Sale price cannot be negative")
@@ -72,6 +74,7 @@ public class Shoe {
         this.category = builder.category;
         this.description = builder.description;
         this.gender = builder.gender;
+        this.colour = builder.colour;
         this.basePrice = builder.basePrice;
         this.salePrice = builder.salePrice;
         this.salePercentage = builder.salePercentage;
@@ -97,6 +100,9 @@ public class Shoe {
     }
     public String getGender() {
         return gender;
+    }
+    public String getColour() {
+        return colour;
     }
     public BigDecimal getBasePrice() {
         return basePrice;
@@ -124,6 +130,7 @@ public class Shoe {
                 ", category='" + category + '\'' +
                 ", description='" + description + '\'' +
                 ", gender='" + gender + '\'' +
+                ", colour='" + colour + '\'' +
                 ", basePrice=" + basePrice +
                 ", salePrice=" + salePrice +
                 ", salePercentage=" + salePercentage +
@@ -139,6 +146,7 @@ public class Shoe {
         private String category;
         private String description;
         private String gender;
+        private String colour;
         private BigDecimal basePrice;
         private BigDecimal salePrice;
         private BigDecimal salePercentage;
@@ -166,6 +174,10 @@ public class Shoe {
         }
         public Builder setGender(String gender) {
             this.gender = gender;
+            return this;
+        }
+        public Builder setColour(String colour) {
+            this.colour = colour;
             return this;
         }
         public Builder setBasePrice(BigDecimal basePrice) {
@@ -204,6 +216,7 @@ public class Shoe {
             this.category = shoe.category;
             this.description = shoe.description;
             this.gender = shoe.gender;
+            this.colour = shoe.colour;
             this.basePrice = shoe.basePrice;
             this.salePrice = shoe.salePrice;
             this.salePercentage = shoe.salePercentage;

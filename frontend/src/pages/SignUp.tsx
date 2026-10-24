@@ -1,14 +1,19 @@
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useEffect, useState, type FormEvent, type ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Mail, Phone, Lock, CheckCircle, ArrowRight } from 'lucide-react';
+import { User, Mail, Phone, Lock, KeyRound } from 'lucide-react';
 import { AuthContainer } from '../components/authentication/AuthContainer';
 import { AuthField } from '../components/authentication/AuthField';
 import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/authService';
+
+const RESEND_WAIT_SECONDS = 60;
 
 export const SignUp = () => {
   const navigate = useNavigate();
   const { signup } = useAuth();
-  const [role, setRole] = useState<'CUSTOMER' | 'ADMIN'>('CUSTOMER');
+  const [step, setStep] = useState<'details' | 'verify'>('details');
+  const [code, setCode] = useState('');
+  const [resendIn, setResendIn] = useState(0);
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -18,6 +23,14 @@ export const SignUp = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn((seconds) => seconds - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
+
+  const errorMessage = (err: any, fallback: string) => err.response?.data?.message || err.message || fallback;
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -66,35 +79,118 @@ export const SignUp = () => {
       return;
     }
 
-    if (role === 'ADMIN' && !form.email.trim().toLowerCase().endsWith('@tekkies.com')) {
-      setError('Admin accounts must use an @tekkies.com email address');
+    setError(null);
+    setLoading(true);
+    try {
+      // The account is only created after the emailed code is entered
+      await authService.sendCode(form.email);
+      setCode('');
+      setResendIn(RESEND_WAIT_SECONDS);
+      setStep('verify');
+    } catch (err: any) {
+      setError(errorMessage(err, 'Could not send the verification code. Please try again.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerify = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!/^\d{6}$/.test(code)) {
+      setError('Enter the 6-digit code from your email');
       return;
     }
 
     setError(null);
     setLoading(true);
     try {
-      const response = await signup({
+      // Public signup only creates customers; the admin account is created by the backend on startup
+      await signup({
         fullName: form.fullName,
         email: form.email,
         phone: form.phone,
         password: form.password,
-        role,
+        role: 'CUSTOMER',
+        code,
       });
-
-      if (response?.role === 'ADMIN' || role === 'ADMIN') {
-        navigate('/admin');
-      } else {
-        navigate('/catalogue');
-      }
+      navigate('/catalogue');
     } catch (err: any) {
-      const message =
-        err.response?.data?.message || err.message || 'Registration failed. Please try again.';
-      setError(message);
+      setError(errorMessage(err, 'Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }
   };
+
+  const handleResend = async () => {
+    setError(null);
+    setLoading(true);
+    try {
+      await authService.sendCode(form.email);
+      setCode('');
+      setResendIn(RESEND_WAIT_SECONDS);
+    } catch (err: any) {
+      setError(errorMessage(err, 'Could not send a new code. Please try again.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (step === 'verify') {
+    return (
+      <AuthContainer
+        title="Check Your Email"
+        subtitle={`We sent a 6-digit code to ${form.email}`}
+        footerText="Already have an account?"
+        footerLinkText="Log In"
+        footerLinkTo="/login"
+      >
+        <form className="authForm" onSubmit={handleVerify}>
+          {error && (
+            <div className="authError" role="alert">
+              {error}
+            </div>
+          )}
+
+          <AuthField
+            id="signup-code"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            maxLength={6}
+            label="Verification Code"
+            icon={KeyRound}
+            placeholder="Enter OTP"
+            value={code}
+            onChange={(e) => {
+              setCode(e.target.value.replace(/\D/g, '').slice(0, 6));
+              if (error) setError(null);
+            }}
+            required
+          />
+
+          <button type="submit" className="authSubmitBtn" disabled={loading}>
+            {loading ? 'VERIFYING...' : 'VERIFY & SIGN UP'}
+          </button>
+
+          <div className="verifyActions">
+            <button type="button" className="authTextBtn" onClick={handleResend} disabled={resendIn > 0 || loading}>
+              {resendIn > 0 ? `Resend code in ${resendIn}s` : 'Resend code'}
+            </button>
+            <button
+              type="button"
+              className="authTextBtn"
+              onClick={() => {
+                setStep('details');
+                setError(null);
+              }}
+            >
+              Change details
+            </button>
+          </div>
+        </form>
+      </AuthContainer>
+    );
+  }
 
   return (
     <AuthContainer
@@ -106,40 +202,10 @@ export const SignUp = () => {
     >
       <form className="authForm" onSubmit={handleSubmit}>
         {error && (
-          <div style={{ color: '#dc2626', fontSize: '0.875rem', textAlign: 'center', marginTop: '-0.25rem' }}>
+          <div className="authError" role="alert">
             {error}
           </div>
         )}
-
-        <div className="roleSelectorGroup">
-          <label className="roleSelectorLabel">Account Type</label>
-          <div className="roleToggleContainer" role="radiogroup" aria-label="Account Type">
-            <button
-              type="button"
-              className={`roleToggleBtn ${role === 'CUSTOMER' ? 'active' : ''}`}
-              onClick={() => {
-                setRole('CUSTOMER');
-                if (error) setError(null);
-              }}
-              role="radio"
-              aria-checked={role === 'CUSTOMER'}
-            >
-              Customer
-            </button>
-            <button
-              type="button"
-              className={`roleToggleBtn ${role === 'ADMIN' ? 'active' : ''}`}
-              onClick={() => {
-                setRole('ADMIN');
-                if (error) setError(null);
-              }}
-              role="radio"
-              aria-checked={role === 'ADMIN'}
-            >
-              Admin
-            </button>
-          </div>
-        </div>
 
         <AuthField
           id="signup-name"
@@ -193,7 +259,7 @@ export const SignUp = () => {
           id="signup-confirm-password"
           type="password"
           label="Confirm Password"
-          icon={CheckCircle}
+          icon={Lock}
           placeholder="••••••••"
           value={form.confirmPassword}
           onChange={handleChange}
@@ -201,8 +267,7 @@ export const SignUp = () => {
         />
 
         <button type="submit" className="authSubmitBtn" disabled={loading}>
-          <span>{loading ? 'CREATING ACCOUNT...' : 'SIGN UP'}</span>
-          <ArrowRight size={18} strokeWidth={2.25} />
+          {loading ? 'SENDING CODE...' : 'SIGN UP'}
         </button>
       </form>
     </AuthContainer>

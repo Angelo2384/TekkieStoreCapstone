@@ -6,6 +6,7 @@ Author: Qaasim Isaacs(222544422)
 Date: 19 july 2026
 */
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import za.ac.cput.tekkiestorecapstone.domain.Customer;
@@ -37,7 +38,7 @@ public class OrderService implements IOrderService {
 
     // Finds the ShoeVariant matching an order item's shoeId + size (e.g. "UK 10")
     // and reduces its stock by the ordered quantity, never going below 0.
-    private void decreaseVariantStock(OrderItem item) {
+    public void decreaseVariantStock(OrderItem item) {
         String[] parts = item.getSize() != null ? item.getSize().trim().split("\\s+") : new String[0];
         if (parts.length < 2) return;
 
@@ -56,6 +57,8 @@ public class OrderService implements IOrderService {
                 .findFirst()
                 .orElse(null);
         if (match == null) return;
+        // Hibernate may hand back a lazy proxy whose fields are empty, and Builder.copy() reads fields
+        match = (ShoeVariant) Hibernate.unproxy(match);
 
         int newStock = Math.max(0, match.getStockQuantity() - item.getQuantity());
         ShoeVariant updated = new ShoeVariant.Builder()

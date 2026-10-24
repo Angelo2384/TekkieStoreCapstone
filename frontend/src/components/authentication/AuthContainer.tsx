@@ -21,7 +21,13 @@ export const AuthContainer = ({
 }: AuthContainerProps) => {
   return (
     <div className="authPageWrapper">
+      <Link to="/" className="authBackLink">
+        Back to store
+      </Link>
+
       <div className="authCard">
+        <img className="authLogo" src="/logo.png" alt="Sole Town" />
+
         <div className="authHeader">
           <h1 className="authTitle">{title}</h1>
           <p className="authSubtitle">{subtitle}</p>

@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { CartItem } from './CartContext';
 import { useAuth } from './AuthContext';
 import {
   orderService,
@@ -44,36 +43,14 @@ export interface Order {
   vat: number; // 15% VAT included portion
   total: number;
   shippingAddress: OrderShippingAddress;
-  paymentMethod: 'card' | 'eft';
-  paymentReference: string; // e.g. "VISA-4921" or "EFT-88291"
+  paymentMethod: 'card' | 'eft' | 'PAYSTACK';
+  paymentReference: string; // e.g. Paystack's transaction id, "VISA-4921" on older orders
   trackingNumber: string; // e.g. "DSV-ZA-99482710"
-}
-
-export interface CreateOrderInput {
-  items: CartItem[];
-  shippingData: {
-    streetNumber: string;
-    streetName: string;
-    suburb: string;
-    city: string;
-    province: string;
-    postalCode: string;
-  };
-  recipientName?: string;
-  paymentMethod: 'card' | 'eft';
-  cardLastFour?: string;
-  cardBrand?: string;
-  subtotal: number;
-  vat?: number;
-  shippingFee: number;
-  total: number;
-  trackingNumber?: string;
 }
 
 interface OrderContextType {
   orders: Order[];
   activeOrder: Order | null;
-  createOrder: (input: CreateOrderInput) => Promise<Order>;
   getOrderById: (orderId: string) => Order | undefined;
   fetchOrderById: (orderId: string) => Promise<Order | undefined>;
   setActiveOrderById: (orderId: string) => void;
@@ -221,90 +198,6 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const activeOrder = orders.find((o) => o.id === activeOrderId) || (orders.length > 0 ? orders[0] : null);
 
-  const createOrder = async (input: CreateOrderInput): Promise<Order> => {
-    if (!user || !user.customerId) {
-      throw new Error('You must be logged in to complete checkout.');
-    }
-
-    const randomDigits = Math.floor(10000 + Math.random() * 90000).toString();
-    const orderId = `TK-${randomDigits}`;
-    const now = new Date();
-
-    // 15% South African VAT: Subtotal * 0.15
-    const vatAmount = input.vat !== undefined ? input.vat : Math.round(input.subtotal * 0.15);
-
-    // Safe payment reference - never full card details
-    let paymentReference = '';
-    if (input.paymentMethod === 'card') {
-      const brand = input.cardBrand === 'mastercard' ? 'MC' : 'VISA';
-      const lastFour = input.cardLastFour || '4921';
-      paymentReference = `${brand}-${lastFour}`;
-    } else {
-      paymentReference = `EFT-${randomDigits}`;
-    }
-
-    const backendItems = input.items.map((item, index) => {
-      const effectivePrice =
-        item.product.isOnSale && item.product.salePrice
-          ? item.product.salePrice
-          : item.product.price;
-      return {
-        orderItemId: `OI-${orderId}-${index + 1}`,
-        shoeId: String(item.product.id),
-        shoeName: item.product.name,
-        brand: item.product.brand,
-        size: String(item.size),
-        imageUrl: item.product.image,
-        quantity: item.quantity,
-        unitPrice: effectivePrice,
-        subTotal: effectivePrice * item.quantity,
-      };
-    });
-
-    const payload = {
-      orderId,
-      orderDate: now.toISOString(),
-      subtotal: input.subtotal,
-      shippingFee: input.shippingFee,
-      vat: vatAmount,
-      totalAmount: input.total,
-      paymentMethod: input.paymentMethod,
-      paymentReference,
-      status: 'PENDING',
-      customer: {
-        customerId: user.customerId,
-      },
-      orderItems: backendItems,
-    };
-
-    // 1. Post to Spring Boot backend via Axios
-    const savedBackendOrder = await orderService.createOrder(payload);
-
-    // 2. Build local presentation Order
-    const recipient = input.recipientName || `${user.firstName} ${user.lastName}`;
-    const address = input.shippingData;
-    const shippingAddress: OrderShippingAddress = {
-      recipientName: recipient,
-      streetNumber: address.streetNumber,
-      streetName: address.streetName,
-      suburb: address.suburb,
-      city: address.city,
-      province: address.province,
-      postalCode: address.postalCode,
-      fullAddress: `${address.streetNumber} ${address.streetName}, ${address.suburb}, ${address.city}, ${address.province}, ${address.postalCode}`,
-    };
-
-    const trackingNumber =
-      input.trackingNumber || `DSV-ZA-${Math.floor(10000000 + Math.random() * 90000000)}`;
-
-    const newOrder = mapBackendOrderToOrder(savedBackendOrder, shippingAddress, trackingNumber);
-
-    setOrders((prev) => [newOrder, ...prev]);
-    setActiveOrderId(newOrder.id);
-
-    return newOrder;
-  };
-
   const refreshOrders = async () => {
     if (!user || !user.customerId) return;
     try {
@@ -364,7 +257,6 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const value: OrderContextType = {
     orders,
     activeOrder,
-    createOrder,
     getOrderById,
     fetchOrderById,
     setActiveOrderById,

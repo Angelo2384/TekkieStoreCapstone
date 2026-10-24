@@ -9,11 +9,11 @@ export const SaleSection = () => {
           <div className="sale-text-content">
             <h2 className="sale-title">STEP INTO THE SALE</h2>
             <h3 className="sale-subtitle">
-              THE OBSIDIAN COLLECTION <br />
-              <span className="highlight">20% OFF</span>
+              LIMITED DROP <br />
+              <span className="highlight">EXTRA 10% OFF</span>
             </h3>
             <p className="sale-description">
-              Use code <strong className="sale-promo-code">TEKKIE20</strong> at checkout. Limited time only.
+              Use code <strong className="sale-promo-code">TEKKIE10</strong> at checkout. Limited time only.
             </p>
             <Link to="/sale" className="sale-button">
               Shop The Sale

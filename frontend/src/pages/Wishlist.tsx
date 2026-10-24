@@ -9,7 +9,6 @@ export const Wishlist: React.FC = () => {
 
   return (
     <div className="catalogue-page">
-      {/* WISHLIST HEADER SECTION */}
       <section className="catalogue-header-section">
         <div className="catalogue-container">
           <div className="catalogue-header-content">
@@ -22,7 +21,6 @@ export const Wishlist: React.FC = () => {
         </div>
       </section>
 
-      {/* WISHLIST BODY SECTION */}
       <section className="catalogue-body-section">
         <div className="catalogue-container">
           {wishlist.length === 0 ? (

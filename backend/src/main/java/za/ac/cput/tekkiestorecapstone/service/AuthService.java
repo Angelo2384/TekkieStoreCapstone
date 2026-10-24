@@ -14,6 +14,7 @@ import za.ac.cput.tekkiestorecapstone.dto.AuthResponse;
 import za.ac.cput.tekkiestorecapstone.repository.CustomerRepository;
 import za.ac.cput.tekkiestorecapstone.security.JwtUtil;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -101,6 +102,9 @@ public class AuthService {
                 throw new BadCredentialsException("Admin accounts must have an @tekkies.com email address");
             }
         }
+
+        // Shown on the admin "Admin Logins" page
+        customerRepository.save(new Customer.Builder().copy(customer).setLastLoginAt(Instant.now()).build());
 
         String token = jwtUtil.generateToken(customer.getEmail(), role);
         String name = "";

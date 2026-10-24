@@ -23,8 +23,13 @@ const mapCustomer = (c: any): Customer => {
   };
 };
 
+// Admin accounts are staff, not customers, so they're left out of the list and the count
+const isCustomer = (c: any): boolean => String(c?.role || 'CUSTOMER').toUpperCase() !== 'ADMIN';
+
 const fetchCustomers = (): Promise<Customer[]> =>
-  api.get('/customer/getAll').then((res) => (Array.isArray(res.data) ? res.data.map(mapCustomer) : []));
+  api
+    .get('/customer/getAll')
+    .then((res) => (Array.isArray(res.data) ? res.data.filter(isCustomer).map(mapCustomer) : []));
 
 export const loadCustomers = (): Promise<Customer[]> => {
   if (cache) return Promise.resolve(cache);

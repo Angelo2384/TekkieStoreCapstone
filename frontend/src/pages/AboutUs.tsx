@@ -29,7 +29,6 @@ export const AboutUs: React.FC = () => {
 
   return (
     <div className="about-page">
-      {/* BREADCRUMB BAR */}
       <div className="about-breadcrumb-bar">
         <div className="about-container">
           <nav className="about-breadcrumbs" aria-label="Breadcrumb">
@@ -42,11 +41,9 @@ export const AboutUs: React.FC = () => {
         </div>
       </div>
 
-      {/* 1. HERO SECTION */}
       <section className="about-hero-section">
         <div className="about-container">
           <div className="about-hero-grid">
-            {/* LEFT: TEXT CONTENT */}
             <div className="about-hero-content">
               <span className="about-eyebrow">THE TEKKIESTORE STORY</span>
               <h1 className="about-hero-title">
@@ -73,7 +70,6 @@ export const AboutUs: React.FC = () => {
                 </Link>
               </div>
 
-              {/* 3 HERO HIGHLIGHTS */}
               <div className="about-hero-highlights">
                 <div className="about-highlight-item">
                   <ShieldCheck size={20} className="about-highlight-icon" />
@@ -93,7 +89,6 @@ export const AboutUs: React.FC = () => {
               </div>
             </div>
 
-            {/* RIGHT: HERO VISUAL */}
             <div className="about-hero-visual">
               <div className="about-hero-img-wrapper">
                 <img
@@ -117,11 +112,9 @@ export const AboutUs: React.FC = () => {
         </div>
       </section>
 
-      {/* 2. WHO WE ARE SECTION */}
       <section className="about-who-section">
         <div className="about-container">
           <div className="about-who-grid">
-            {/* LEFT: LIFESTYLE IMAGE */}
             <div className="about-who-visual">
               <img
                 src="/category_women_sneakers_sitting_orange.jpg"
@@ -133,7 +126,6 @@ export const AboutUs: React.FC = () => {
               />
             </div>
 
-            {/* RIGHT: STORY & BENEFITS */}
             <div className="about-who-content">
               <span className="about-eyebrow">WHO WE ARE</span>
               <h2 className="about-who-title">
@@ -151,7 +143,6 @@ export const AboutUs: React.FC = () => {
                 you browse to the moment your order arrives.
               </p>
 
-              {/* 3 BENEFIT CARDS */}
               <div className="about-benefits-list">
                 <div className="about-benefit-card">
                   <div className="about-benefit-icon-box">
@@ -194,7 +185,6 @@ export const AboutUs: React.FC = () => {
         </div>
       </section>
 
-      {/* 3. WHAT WE OFFER SECTION */}
       <section className="about-offer-section">
         <div className="about-container">
           <div className="about-section-header">
@@ -206,7 +196,6 @@ export const AboutUs: React.FC = () => {
           </div>
 
           <div className="about-offer-grid">
-            {/* CARD 1: MEN */}
             <Link to="/men" className="about-offer-card" aria-label="Explore Men's Collection">
               <div className="about-offer-icon-wrapper">
                 <Layers size={24} />
@@ -220,7 +209,6 @@ export const AboutUs: React.FC = () => {
               </span>
             </Link>
 
-            {/* CARD 2: WOMEN */}
             <Link to="/women" className="about-offer-card" aria-label="Explore Women's Collection">
               <div className="about-offer-icon-wrapper">
                 <Sparkles size={24} />
@@ -234,7 +222,6 @@ export const AboutUs: React.FC = () => {
               </span>
             </Link>
 
-            {/* CARD 3: NEW DROPS */}
             <Link to="/new-drops" className="about-offer-card" aria-label="Explore New Drops Collection">
               <div className="about-offer-icon-wrapper">
                 <Flame size={24} />
@@ -248,7 +235,6 @@ export const AboutUs: React.FC = () => {
               </span>
             </Link>
 
-            {/* CARD 4: SALE */}
             <Link to="/sale" className="about-offer-card" aria-label="Explore Sale Collection">
               <div className="about-offer-icon-wrapper">
                 <Tag size={24} />
@@ -265,7 +251,6 @@ export const AboutUs: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. BRANDS SECTION */}
       <section className="about-brands-section">
         <div className="about-container">
           <div className="about-section-header">
@@ -292,7 +277,6 @@ export const AboutUs: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. WHY SHOP TEKKIESTORE (OBSIDIAN DARK) */}
       <section className="about-why-section">
         <div className="about-container">
           <div className="about-why-header">
@@ -304,7 +288,6 @@ export const AboutUs: React.FC = () => {
           </div>
 
           <div className="about-why-grid">
-            {/* FEATURE 1 */}
             <div className="about-why-card">
               <div className="about-why-icon-box">
                 <ShieldCheck size={24} />
@@ -315,7 +298,6 @@ export const AboutUs: React.FC = () => {
               </p>
             </div>
 
-            {/* FEATURE 2 */}
             <div className="about-why-card">
               <div className="about-why-icon-box">
                 <Layers size={24} />
@@ -326,7 +308,6 @@ export const AboutUs: React.FC = () => {
               </p>
             </div>
 
-            {/* FEATURE 3 */}
             <div className="about-why-card">
               <div className="about-why-icon-box">
                 <CheckCircle2 size={24} />
@@ -337,7 +318,6 @@ export const AboutUs: React.FC = () => {
               </p>
             </div>
 
-            {/* FEATURE 4 */}
             <div className="about-why-card">
               <div className="about-why-icon-box">
                 <Truck size={24} />
@@ -351,7 +331,6 @@ export const AboutUs: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. CORE PHILOSOPHY SECTION */}
       <section className="about-philosophy-section">
         <div className="about-container">
           <div className="about-philosophy-content">
@@ -369,7 +348,6 @@ export const AboutUs: React.FC = () => {
         </div>
       </section>
 
-      {/* 7. FINAL CTA SECTION */}
       <section className="about-final-cta">
         <img
           src="/hero.png"

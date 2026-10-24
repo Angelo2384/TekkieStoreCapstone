@@ -58,10 +58,8 @@ const InventoryDrawerContent: React.FC<{
   const [newQuantity, setNewQuantity] = useState('');
   const [adding, setAdding] = useState(false);
 
-  // Colour isn't asked for when adding a size — a shoe only ever has one
-  // colourway in this data model, so a new size just inherits it (falling
-  // back to a sensible default if this is the shoe's very first variant).
-  const colourForNewSize = rows[0]?.colour?.trim() || 'Original';
+  // A new size takes the shoe's colour, which is set on the Products page
+  const colourForNewSize = shoe.colour?.trim() || rows[0]?.colour?.trim() || 'Original';
 
   const totalStock = rows.reduce((sum, r) => sum + r.stockQuantity, 0);
 

@@ -12,7 +12,6 @@ export const CartPage: React.FC = () => {
 
   return (
     <div className="cart-page">
-      {/* OBSIDIAN HEADER SECTION */}
       <section className="cart-header-section">
         <div className="cart-container">
           <div className="cart-header-content">
@@ -25,7 +24,6 @@ export const CartPage: React.FC = () => {
         </div>
       </section>
 
-      {/* BREADCRUMB BAR */}
       <div className="cart-container">
         <div className="cart-breadcrumb-bar">
           <nav className="cart-breadcrumbs" aria-label="Breadcrumb">
@@ -38,7 +36,6 @@ export const CartPage: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN BODY SECTION */}
       <main className="cart-body-section">
         <div className="cart-container">
           {error && (
@@ -81,7 +78,6 @@ export const CartPage: React.FC = () => {
             <CartEmpty />
           ) : (
             <div className="cart-layout-grid">
-              {/* LEFT: CART ITEMS LIST */}
               <div className="cart-items-section">
                 <div className="cart-items-toolbar">
                   <span className="cart-items-count-text">
@@ -111,7 +107,6 @@ export const CartPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* RIGHT: ORDER SUMMARY */}
               <OrderSummary subtotal={cartTotal} itemCount={cartCount} />
             </div>
           )}

@@ -7,13 +7,18 @@
 
 package za.ac.cput.tekkiestorecapstone.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Embedded;
+import jakarta.persistence.PrePersist;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+
+import java.time.Instant;
 
 @Entity
 public class Customer {
@@ -41,6 +46,17 @@ public class Customer {
 
     private String role;
 
+    // Account activity, set by the server only and shown to admins through AdminController
+    @JsonIgnore
+    @Column(updatable = false)
+    private Instant createdAt;
+
+    @JsonIgnore
+    private Instant lastLoginAt;
+
+    @JsonIgnore
+    private Instant lastSeenAt;
+
     protected Customer(){}
 
     private Customer(Builder builder){
@@ -51,6 +67,16 @@ public class Customer {
         this.mobileNumber= builder.mobileNumber;
         this.address= builder.address;
         this.role = builder.role;
+        this.createdAt = builder.createdAt;
+        this.lastLoginAt = builder.lastLoginAt;
+        this.lastSeenAt = builder.lastSeenAt;
+    }
+
+    @PrePersist
+    private void onCreate() {
+        if (createdAt == null) {
+            createdAt = Instant.now();
+        }
     }
 
     public String getCustomerId() {
@@ -81,6 +107,18 @@ public class Customer {
         return (role != null && !role.isBlank()) ? role : "CUSTOMER";
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public Instant getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public Instant getLastSeenAt() {
+        return lastSeenAt;
+    }
+
     @Override
     public String toString() {
         return "Customer{" +
@@ -101,6 +139,9 @@ public class Customer {
        private String mobileNumber;
        private Address address;
        private String role;
+       private Instant createdAt;
+       private Instant lastLoginAt;
+       private Instant lastSeenAt;
 
        public Builder setCustomerId(String customerId) {
            this.customerId = customerId;
@@ -137,6 +178,21 @@ public class Customer {
            return this;
        }
 
+       public Builder setCreatedAt(Instant createdAt) {
+           this.createdAt = createdAt;
+           return this;
+       }
+
+       public Builder setLastLoginAt(Instant lastLoginAt) {
+           this.lastLoginAt = lastLoginAt;
+           return this;
+       }
+
+       public Builder setLastSeenAt(Instant lastSeenAt) {
+           this.lastSeenAt = lastSeenAt;
+           return this;
+       }
+
        public Builder copy(Customer customer){
            this.customerId= customer.customerId;
            this.email= customer.email;
@@ -145,6 +201,9 @@ public class Customer {
            this.mobileNumber=customer.mobileNumber;
            this.address=customer.address;
            this.role=customer.role;
+           this.createdAt=customer.createdAt;
+           this.lastLoginAt=customer.lastLoginAt;
+           this.lastSeenAt=customer.lastSeenAt;
            return this;
        }
        public Customer build(){return new Customer(this);}

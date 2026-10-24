@@ -1073,6 +1073,11 @@
   transition: all 0.2s ease;
 }
 
+button.btn-back-home {
+  border: none;
+  cursor: pointer;
+}
+
 .btn-view-tracking:hover {
   background-color: #222633;
 }

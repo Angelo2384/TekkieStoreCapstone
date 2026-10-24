@@ -196,7 +196,6 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     }
                   }}
                 >
-                  {/* ORDER NUMBER & REF */}
                   <td className="td-order">
                     <div className="order-id-cell">
                       <span className="order-primary-id">#{ord.orderId}</span>
@@ -208,7 +207,6 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     </div>
                   </td>
 
-                  {/* CUSTOMER INFO */}
                   <td className="td-customer">
                     <div className="customer-cell">
                       <span className="customer-name">{custName}</span>
@@ -218,21 +216,18 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     </div>
                   </td>
 
-                  {/* ITEMS QUANTITY */}
                   <td className="td-items">
                     <span className="items-count-pill">
                       {totalQty} {totalQty === 1 ? 'item' : 'items'}
                     </span>
                   </td>
 
-                  {/* ORDER DATE */}
                   <td className="td-date">
                     <span className="order-date-text">
                       {formatOrderDate(ord.orderDate)}
                     </span>
                   </td>
 
-                  {/* PAYMENT METHOD */}
                   <td className="td-payment">
                     <div className="payment-method-cell">
                       <CreditCard size={13} className="payment-icon text-muted" />
@@ -242,19 +237,16 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     </div>
                   </td>
 
-                  {/* TOTAL AMOUNT */}
                   <td className="td-total">
                     <span className="order-total-amount">
                       {formatPrice(ord.totalAmount || 0)}
                     </span>
                   </td>
 
-                  {/* STATUS BADGE */}
                   <td className="td-status">
                     <OrderStatusBadge status={ord.status} />
                   </td>
 
-                  {/* ACTION BUTTON */}
                   <td
                     className="td-action th-action"
                     onClick={(e) => e.stopPropagation()}
