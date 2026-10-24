@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types/profile';
 import { authService, AuthResponse, RegisterPayload } from '../services/authService';
+import { adminService } from '../services/adminService';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -63,6 +64,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to persist auth state', error);
     }
   }, [authState]);
+
+  // Checks in every minute so the admin "Admin Logins" page can show who is active right now
+  const isAdmin = authState.isAuthenticated && authState.user?.role === 'ADMIN';
+  useEffect(() => {
+    if (!isAdmin) return;
+    const beat = () => adminService.heartbeat().catch(() => {});
+    beat();
+    const timer = setInterval(beat, 60_000);
+    return () => clearInterval(timer);
+  }, [isAdmin]);
 
   const login = async (email: string, password?: string): Promise<AuthResponse> => {
     const response = await authService.login(email, password);
@@ -128,6 +139,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (token && isAdmin) adminService.goOffline(token).catch(() => {});
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
     setAuthState({

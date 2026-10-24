@@ -9,6 +9,7 @@ export interface BackendShoe {
   category: string;
   description: string;
   gender: string;
+  colour?: string;
   basePrice: number;
   salePrice?: number;
   salePercentage?: number;
@@ -79,7 +80,7 @@ export const mapBackendShoeToProduct = (shoe: BackendShoe): ShoeProduct => {
     brand: brand,
     name: shoe.shoeName,
     category: (shoe.category || 'Sneaker') as ShoeCategory,
-    colour: 'Original',
+    colour: shoe.colour?.trim() || 'Original',
     sizes: ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11'],
     price: shoe.basePrice,
     salePrice: isOnSale ? shoe.salePrice : undefined,
@@ -162,14 +163,14 @@ export const updateShoe = async (shoe: BackendShoe): Promise<ShoeProduct | null>
   }
 };
 
-// DELETE: Removes a shoe record from the database by its ID
-export const deleteShoe = async (id: string): Promise<boolean> => {
+// DELETE: Removes a shoe by its ID; throws with the server's reason if refused (e.g. it still has stock)
+export const deleteShoe = async (id: string): Promise<void> => {
   try {
-    const response = await api.delete<boolean>(`/shoe/delete/${id}`);
-    return response.data;
+    await api.delete(`/shoe/delete/${id}`);
   } catch (error) {
     console.error(`Failed to delete shoe ${id}:`, error);
-    return false;
+    const message = (error as { response?: { data?: { message?: string } } }).response?.data?.message;
+    throw new Error(message || "Couldn't delete this product. Please try again.");
   }
 };
 

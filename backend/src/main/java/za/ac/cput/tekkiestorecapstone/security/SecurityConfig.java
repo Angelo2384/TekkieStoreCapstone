@@ -37,6 +37,10 @@ public class SecurityConfig {
                         // Only admins can create or change orders, so nobody can mark their own order as PAID
                         .requestMatchers("/order/create", "/order/update", "/order/delete/**").hasRole("ADMIN")
                         .requestMatchers("/orderItem/create", "/orderItem/update", "/orderItem/delete/**").hasRole("ADMIN")
+                        // Deleting a shoe also removes its sizes and cart lines
+                        .requestMatchers("/shoe/delete/**").hasRole("ADMIN")
+                        // Admin account list and admin check-ins
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

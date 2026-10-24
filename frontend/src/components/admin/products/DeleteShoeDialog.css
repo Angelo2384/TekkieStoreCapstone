@@ -1,0 +1,116 @@
+/* Delete confirmation popup on the admin Products page. Backdrop matches the Add Shoe modal. */
+
+.delete-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(11, 13, 20, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.delete-dialog-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: var(--pure-white);
+  box-shadow: 0 20px 40px rgba(11, 13, 20, 0.2);
+}
+
+.delete-dialog-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--obsidian);
+}
+
+.delete-dialog-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.delete-dialog-text strong {
+  color: var(--obsidian);
+}
+
+.delete-dialog-error {
+  margin: 1rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  background-color: #FEF2F2;
+  color: #B91C1C;
+  font-size: 0.85rem;
+}
+
+.delete-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.delete-dialog-cancel,
+.delete-dialog-confirm {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.delete-dialog-cancel {
+  border: 1px solid #E4E4E7;
+  background-color: var(--pure-white);
+  color: var(--text-main);
+}
+
+.delete-dialog-cancel:hover:not(:disabled) {
+  background-color: #F4F4F5;
+  color: var(--obsidian);
+}
+
+.delete-dialog-confirm {
+  border: 1px solid #DC2626;
+  background-color: #DC2626;
+  color: var(--pure-white);
+}
+
+.delete-dialog-confirm:hover:not(:disabled) {
+  border-color: #B91C1C;
+  background-color: #B91C1C;
+}
+
+.delete-dialog-cancel:disabled,
+.delete-dialog-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete-dialog-cancel:focus-visible,
+.delete-dialog-confirm:focus-visible {
+  outline: 2px solid var(--brand-orange);
+  outline-offset: 2px;
+}
+
+.delete-dialog-spinner {
+  animation: delete-dialog-spin 1s linear infinite;
+}
+
+@keyframes delete-dialog-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

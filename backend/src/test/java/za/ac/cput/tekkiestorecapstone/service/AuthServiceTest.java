@@ -207,4 +207,20 @@ class AuthServiceTest {
         assertEquals("CUSTOMER", response.getRole());
         assertEquals("CUSTOMER", jwtUtil.extractRole(response.getToken()));
     }
+
+    @Test
+    void testLoginRecordsLastLoginTime() {
+        String rawPassword = "password123";
+        Customer customer = new Customer.Builder()
+                .setCustomerId("C001")
+                .setEmail("ethan@example.com")
+                .setPassword(passwordEncoder.encode(rawPassword))
+                .build();
+
+        when(customerRepository.findByEmail("ethan@example.com")).thenReturn(Optional.of(customer));
+
+        authService.login("ethan@example.com", rawPassword);
+
+        verify(customerRepository).save(argThat(saved -> saved.getLastLoginAt() != null));
+    }
 }

@@ -42,6 +42,7 @@ export const AdminLayout: React.FC = () => {
     if (path.includes('/admin/inventory')) return 'Inventory Management';
     if (path.includes('/admin/orders')) return 'Customer Orders';
     if (path.includes('/admin/customers')) return 'Customers Directory';
+    if (path.includes('/admin/logins')) return 'Admin Logins';
     return 'Dashboard';
   };
 
@@ -50,9 +51,9 @@ export const AdminLayout: React.FC = () => {
       <aside className="admin-sidebar" aria-label="Admin Navigation">
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-logo-link">
-            <img src="/logo.png" alt="TekkieStore Logo" className="admin-logo-img" />
+            <img src="/logo.png" alt="SoleTown Logo" className="admin-logo-img" />
             <div className="admin-logo-text">
-              <span className="brand-title">TEKKIESTORE</span>
+              <span className="brand-title">SoleTown</span>
               <span className="admin-portal-tag">ADMIN PORTAL</span>
             </div>
           </Link>
@@ -109,6 +110,16 @@ export const AdminLayout: React.FC = () => {
           >
             <Users size={20} className="admin-nav-icon" />
             <span>Customers</span>
+          </NavLink>
+
+          <NavLink
+            to="/admin/logins"
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? 'active' : ''}`
+            }
+          >
+            <ShieldCheck size={20} className="admin-nav-icon" />
+            <span>Admin Logins</span>
           </NavLink>
 
           <div className="admin-nav-divider" />

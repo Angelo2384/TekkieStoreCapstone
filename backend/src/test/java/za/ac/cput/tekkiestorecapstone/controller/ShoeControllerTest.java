@@ -18,8 +18,12 @@ import za.ac.cput.tekkiestorecapstone.domain.Shoe;
 import za.ac.cput.tekkiestorecapstone.factory.ShoeFactory;
 import za.ac.cput.tekkiestorecapstone.service.ShoeService;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -106,5 +110,14 @@ class ShoeControllerTest {
         assertNotNull(shoes);
 
         System.out.println("Shoes: " + shoes);
+    }
+
+    @Test
+    void f_deleteRefusedWhileInStockGives409() {
+        ResponseEntity<Map<String, String>> response =
+                controller.handleStillInStock(new IllegalStateException("This shoe still has 3 pairs in stock."));
+
+        assertEquals(HttpStatus.CONFLICT, response.getStatusCode());
+        assertEquals("This shoe still has 3 pairs in stock.", response.getBody().get("message"));
     }
 }

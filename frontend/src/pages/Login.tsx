@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { AuthContainer } from '../components/authentication/AuthContainer';
 import { AuthField } from '../components/authentication/AuthField';
@@ -7,6 +7,9 @@ import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  // Set by the forgot-password page after a successful reset
+  const notice = (location.state as { message?: string } | null)?.message;
   const { login } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
@@ -47,8 +50,14 @@ export const Login = () => {
       footerLinkTo="/signup"
     >
       <form className="authForm" onSubmit={handleSubmit}>
+        {notice && !error && (
+          <div className="authSuccess" role="status">
+            {notice}
+          </div>
+        )}
+
         {error && (
-          <div style={{ color: '#dc2626', fontSize: '0.875rem', textAlign: 'center', marginTop: '-0.25rem' }}>
+          <div className="authError" role="alert">
             {error}
           </div>
         )}
