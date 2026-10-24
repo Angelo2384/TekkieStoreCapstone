@@ -12,6 +12,7 @@ import { DeliveryDetails } from '../pages/DeliveryDetails';
 import { ProductDetails } from '../pages/ProductDetails';
 import { CartPage } from '../pages/CartPage';
 import { CheckoutPage } from '../pages/CheckoutPage';
+import { PaymentReturn } from '../pages/PaymentReturn';
 import { OrderConfirmation } from '../pages/OrderConfirmation';
 import { PrivacyPolicy } from '../pages/PrivacyPolicy';
 import { TermsOfService } from '../pages/TermsOfService';
@@ -86,6 +87,14 @@ export const router = createBrowserRouter([
       {
         path: '/checkout',
         element: <CheckoutPage />,
+      },
+      {
+        path: '/payment/return/:orderId',
+        element: <PaymentReturn />,
+      },
+      {
+        path: '/payment/cancel/:orderId',
+        element: <PaymentReturn />,
       },
       {
         path: '/order-confirmation',
