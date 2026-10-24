@@ -27,6 +27,7 @@ import { Products } from '../pages/admin/Products/Products';
 import { Inventory } from '../pages/admin/Inventory/Inventory';
 import { Orders } from '../pages/admin/Orders/Orders';
 import { Customers } from '../pages/admin/Customers/Customers';
+import { AdminLogins } from '../pages/admin/AdminLogins/AdminLogins';
 
 export const router = createBrowserRouter([
   {
@@ -139,6 +140,7 @@ export const router = createBrowserRouter([
       { path: 'inventory', element: <Inventory /> },
       { path: 'orders', element: <Orders /> },
       { path: 'customers', element: <Customers /> },
+      { path: 'logins', element: <AdminLogins /> },
     ],
   },
   {

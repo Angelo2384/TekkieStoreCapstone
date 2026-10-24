@@ -8,6 +8,7 @@ package za.ac.cput.tekkiestorecapstone.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -51,10 +52,16 @@ public class ShoeController {
         return service.update(shoe);
     }
 
-    // DELETE: Remove a shoe by its ID
+    // DELETE: Remove a shoe by its ID (refused while it still has stock)
     @DeleteMapping("/delete/{id}")
     public boolean delete(@PathVariable String id) {
         return service.delete(id);
+    }
+
+    // Sent when a shoe can't be deleted because it still has stock
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> handleStillInStock(IllegalStateException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", e.getMessage()));
     }
 
     // GET: Fetch all shoes for the store catalogue

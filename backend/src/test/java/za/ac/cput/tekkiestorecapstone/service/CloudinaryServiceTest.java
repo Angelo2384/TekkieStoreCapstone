@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -30,17 +30,14 @@ public class CloudinaryServiceTest {
     }
 
     @Test
-    void a_uploadFile() throws IOException {
-        // Locate a real sample shoe image from the frontend assets
-        File testFile = new File("../frontend/public/Adidas/adidas Samba OG.jpg");
-        if (!testFile.exists()) {
-            testFile = new File("frontend/public/Adidas/adidas Samba OG.jpg");
-        }
+    void a_uploadFile() throws Exception {
+        // Small sample shoe image kept with the tests (src/test/resources)
+        URL sample = getClass().getResource("/sample-shoe.jpg");
+        assertNotNull(sample, "sample-shoe.jpg should be in backend/src/test/resources");
+        File testFile = new File(sample.toURI());
 
-        assertTrue(testFile.exists(), "Sample test image should exist at: " + testFile.getAbsolutePath());
-
-        // Upload to Cloudinary under the "adidas" brand folder
-        Map<?, ?> result = cloudinaryService.uploadFile(testFile, "adidas");
+        // Separate "test" folder so the upload and clean-up can never touch real product images
+        Map<?, ?> result = cloudinaryService.uploadFile(testFile, "test");
 
         assertNotNull(result, "Upload result should not be null");
         assertNotNull(result.get("secure_url"), "Upload result must contain a secure_url");
@@ -55,6 +52,10 @@ public class CloudinaryServiceTest {
         System.out.println("Public ID:  " + uploadedPublicId);
         System.out.println("Secure URL: " + secureUrl);
         System.out.println("=================================================");
+
+        // Delete the test upload so each test run doesn't leave a copy in Cloudinary
+        Map<?, ?> deleted = cloudinaryService.deleteImage(uploadedPublicId);
+        assertEquals("ok", deleted.get("result"), "Test upload should be deleted from Cloudinary");
     }
 
     @Test

@@ -79,6 +79,7 @@ interface FormDataState {
   brand: string;
   category: string;
   gender: string;
+  colour: string;
   description: string;
   basePrice: string;
   salePercentage: string;
@@ -89,6 +90,7 @@ const INITIAL_FORM: FormDataState = {
   brand: 'Nike',
   category: 'Sneaker',
   gender: 'Unisex',
+  colour: '',
   description: '',
   basePrice: '',
   salePercentage: '',
@@ -106,6 +108,7 @@ const formDataFromShoe = (shoe: ShoeProduct): FormDataState => ({
   brand: shoe.brand,
   category: shoe.category,
   gender: shoe.gender,
+  colour: shoe.colour,
   description: shoe.description,
   basePrice: String(shoe.price),
   salePercentage: shoe.salePercentage ? String(shoe.salePercentage) : '',
@@ -275,6 +278,10 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
       errors.shoeName = 'Shoe name is required.';
     }
 
+    if (!formData.colour.trim()) {
+      errors.colour = 'Colour is required.';
+    }
+
     const basePriceNum = parseFloat(formData.basePrice);
     if (!formData.basePrice || isNaN(basePriceNum) || basePriceNum <= 0) {
       errors.basePrice = 'Base price is required and must be greater than 0.';
@@ -326,6 +333,7 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
         category: formData.category,
         description: formData.description.trim(),
         gender: formData.gender,
+        colour: formData.colour.trim(),
         basePrice: parsedBasePrice,
         salePrice: computedSalePrice,
         salePercentage: parsedSalePercentage,
@@ -459,8 +467,8 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
               </div>
             </div>
 
-            {/* Row 2: Brand, Category & Gender */}
-            <div className="form-grid-row form-grid-3">
+            {/* Row 2: Brand, Category, Gender & Colour */}
+            <div className="form-grid-row form-grid-4">
               <div className="form-group">
                 <label htmlFor="brand">Brand</label>
                 <select
@@ -510,6 +518,27 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="colour">
+                  Colour <span className="required-star">*</span>
+                </label>
+                <input
+                  id="colour"
+                  name="colour"
+                  type="text"
+                  placeholder="e.g. Black"
+                  value={formData.colour}
+                  onChange={handleInputChange}
+                  className={fieldErrors.colour ? 'input-error' : ''}
+                  disabled={isSubmitting}
+                  title="Every size of this shoe uses this colour"
+                  required
+                />
+                {fieldErrors.colour && (
+                  <span className="field-error-msg">{fieldErrors.colour}</span>
+                )}
               </div>
             </div>
 

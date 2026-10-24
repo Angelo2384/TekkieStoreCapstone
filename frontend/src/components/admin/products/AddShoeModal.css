@@ -153,6 +153,10 @@
   grid-template-columns: repeat(3, 1fr);
 }
 
+.form-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
 .form-group {
   display: flex;
   flex-direction: column;
@@ -444,7 +448,8 @@
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .form-grid-row,
-  .form-grid-3 {
+  .form-grid-3,
+  .form-grid-4 {
     grid-template-columns: 1fr;
   }
 

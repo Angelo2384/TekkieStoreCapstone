@@ -32,12 +32,8 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
     const cleanCode = promoCode.trim().toUpperCase();
     if (!cleanCode) return;
 
-    if (cleanCode === 'TEKKIE10' || cleanCode === 'SNEAKER10') {
+    if (cleanCode === 'TEKKIE10') {
       setDiscountPercent(0.1);
-      setPromoApplied(true);
-      setPromoError('');
-    } else if (cleanCode === 'SOLETOWN15') {
-      setDiscountPercent(0.15);
       setPromoApplied(true);
       setPromoError('');
     } else {
