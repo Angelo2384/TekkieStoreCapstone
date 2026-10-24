@@ -177,7 +177,6 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
       aria-labelledby={`size-selector-title-${product.id}`}
     >
       <div className="size-selector-modal" onClick={handleModalClick}>
-        {/* HEADER */}
         <div className="size-selector-header">
           <div className="size-selector-product-preview">
             <ProductImage src={product.image} alt={product.name} className="size-selector-thumb" />
@@ -201,7 +200,6 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
           </button>
         </div>
 
-        {/* ACTION TITLE */}
         <div className="size-selector-action-title">
           <ShoppingBag size={15} />
           <span id={`size-selector-title-${product.id}`}>SELECT A SIZE</span>
@@ -263,7 +261,6 @@ export const SizeSelector: React.FC<SizeSelectorProps> = ({
           )}
         </div>
 
-        {/* FOOTER */}
         <div className="size-selector-footer">
           <span className="size-selector-hint">
             True to size. Click any available size to add to your bag.

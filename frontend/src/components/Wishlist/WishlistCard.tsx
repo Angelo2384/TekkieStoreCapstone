@@ -130,7 +130,6 @@ export const WishlistCard: React.FC<WishlistCardProps> = ({
         </div>
       </div>
 
-      {/* REUSABLE SIZE SELECTOR MODAL FOR ADDING TO CART */}
       <SizeSelector
         product={product}
         actionType="cart"

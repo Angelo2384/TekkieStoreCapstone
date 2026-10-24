@@ -137,19 +137,15 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
   // Stock status text and indicators for all 4 states
   const stockInfo = useMemo(() => {
-    // 1. Loading state
     if (variantsLoading) {
       return { inStock: false, text: 'Checking live stock...', count: undefined };
     }
-    // 2. Variant API error state
     if (variantsError) {
       return { inStock: false, text: 'Stock data unavailable', count: 0 };
     }
-    // 3. No variants registered for this shoe
     if (!hasVariants) {
       return { inStock: false, text: 'Currently unavailable', count: 0 };
     }
-    // 4. Variant selected
     if (selectedVariant) {
       if (selectedVariant.stockQuantity > 0) {
         return {
@@ -291,7 +287,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
   return (
     <div className="product-details-info">
-      {/* BRAND & CATEGORY */}
       <div className="product-brand-row">
         <span className="product-info-brand">{product.brand}</span>
         <span className="product-info-category-pill">{product.category}</span>
@@ -300,10 +295,8 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         )}
       </div>
 
-      {/* PRODUCT TITLE */}
       <h1 className="product-info-title">{product.name}</h1>
 
-      {/* PRICE */}
       <div className="product-info-price-row">
         {product.isOnSale && product.salePrice ? (
           <div className="product-details-sale-pricing">
@@ -321,7 +314,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         <span className="product-info-vat">Incl. VAT</span>
       </div>
 
-      {/* COLOUR SPECIFICATION */}
       <div className="product-info-section colour-section">
         <div className="size-header-row">
           <span className="info-section-title">
@@ -368,7 +360,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         )}
       </div>
 
-      {/* SIZE SELECTOR (REQUIRED) */}
       <div className={`product-info-section size-section ${validationError ? 'has-error' : ''}`}>
         <div className="size-header-row">
           <span className="info-section-title">
@@ -382,7 +373,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           <span className="size-guide-text">True to size</span>
         </div>
 
-        {/* 1. SKELETON LOADING STATE */}
         {variantsLoading && (
           <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
             {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -398,7 +388,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           </div>
         )}
 
-        {/* 2. API ERROR STATE */}
         {!variantsLoading && variantsError && (
           <div
             style={{
@@ -417,14 +406,12 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           </div>
         )}
 
-        {/* 3. NO VARIANTS EXIST STATE */}
         {!variantsLoading && !variantsError && !hasVariants && (
           <div style={{ fontSize: '0.88rem', color: 'var(--text-muted)', padding: '0.5rem 0' }}>
             No shoe size variants are currently registered or in stock for this shoe model.
           </div>
         )}
 
-        {/* 4. VARIANTS LOADED SUCCESSFULLY */}
         {!variantsLoading && !variantsError && hasVariants && (
           <div className="product-size-grid" role="radiogroup" aria-label="Available Sizes">
             {sizeOptions.map((opt) => {
@@ -454,7 +441,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           </div>
         )}
 
-        {/* STOCK QUANTITY BADGE */}
         {!variantsLoading && stockInfo.text && (
           <div className="stock-status-row">
             <span
@@ -476,7 +462,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
           </div>
         )}
 
-        {/* VALIDATION ERROR MESSAGE */}
         {validationError && (
           <div className="size-validation-msg" role="alert">
             <AlertCircle size={15} />
@@ -485,7 +470,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         )}
       </div>
 
-      {/* QUANTITY SELECTOR */}
       <div className="product-info-section quantity-section">
         <span className="info-section-title">QUANTITY</span>
         <div className="quantity-control-wrapper">
@@ -515,7 +499,6 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         </div>
       </div>
 
-      {/* ACTION BUTTONS: ADD TO CART & BUY IT NOW */}
       <div className="product-actions-group">
         <button
           type="button"
@@ -557,13 +540,11 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
         </button>
       </div>
 
-      {/* PRODUCT DESCRIPTION */}
       <div className="product-info-section description-section">
         <h2 className="info-section-heading">DESCRIPTION</h2>
         <p className="product-description-body">{product.description}</p>
       </div>
 
-      {/* VALUE / TRUST HIGHLIGHTS */}
       <div className="product-trust-badges">
         <div className="trust-badge-item">
           <Truck className="trust-icon" size={20} />

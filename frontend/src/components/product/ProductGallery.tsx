@@ -25,7 +25,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
 
   return (
     <div className="product-gallery" aria-label="Product Image Gallery">
-      {/* MAIN LARGE PRODUCT IMAGE */}
       <div className="main-image-container">
         {/* Product Tag / Badge */}
         {product.isOnSale ? (
@@ -65,7 +64,6 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         <span className="view-indicator-badge">{currentImage.label}</span>
       </div>
 
-      {/* THREE THUMBNAIL SWITCHERS */}
       <div className="gallery-thumbnails-row" role="tablist" aria-label="Shoe image perspectives">
         {galleryImages.slice(0, 3).map((img, index) => {
           const isSelected = index === selectedImageIndex;

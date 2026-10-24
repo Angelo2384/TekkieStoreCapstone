@@ -149,7 +149,6 @@ const OrderDetailsContent: React.FC<{
       onClick={(e) => e.stopPropagation()}
       aria-label={`Order Details for #${order.orderId}`}
     >
-      {/* DRAWER HEADER */}
       <header className="order-drawer-header">
         <div className="drawer-header-left">
           <div className="drawer-title-row">
@@ -173,9 +172,7 @@ const OrderDetailsContent: React.FC<{
         </button>
       </header>
 
-      {/* DRAWER CONTENT SCROLLER */}
       <div className="order-drawer-body">
-        {/* SECTION 1: FULFILMENT & STATUS UPDATER */}
         <section className="drawer-section fulfilment-section">
           <div className="drawer-section-header">
             <div className="section-title-wrap">
@@ -234,7 +231,6 @@ const OrderDetailsContent: React.FC<{
           </div>
         </section>
 
-        {/* SECTION 2: CUSTOMER */}
         <section className="drawer-section">
           <div className="drawer-section-header">
             <div className="section-title-wrap">
@@ -287,7 +283,6 @@ const OrderDetailsContent: React.FC<{
           </div>
         </section>
 
-        {/* SECTION 3: ORDER ITEMS */}
         <section className="drawer-section">
           <div className="drawer-section-header">
             <div className="section-title-wrap">
@@ -301,7 +296,6 @@ const OrderDetailsContent: React.FC<{
           <OrderItemsList items={order.orderItems || []} />
         </section>
 
-        {/* SECTION 4: PAYMENT BREAKDOWN */}
         <section className="drawer-section">
           <div className="drawer-section-header">
             <div className="section-title-wrap">
@@ -355,7 +349,6 @@ const OrderDetailsContent: React.FC<{
           </div>
         </section>
 
-        {/* SECTION 5: DELIVERY DETAILS */}
         <section className="drawer-section">
           <div className="drawer-section-header">
             <div className="section-title-wrap">
@@ -442,7 +435,6 @@ const OrderDetailsContent: React.FC<{
         </section>
       </div>
 
-      {/* DRAWER FOOTER */}
       <footer className="order-drawer-footer">
         <button
           type="button"

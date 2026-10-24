@@ -97,13 +97,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
 
     try {
-      // 1. Retrieve cart summary from backend
       await cartService.getCart(userCartId);
 
-      // 2. Retrieve user's cart items from backend
       const backendItems = await cartService.getCartItemsByCartId(userCartId);
 
-      // 3. Retrieve shoe catalogue (shared cache) to enrich cart lines with full product metadata
+      // The shared catalogue cache fills in product details cart items don't carry
       const shoes = await loadShoes();
       const shoeMap = new Map<string, ShoeProduct>(shoes.map((s) => [s.id, s]));
 
@@ -208,7 +206,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     quantity = 1,
     variant?: ShoeVariant | { variantId?: string; sizeRegion?: string; colour?: string; size?: string }
   ): Promise<boolean> => {
-    // 1. Strict Authentication Check
     if (!isAuthenticated || !userCartId) {
       router.navigate('/login');
       return false;
@@ -396,10 +393,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!itemToRemove || !userCartId || !itemToRemove.cartItemId) return;
 
     try {
-      // 1. Delete on backend first using actual cartItemId
       await cartService.deleteCartItem(itemToRemove.cartItemId);
 
-      // 2. Recalculate and update cart total on backend
       const newTotal = cart
         .filter((item) => item.cartItemId !== itemToRemove.cartItemId)
         .reduce((acc, curr) => acc + getEffectivePrice(curr.product) * curr.quantity, 0);
@@ -410,7 +405,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         customer: { customerId: userCartId },
       });
 
-      // 3. ONLY update React state after backend succeeds
+      // Only update local state once the backend delete has succeeded
       setCart((prev) => prev.filter((item) => item.cartItemId !== itemToRemove.cartItemId));
     } catch (err: any) {
       if (err?.response?.status === 401 || err?.response?.status === 403) {

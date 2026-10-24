@@ -32,7 +32,6 @@ export const Profile: React.FC = () => {
 
   return (
     <div className="profile-page">
-      {/* OBSIDIAN HEADER SECTION */}
       <section className="profile-header-section">
         <div className="profile-container">
           <div className="profile-header-content">
@@ -45,7 +44,6 @@ export const Profile: React.FC = () => {
         </div>
       </section>
 
-      {/* BREADCRUMB BAR */}
       <div className="profile-container">
         <div className="profile-breadcrumb-bar">
           <nav className="profile-breadcrumbs" aria-label="Breadcrumb">
@@ -56,11 +54,9 @@ export const Profile: React.FC = () => {
         </div>
       </div>
 
-      {/* MAIN BODY SECTION */}
       <main className="profile-body-section">
         <div className="profile-container">
           <div className="profile-layout">
-            {/* SIDEBAR */}
             <div className="profile-sidebar-col">
               <ProfileSidebar
                 activeTab={activeTab}
@@ -69,7 +65,6 @@ export const Profile: React.FC = () => {
               />
             </div>
 
-            {/* MAIN CONTENT AREA */}
             <div className="profile-main-col">
               {activeTab === 'profile' && (
                 <>
