@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Search, X, ArrowUpDown } from 'lucide-react';
 
 export type OrderSortOption =
   | 'date-desc'
@@ -19,7 +19,6 @@ interface OrderFiltersProps {
   paymentMethods: string[];
   hasActiveFilters: boolean;
   onClearFilters: () => void;
-  totalFiltered: number;
 }
 
 export const OrderFilters: React.FC<OrderFiltersProps> = ({
@@ -34,7 +33,6 @@ export const OrderFilters: React.FC<OrderFiltersProps> = ({
   paymentMethods,
   hasActiveFilters,
   onClearFilters,
-  totalFiltered,
 }) => {
   return (
     <div className="orders-filter-toolbar">

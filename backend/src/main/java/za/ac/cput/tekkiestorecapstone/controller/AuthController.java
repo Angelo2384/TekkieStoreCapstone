@@ -70,9 +70,14 @@ public class AuthController {
         if ("ADMIN".equalsIgnoreCase(request.getRole().trim())) {
             throw new IllegalArgumentException("Admin accounts can't be created through signup");
         }
+        Customer customer = request.toCustomer();
+        // Checked up front so a missing detail gives a clear message instead of a server error on save
+        if (customer.getName().getFirstName().isBlank() || customer.getName().getLastName().isBlank()
+                || customer.getMobileNumber().isBlank()) {
+            throw new IllegalArgumentException("Fields missing");
+        }
         // No account is created unless the emailed code is correct
         verificationService.checkCode(request.getEmail(), request.getCode());
-        Customer customer = request.toCustomer();
         AuthResponse response = authService.register(customer);
         verificationService.consumeCode(request.getEmail());
         return ResponseEntity.ok(response);

@@ -90,6 +90,29 @@ class AuthControllerTest {
     }
 
     @Test
+    void testRegisterWithoutLastNameIsRefused() {
+        RegisterRequest request = new RegisterRequest("lennie@example.com", "pass123", "Lennie", null, null, "0821234567");
+        request.setCode("123456");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> authController.register(request));
+
+        assertEquals("Fields missing", e.getMessage());
+        verify(verificationService, never()).checkCode(any(), any());
+        verify(authService, never()).register(any());
+    }
+
+    @Test
+    void testRegisterWithoutMobileNumberIsRefused() {
+        RegisterRequest request = new RegisterRequest("lennie@example.com", "pass123", "Lennie Helder", null, null, "");
+        request.setCode("123456");
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> authController.register(request));
+
+        assertEquals("Fields missing", e.getMessage());
+        verify(authService, never()).register(any());
+    }
+
+    @Test
     void testRegisterWithWrongCodeCreatesNoAccount() {
         RegisterRequest request = new RegisterRequest("ethan@example.com", "pass123", "Ethan Williams", null, null, "0821234567");
         request.setCode("000000");
