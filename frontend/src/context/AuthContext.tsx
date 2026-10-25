@@ -141,6 +141,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     const token = sessionStorage.getItem(TOKEN_KEY);
     if (token && isAdmin) adminService.goOffline(token).catch(() => {});
+    const currentCustomerId = authState.user?.customerId;
+    if (currentCustomerId) {
+      localStorage.removeItem(`tekkie_orders_${currentCustomerId}`);
+      localStorage.removeItem(`tekkie_active_order_${currentCustomerId}`);
+    }
+    localStorage.removeItem('tekkie_store_orders');
+    localStorage.removeItem('tekkie_store_active_order_id');
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
     setAuthState({
