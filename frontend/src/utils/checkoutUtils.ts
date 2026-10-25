@@ -1,6 +1,31 @@
 /** Shipping form saved by the checkout page, sent with the order once payment is confirmed */
 export const SAVED_SHIPPING_KEY = 'tekkie_store_saved_shipping';
 
+/** Promo code applied in the cart, carried to checkout; the backend checks it again before charging */
+export const PROMO_CODE = 'TEKKIE10';
+export const PROMO_CODE_KEY = 'tekkie_store_promo_code';
+
+export const getAppliedPromo = (): string | null => {
+  try {
+    return localStorage.getItem(PROMO_CODE_KEY) === PROMO_CODE ? PROMO_CODE : null;
+  } catch {
+    return null;
+  }
+};
+
+export const setAppliedPromo = (code: string | null): void => {
+  try {
+    if (code) localStorage.setItem(PROMO_CODE_KEY, code);
+    else localStorage.removeItem(PROMO_CODE_KEY);
+  } catch {
+    // Storage blocked: the code just isn't remembered
+  }
+};
+
+/** 10% off the subtotal in whole rands, rounded the same way as the backend */
+export const promoDiscount = (subtotal: number, promo: string | null): number =>
+  promo === PROMO_CODE ? Math.round(subtotal * 0.1) : 0;
+
 /**
  * South African Provinces for Address Selection
  */

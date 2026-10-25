@@ -4,7 +4,7 @@ import { CheckCircle2, Clock, Loader2, XCircle } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useOrder } from '../context/OrderContext';
 import { paymentService } from '../services/paymentService';
-import { SAVED_SHIPPING_KEY } from '../utils/checkoutUtils';
+import { SAVED_SHIPPING_KEY, setAppliedPromo } from '../utils/checkoutUtils';
 import './CheckoutPage.css';
 
 const CHECK_EVERY_MS = 3000;
@@ -37,6 +37,7 @@ export const PaymentReturn: React.FC = () => {
 
         if (result.status === 'PAID') {
           setStatus('paid');
+          setAppliedPromo(null);
           await Promise.all([refreshCart(), refreshOrders()]);
           navigate(`/order-confirmation/${orderId}`, { replace: true });
           return;

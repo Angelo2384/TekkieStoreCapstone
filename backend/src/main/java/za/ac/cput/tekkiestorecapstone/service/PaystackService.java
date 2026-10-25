@@ -37,6 +37,9 @@ public class PaystackService {
     // Same shipping rule the checkout page shows
     private static final BigDecimal FREE_SHIPPING_THRESHOLD = new BigDecimal("1000.00");
     private static final BigDecimal SHIPPING_FEE = new BigDecimal("150.00");
+    // The promo the cart offers: 10% off the subtotal, rounded to whole rands
+    private static final String PROMO_CODE = "TEKKIE10";
+    private static final BigDecimal PROMO_RATE = new BigDecimal("0.10");
 
     private final CustomerRepository customerRepo;
     private final CartItemRepository cartItemRepo;
@@ -66,6 +69,10 @@ public class PaystackService {
                 .build();
     }
 
+    // Optional checkout body, e.g. {"promoCode": "TEKKIE10"}
+    public record CheckoutRequest(String promoCode) {
+    }
+
     // What the frontend needs to send the shopper to Paystack
     public record Checkout(String orderId, String authorizationUrl) {
     }
@@ -87,7 +94,8 @@ public class PaystackService {
 
     @JsonIgnoreProperties(ignoreUnknown = true)
     record PaystackData(@JsonProperty("authorization_url") String authorizationUrl,
-                        String status, Long amount, String currency, Long id, PaystackCustomer customer) {
+                        String status, Long amount, String currency, Long id, PaystackCustomer customer,
+                        Object metadata) {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -96,7 +104,7 @@ public class PaystackService {
 
     // Nothing is saved here, so pressing Back or cancelling on Paystack changes nothing in our store
     @Transactional(readOnly = true)
-    public Checkout createCheckout(String customerEmail) {
+    public Checkout createCheckout(String customerEmail, String promoCode) {
         if (secretKey.isBlank()) {
             throw new IllegalStateException("Paystack is not set up. Add PAYSTACK_SECRET_KEY to backend/env/.env");
         }
@@ -108,9 +116,10 @@ public class PaystackService {
             throw new IllegalArgumentException("Your cart is empty");
         }
 
+        String promo = validPromo(promoCode);
         String orderId = "TK-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-        BigDecimal total = buildOrder(orderId, customer, cartItems).getTotalAmount();
-        return new Checkout(orderId, startTransaction(customer.getEmail(), toCents(total), orderId));
+        BigDecimal total = buildOrder(orderId, customer, cartItems, promo).getTotalAmount();
+        return new Checkout(orderId, startTransaction(customer.getEmail(), toCents(total), orderId, promo));
     }
 
     // Being sent back from Paystack proves nothing, so we ask Paystack before creating the order
@@ -136,7 +145,8 @@ public class PaystackService {
 
         Customer customer = findCustomer(customerEmail);
         List<CartItem> cartItems = cartItemRepo.findByCart_CartId(customer.getCustomerId());
-        Order order = buildOrder(orderId, customer, cartItems);
+        // The promo code was stored on the Paystack transaction when the payment started
+        Order order = buildOrder(orderId, customer, cartItems, promoFrom(transaction.metadata()));
         // What was paid must match the cart exactly, in rands
         if (cartItems.isEmpty() || transaction.amount() == null
                 || transaction.amount() != toCents(order.getTotalAmount()) || !"ZAR".equals(transaction.currency())) {
@@ -155,7 +165,7 @@ public class PaystackService {
     }
 
     // Builds the order from the cart. Prices come from the database, never from the browser.
-    private Order buildOrder(String orderId, Customer customer, List<CartItem> cartItems) {
+    private Order buildOrder(String orderId, Customer customer, List<CartItem> cartItems, String promo) {
         List<OrderItem> orderItems = new ArrayList<>();
         BigDecimal subtotal = BigDecimal.ZERO;
 
@@ -179,12 +189,14 @@ public class PaystackService {
         }
 
         BigDecimal shippingFee = subtotal.compareTo(FREE_SHIPPING_THRESHOLD) >= 0 ? BigDecimal.ZERO : SHIPPING_FEE;
+        BigDecimal discount = promo == null ? BigDecimal.ZERO : subtotal.multiply(PROMO_RATE).setScale(0, RoundingMode.HALF_UP);
         Order order = new Order.Builder()
                 .setOrderId(orderId)
                 .setOrderDate(new Date())
                 .setSubtotal(subtotal)
                 .setShippingFee(shippingFee)
-                .setTotalAmount(subtotal.add(shippingFee).setScale(2, RoundingMode.HALF_UP))
+                .setDiscount(discount)
+                .setTotalAmount(subtotal.subtract(discount).add(shippingFee).setScale(2, RoundingMode.HALF_UP))
                 .setPaymentMethod("PAYSTACK")
                 .setStatus(OrderStatus.PAID)
                 .setCustomer(customer)
@@ -230,15 +242,21 @@ public class PaystackService {
     }
 
     // Package-private so tests can replace the real call to Paystack
-    String startTransaction(String email, long amountInCents, String orderId) {
+    String startTransaction(String email, long amountInCents, String orderId, String promo) {
+        Map<String, Object> metadata = new HashMap<>();
+        // Where Paystack sends the shopper if they press "Cancel Payment"
+        metadata.put("cancel_action", frontendUrl + "/payment/cancel/" + orderId);
+        // Kept on the transaction so confirming the payment works out the same discount
+        if (promo != null) {
+            metadata.put("promo_code", promo);
+        }
         Map<String, Object> body = Map.of(
                 "email", email,
                 "amount", amountInCents,
                 "currency", "ZAR",
                 "reference", orderId,
                 "callback_url", frontendUrl + "/payment/return/" + orderId,
-                // Where Paystack sends the shopper if they press "Cancel Payment"
-                "metadata", Map.of("cancel_action", frontendUrl + "/payment/cancel/" + orderId));
+                "metadata", metadata);
 
         return send(paystack.post().uri("/transaction/initialize")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -266,6 +284,22 @@ public class PaystackService {
 
     private Customer findCustomer(String email) {
         return customerRepo.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("Customer not found"));
+    }
+
+    // null when no code was entered; any code other than ours is refused
+    private static String validPromo(String code) {
+        if (code == null || code.isBlank()) {
+            return null;
+        }
+        if (!PROMO_CODE.equalsIgnoreCase(code.trim())) {
+            throw new IllegalArgumentException("That promo code isn't valid");
+        }
+        return PROMO_CODE;
+    }
+
+    // Paystack returns metadata as an object, or an empty string when there is none
+    private static String promoFrom(Object metadata) {
+        return metadata instanceof Map<?, ?> map && PROMO_CODE.equals(map.get("promo_code")) ? PROMO_CODE : null;
     }
 
     // Paystack works in cents: R1200.00 -> 120000
