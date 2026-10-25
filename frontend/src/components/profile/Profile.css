@@ -810,12 +810,23 @@
   text-decoration: none;
   box-shadow: 0 3px 10px rgba(253, 103, 1, 0.25);
   flex-shrink: 0;
+  border: none;
+  font-family: inherit;
+  cursor: pointer;
 }
 
-.btn-view-live-tracking:hover {
+.btn-view-live-tracking:hover:not(:disabled) {
   background-color: var(--brand-orange-hover);
   transform: translateY(-1px);
   color: var(--pure-white);
+}
+
+/* Greyed out while checking for orders, or when there's nothing to track */
+.btn-view-live-tracking:disabled {
+  background-color: #E4E4E7;
+  color: #71717A;
+  box-shadow: none;
+  cursor: not-allowed;
 }
 
 .delivery-features-grid {

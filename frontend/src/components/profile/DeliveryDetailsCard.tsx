@@ -1,12 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Truck, ShieldCheck, Clock, ArrowRight } from 'lucide-react';
+import { Truck, ShieldCheck, Clock } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { useOrder } from '../../context/OrderContext';
+import { orderService } from '../../services/orderService';
 
 interface DeliveryDetailsCardProps {
   showActionLink?: boolean;
 }
 
 export const DeliveryDetailsCard: React.FC<DeliveryDetailsCardProps> = ({ showActionLink = false }) => {
+  const { user } = useAuth();
+  const { orders } = useOrder();
+  // Whether there's anything to track; orders already loaded on the site enable the button straight away (null while checking)
+  const [hasOrders, setHasOrders] = useState<boolean | null>(() =>
+    orders.length > 0 ? true : user?.customerId ? null : false
+  );
+
+  useEffect(() => {
+    if (!showActionLink || !user?.customerId) return;
+    let isMounted = true;
+    orderService
+      .getOrdersByCustomerId(user.customerId)
+      .then((data) => {
+        if (isMounted) setHasOrders(data.length > 0);
+      })
+      .catch(() => {
+        if (isMounted) setHasOrders(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [showActionLink, user?.customerId]);
+
   return (
     <div className="profile-card delivery-overview-card">
       <div className="profile-card-header">
@@ -17,12 +43,16 @@ export const DeliveryDetailsCard: React.FC<DeliveryDetailsCardProps> = ({ showAc
           </p>
         </div>
 
-        {showActionLink && (
-          <Link to="/delivery-details" className="btn-view-live-tracking" title="View live delivery and tracking details">
-            <span>View Live Tracking</span>
-            <ArrowRight size={16} />
-          </Link>
-        )}
+        {showActionLink &&
+          (hasOrders ? (
+            <Link to="/delivery-details" className="btn-view-live-tracking" title="View live delivery and tracking details">
+              View Live Tracking
+            </Link>
+          ) : (
+            <button type="button" className="btn-view-live-tracking" disabled>
+              {hasOrders === false ? 'No Deliveries Yet' : 'View Live Tracking'}
+            </button>
+          ))}
       </div>
 
       <div className="delivery-features-grid">

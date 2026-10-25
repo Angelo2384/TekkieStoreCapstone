@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { NavLink, Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -12,6 +12,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { LogoutDialog } from '../shared/LogoutDialog';
 import './AdminLayout.css';
 
 export const AdminLayout: React.FC = () => {
@@ -19,6 +20,7 @@ export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const isLoggingOut = useRef(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
 
   const handleLogout = () => {
     isLoggingOut.current = true;
@@ -135,7 +137,7 @@ export const AdminLayout: React.FC = () => {
           <button
             type="button"
             className="admin-nav-link logout-link"
-            onClick={handleLogout}
+            onClick={() => setConfirmLogout(true)}
             title="Log out of admin session"
             aria-label="Log out of admin session"
           >
@@ -175,6 +177,8 @@ export const AdminLayout: React.FC = () => {
           <Outlet />
         </main>
       </div>
+
+      {confirmLogout && <LogoutDialog onCancel={() => setConfirmLogout(false)} onConfirm={handleLogout} />}
     </div>
   );
 };
