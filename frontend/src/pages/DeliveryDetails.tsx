@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Package } from 'lucide-react';
 import { TrackingStatus } from '../components/Delivery/TrackingStatus';
 import { DeliveryAddress } from '../components/Delivery/DeliveryAddress';
 import { CarrierDetails } from '../components/Delivery/CarrierDetails';
 import { ShipmentItems } from '../components/Delivery/ShipmentItems';
-import { DeliveryDetailsCard } from '../components/profile/DeliveryDetailsCard';
 import { useAuth } from '../context/AuthContext';
 import { useOrder, Order } from '../context/OrderContext';
 import { deliveryService, BackendDeliveryDetailsResponse } from '../services/deliveryService';
@@ -21,58 +20,66 @@ export const DeliveryDetails: React.FC = () => {
   const [backendDelivery, setBackendDelivery] = useState<BackendDeliveryDetailsResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Resolve the actual order for this customer
-  const loadOrderAndDelivery = useCallback(async () => {
-    setIsLoading(true);
+  // Resolve the actual order for this customer. Runs once per order/customer: the order context's
+  // list and functions change on every refresh, and depending on them reloaded forever for customers with no orders.
+  useEffect(() => {
+    let cancelled = false;
 
-    if (!user || !user.customerId) {
-      setCurrentOrder(null);
-      setBackendDelivery(null);
-      setIsLoading(false);
-      return;
-    }
+    const loadOrderAndDelivery = async () => {
+      setIsLoading(true);
 
-    let resolvedOrder: Order | null = null;
-
-    if (orderId) {
-      const cleanId = orderId.replace('#', '').trim();
-      const existing = getOrderById(cleanId);
-      if (existing) {
-        resolvedOrder = existing;
-      } else {
-        const fetched = await fetchOrderById(cleanId);
-        resolvedOrder = fetched || null;
+      if (!user || !user.customerId) {
+        setCurrentOrder(null);
+        setBackendDelivery(null);
+        setIsLoading(false);
+        return;
       }
-    } else {
-      if (orders.length > 0) {
-        resolvedOrder = activeOrder || orders[0];
+
+      let resolvedOrder: Order | null = null;
+
+      if (orderId) {
+        const cleanId = orderId.replace('#', '').trim();
+        const existing = getOrderById(cleanId);
+        if (existing) {
+          resolvedOrder = existing;
+        } else {
+          const fetched = await fetchOrderById(cleanId);
+          resolvedOrder = fetched || null;
+        }
       } else {
-        const liveOrders = await refreshOrders();
-        resolvedOrder = liveOrders.length > 0 ? liveOrders[0] : null;
+        if (orders.length > 0) {
+          resolvedOrder = activeOrder || orders[0];
+        } else {
+          const liveOrders = await refreshOrders();
+          resolvedOrder = liveOrders.length > 0 ? liveOrders[0] : null;
+        }
       }
-    }
+      if (cancelled) return;
 
-    setCurrentOrder(resolvedOrder);
+      setCurrentOrder(resolvedOrder);
 
-    if (resolvedOrder) {
-      try {
-        const cleanOrderId = resolvedOrder.id.replace('#', '').trim();
-        const res = await deliveryService.getDeliveryDetailsByOrderId(cleanOrderId);
-        setBackendDelivery(res);
-      } catch (err) {
-        console.warn('[DeliveryDetails] Delivery details lookup error:', err);
+      if (resolvedOrder) {
+        try {
+          const cleanOrderId = resolvedOrder.id.replace('#', '').trim();
+          const res = await deliveryService.getDeliveryDetailsByOrderId(cleanOrderId);
+          if (!cancelled) setBackendDelivery(res);
+        } catch (err) {
+          console.warn('[DeliveryDetails] Delivery details lookup error:', err);
+          if (!cancelled) setBackendDelivery(null);
+        }
+      } else {
         setBackendDelivery(null);
       }
-    } else {
-      setBackendDelivery(null);
-    }
 
-    setIsLoading(false);
-  }, [orderId, user, activeOrder, orders, getOrderById, fetchOrderById, refreshOrders]);
+      if (!cancelled) setIsLoading(false);
+    };
 
-  useEffect(() => {
     loadOrderAndDelivery();
-  }, [loadOrderAndDelivery]);
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId, user?.customerId]);
 
   const handleRefresh = async () => {
     if (!currentOrder) return;
@@ -143,9 +150,9 @@ export const DeliveryDetails: React.FC = () => {
                 <div className="delivery-empty-icon-wrapper">
                   <Package size={48} strokeWidth={1.5} className="delivery-empty-icon" />
                 </div>
-                <h2 className="delivery-empty-title">No Orders Yet</h2>
+                <h2 className="delivery-empty-title">No Deliveries Scheduled</h2>
                 <p className="delivery-empty-subtitle">
-                  You haven't placed any orders yet. Start shopping to find your perfect pair!
+                  When you place an order, its delivery tracking will appear here.
                 </p>
                 <Link to="/catalogue" className="delivery-empty-btn">
                   <span>Start Shopping</span>
@@ -214,8 +221,6 @@ export const DeliveryDetails: React.FC = () => {
               </div>
 
               <ShipmentItems order={currentOrder} />
-
-              <DeliveryDetailsCard />
             </>
           )}
         </div>
