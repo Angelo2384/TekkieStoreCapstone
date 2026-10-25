@@ -1,37 +1,41 @@
 import React from 'react';
 import { MapPin, Phone, Building, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useOrder } from '../../context/OrderContext';
+import { Order, useOrder } from '../../context/OrderContext';
 import { BackendDeliveryDetailsResponse } from '../../services/deliveryService';
 import './DeliveryAddress.css';
 
 interface DeliveryAddressProps {
-  deliveryData?: BackendDeliveryDetailsResponse;
+  order?: Order | null;
+  deliveryData?: BackendDeliveryDetailsResponse | null;
 }
 
-export const DeliveryAddress: React.FC<DeliveryAddressProps> = ({ deliveryData }) => {
+export const DeliveryAddress: React.FC<DeliveryAddressProps> = ({ order, deliveryData }) => {
   const { user } = useAuth();
   const { activeOrder } = useOrder();
+  const targetOrder = order || activeOrder;
   
-  const recipientName = activeOrder?.shippingAddress.recipientName || 
-    (user ? `${user.firstName} ${user.lastName}` : 'Marcus Redelinghuys');
-  const recipientPhone = user?.phone || '+27 82 555 1234';
+  const recipientName =
+    deliveryData?.fullName ||
+    targetOrder?.shippingAddress?.recipientName ||
+    (user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() : '') ||
+    'Recipient';
 
-  const streetLine = deliveryData?.address
-    ? `${deliveryData.address.streetNumber} ${deliveryData.address.streetName}`
-    : activeOrder
-    ? `${activeOrder.shippingAddress.streetNumber} ${activeOrder.shippingAddress.streetName}`
-    : '42 Kloof Street, Apartment 4B';
-  const suburbLine = deliveryData?.address
-    ? `${deliveryData.address.suburb}, ${deliveryData.address.city}`
-    : activeOrder
-    ? `${activeOrder.shippingAddress.suburb}, ${activeOrder.shippingAddress.city}`
-    : 'Gardens, Cape Town';
-  const postalLine = deliveryData?.address
-    ? `${deliveryData.address.postalCode}${deliveryData.address.province ? `, ${deliveryData.address.province}` : ''}, South Africa`
-    : activeOrder
-    ? `${activeOrder.shippingAddress.postalCode}, ${activeOrder.shippingAddress.province}, South Africa`
-    : '8001, Western Cape, South Africa';
+  const recipientPhone =
+    deliveryData?.phone ||
+    user?.phone ||
+    'Contact on delivery';
+
+  const address = deliveryData?.address || targetOrder?.shippingAddress;
+  const streetLine = address && (address.streetNumber || address.streetName)
+    ? `${address.streetNumber || ''} ${address.streetName || ''}`.trim()
+    : 'Address details pending';
+  const suburbLine = address && (address.suburb || address.city)
+    ? [address.suburb, address.city].filter(Boolean).join(', ')
+    : '';
+  const postalLine = address && (address.postalCode || address.province)
+    ? [address.postalCode, address.province, 'South Africa'].filter(Boolean).join(', ')
+    : 'South Africa';
 
   return (
     <div className="delivery-address-card">
@@ -53,7 +57,7 @@ export const DeliveryAddress: React.FC<DeliveryAddressProps> = ({ deliveryData }
 
         <div className="address-lines">
           <p className="street-line">{streetLine}</p>
-          <p className="suburb-line">{suburbLine}</p>
+          {suburbLine && <p className="suburb-line">{suburbLine}</p>}
           <p className="postal-line">{postalLine}</p>
         </div>
 
@@ -76,7 +80,7 @@ export const DeliveryAddress: React.FC<DeliveryAddressProps> = ({ deliveryData }
           <div className="instructions-content">
             <span className="instructions-label">Courier Note & Instructions:</span>
             <p className="instructions-text">
-              Security gate code #4910. If recipient is unavailable, please leave parcel with building reception desk or call prior to delivery.
+              Direct doorstep courier delivery. Please ensure someone is available at the destination address to receive or sign for parcel handover.
             </p>
           </div>
         </div>

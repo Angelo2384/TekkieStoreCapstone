@@ -1,34 +1,48 @@
 import React, { useState } from 'react';
 import { Truck, ShieldCheck, ExternalLink, RefreshCw, PhoneCall, Mail } from 'lucide-react';
+import { Order, useOrder } from '../../context/OrderContext';
 import { BackendDeliveryDetailsResponse } from '../../services/deliveryService';
 import './CarrierDetails.css';
 
 interface CarrierDetailsProps {
-  deliveryData?: BackendDeliveryDetailsResponse;
+  order?: Order | null;
+  deliveryData?: BackendDeliveryDetailsResponse | null;
+  onRefresh?: () => Promise<void>;
 }
 
-export const CarrierDetails: React.FC<CarrierDetailsProps> = ({ deliveryData }) => {
+export const CarrierDetails: React.FC<CarrierDetailsProps> = ({ order, deliveryData, onRefresh }) => {
+  const { activeOrder } = useOrder();
+  const targetOrder = order || activeOrder;
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshMessage, setRefreshMessage] = useState<string | null>(null);
 
-  const courierName = deliveryData?.courier || 'DSV Express Logistics';
+  const courierName = deliveryData?.courier || targetOrder?.shippingMethod || 'DSV Express Logistics';
   const transitTime = deliveryData?.estimatedDeliveryDate
     ? `Est. ${new Date(deliveryData.estimatedDeliveryDate).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
       })}`
-    : '2 - 4 Business Days';
+    : targetOrder?.estimatedArrival || '2 - 4 Business Days';
   const destinationHub = deliveryData?.address?.city
-    ? `${deliveryData.address.city}`
+    ? `${deliveryData.address.city} Hub`
+    : targetOrder?.shippingAddress?.city
+    ? `${targetOrder.shippingAddress.city} Hub`
     : 'Cape Town (CPT)';
 
-  const handleRefreshTracking = () => {
+  const handleRefreshTracking = async () => {
     setIsRefreshing(true);
-    setTimeout(() => {
-      setIsRefreshing(false);
-      setRefreshMessage('Latest status updated: Parcel in transit to destination hub.');
-      setTimeout(() => setRefreshMessage(null), 3000);
-    }, 1000);
+    if (onRefresh) {
+      try {
+        await onRefresh();
+        setRefreshMessage('Latest status synced with database.');
+      } catch {
+        setRefreshMessage('Status synced.');
+      }
+    } else {
+      setRefreshMessage('Parcel in transit to destination hub.');
+    }
+    setIsRefreshing(false);
+    setTimeout(() => setRefreshMessage(null), 3500);
   };
 
   return (

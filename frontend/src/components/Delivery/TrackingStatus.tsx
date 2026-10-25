@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Check, Clock, Truck, Package, MapPin, Copy, CheckCircle2 } from 'lucide-react';
-import { useOrder } from '../../context/OrderContext';
+import { Order, useOrder } from '../../context/OrderContext';
+import { BackendDeliveryDetailsResponse } from '../../services/deliveryService';
 import './TrackingStatus.css';
 
 export type OrderTrackingStatus =
@@ -64,16 +65,48 @@ const STAGE_KEYS: OrderTrackingStatus[] = [
   'DELIVERED',
 ];
 
-export const TrackingStatus: React.FC = () => {
+interface TrackingStatusProps {
+  order?: Order | null;
+  deliveryData?: BackendDeliveryDetailsResponse | null;
+}
+
+export const TrackingStatus: React.FC<TrackingStatusProps> = ({ order, deliveryData }) => {
   const { activeOrder } = useOrder();
+  const targetOrder = order || activeOrder;
   const [copied, setCopied] = useState(false);
 
-  // Status mapping ready for future backend integration (defaults to 'ORDER_CONFIRMED')
-  const currentStatus: OrderTrackingStatus = 'ORDER_CONFIRMED';
+  const mapStatusToStage = (status?: string): OrderTrackingStatus => {
+    switch (status?.toUpperCase()) {
+      case 'DELIVERED':
+        return 'DELIVERED';
+      case 'OUT FOR DELIVERY':
+      case 'OUT_FOR_DELIVERY':
+        return 'OUT_FOR_DELIVERY';
+      case 'DISPATCHED':
+      case 'IN TRANSIT':
+      case 'IN_TRANSIT':
+      case 'SHIPPED':
+        return 'DISPATCHED';
+      case 'PACKED':
+      case 'PROCESSING':
+        return 'PACKED';
+      default:
+        return 'ORDER_CONFIRMED';
+    }
+  };
+
+  const currentStatus: OrderTrackingStatus = mapStatusToStage(targetOrder?.status);
   const currentStageIndex = STAGE_KEYS.indexOf(currentStatus);
 
-  const trackingNumber = activeOrder?.trackingNumber || '';
-  const orderDate = activeOrder?.dateFormatted || '';
+  const trackingNumber = deliveryData?.trackingNumber || targetOrder?.trackingNumber || '';
+  const orderDate = targetOrder?.dateFormatted || '';
+  const estimatedDelivery = deliveryData?.estimatedDeliveryDate
+    ? new Date(deliveryData.estimatedDeliveryDate).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      })
+    : targetOrder?.estimatedArrival || '—';
 
   const handleCopyTracking = () => {
     if (!trackingNumber || trackingNumber === '—') return;
@@ -87,17 +120,21 @@ export const TrackingStatus: React.FC = () => {
       <div className="tracking-status-header">
         <div className="tracking-header-left">
           <div className="tracking-badge-row">
-            <span className="tracking-status-pill order-confirmed">
+            <span className={`tracking-status-pill ${currentStatus === 'DELIVERED' ? 'delivered' : 'order-confirmed'}`}>
               <span className="pulse-dot" />
-              ORDER CONFIRMED
+              {targetOrder?.status ? targetOrder.status.toUpperCase() : 'ORDER CONFIRMED'}
             </span>
             <span className="estimated-pill">
-              Estimated Delivery: <strong>—</strong>
+              Estimated Delivery: <strong>{estimatedDelivery}</strong>
             </span>
           </div>
           <h2 className="tracking-title">Live Tracking Progress</h2>
           <p className="tracking-subtitle">
-            Your order has been confirmed.
+            {currentStatus === 'DELIVERED'
+              ? 'Your package has been delivered.'
+              : currentStatus === 'DISPATCHED'
+              ? 'Your parcel is in transit with the courier.'
+              : 'Your order has been confirmed and verified.'}
           </p>
         </div>
 

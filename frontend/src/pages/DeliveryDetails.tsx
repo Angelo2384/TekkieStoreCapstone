@@ -1,55 +1,107 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import { ArrowLeft, ArrowRight, Package } from 'lucide-react';
 import { TrackingStatus } from '../components/Delivery/TrackingStatus';
 import { DeliveryAddress } from '../components/Delivery/DeliveryAddress';
 import { CarrierDetails } from '../components/Delivery/CarrierDetails';
 import { ShipmentItems } from '../components/Delivery/ShipmentItems';
 import { DeliveryDetailsCard } from '../components/profile/DeliveryDetailsCard';
-import { useOrder } from '../context/OrderContext';
+import { useAuth } from '../context/AuthContext';
+import { useOrder, Order } from '../context/OrderContext';
 import { deliveryService, BackendDeliveryDetailsResponse } from '../services/deliveryService';
 import './DeliveryDetails.css';
 
 export const DeliveryDetails: React.FC = () => {
   const { orderId } = useParams<{ orderId?: string }>();
-  const { activeOrder, getOrderById, fetchOrderById } = useOrder();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { orders, activeOrder, getOrderById, fetchOrderById, refreshOrders } = useOrder();
+
+  const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [backendDelivery, setBackendDelivery] = useState<BackendDeliveryDetailsResponse | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    if (orderId) {
-      fetchOrderById(orderId);
+  // Resolve the actual order for this customer
+  const loadOrderAndDelivery = useCallback(async () => {
+    setIsLoading(true);
+
+    if (!user || !user.customerId) {
+      setCurrentOrder(null);
+      setBackendDelivery(null);
+      setIsLoading(false);
+      return;
     }
-  }, [orderId]);
 
-  const order = (orderId ? getOrderById(orderId) : null) || activeOrder;
-  const targetOrderId = orderId || order?.id;
+    let resolvedOrder: Order | null = null;
+
+    if (orderId) {
+      const cleanId = orderId.replace('#', '').trim();
+      const existing = getOrderById(cleanId);
+      if (existing) {
+        resolvedOrder = existing;
+      } else {
+        const fetched = await fetchOrderById(cleanId);
+        resolvedOrder = fetched || null;
+      }
+    } else {
+      if (orders.length > 0) {
+        resolvedOrder = activeOrder || orders[0];
+      } else {
+        const liveOrders = await refreshOrders();
+        resolvedOrder = liveOrders.length > 0 ? liveOrders[0] : null;
+      }
+    }
+
+    setCurrentOrder(resolvedOrder);
+
+    if (resolvedOrder) {
+      try {
+        const cleanOrderId = resolvedOrder.id.replace('#', '').trim();
+        const res = await deliveryService.getDeliveryDetailsByOrderId(cleanOrderId);
+        setBackendDelivery(res);
+      } catch (err) {
+        console.warn('[DeliveryDetails] Delivery details lookup error:', err);
+        setBackendDelivery(null);
+      }
+    } else {
+      setBackendDelivery(null);
+    }
+
+    setIsLoading(false);
+  }, [orderId, user, activeOrder, orders, getOrderById, fetchOrderById, refreshOrders]);
 
   useEffect(() => {
-    if (!targetOrderId) return;
-    let isMounted = true;
-    const cleanId = targetOrderId.replace('#', '').trim();
-    deliveryService.getDeliveryDetailsByOrderId(cleanId).then((res) => {
-      if (isMounted && res) {
-        setBackendDelivery(res);
-      }
-    });
-    return () => {
-      isMounted = false;
-    };
-  }, [targetOrderId]);
+    loadOrderAndDelivery();
+  }, [loadOrderAndDelivery]);
 
-  const orderNumber = order?.orderNumber || (orderId ? `#${orderId}` : '—');
-  const datePlaced = order?.dateFormatted || '—';
+  const handleRefresh = async () => {
+    if (!currentOrder) return;
+    const cleanId = currentOrder.id.replace('#', '').trim();
+    try {
+      const [updatedDelivery] = await Promise.all([
+        deliveryService.getDeliveryDetailsByOrderId(cleanId),
+        fetchOrderById(cleanId),
+      ]);
+      if (updatedDelivery) {
+        setBackendDelivery(updatedDelivery);
+      }
+    } catch (err) {
+      console.warn('[DeliveryDetails] Refresh error:', err);
+    }
+  };
+
+  const orderNumber = currentOrder?.orderNumber || (currentOrder?.id ? `#${currentOrder.id.replace('#', '')}` : '—');
+  const datePlaced = currentOrder?.dateFormatted || '—';
   const estimatedDelivery = backendDelivery?.estimatedDeliveryDate
     ? new Date(backendDelivery.estimatedDeliveryDate).toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric',
         year: 'numeric',
       })
-    : order?.estimatedArrival || '—';
+    : currentOrder?.estimatedArrival || '—';
   const shipmentMethod = backendDelivery?.courier
     ? `${backendDelivery.courier} Express`
-    : order?.shippingMethod || 'Standard Express Delivery';
+    : currentOrder?.shippingMethod || 'Standard Express Delivery';
 
   return (
     <div className="delivery-details-page">
@@ -59,7 +111,7 @@ export const DeliveryDetails: React.FC = () => {
             <span className="delivery-eyebrow">Tracking & Logistics</span>
             <h1 className="delivery-main-title">DELIVERY DETAILS</h1>
             <p className="delivery-header-subtitle">
-              Live tracking, courier dispatch information, destination address, and package contents for your active order.
+              Live tracking, courier dispatch information, destination address, and package contents for your genuine orders.
             </p>
           </div>
         </div>
@@ -79,42 +131,93 @@ export const DeliveryDetails: React.FC = () => {
 
       <main className="delivery-body-section">
         <div className="delivery-details-container">
-          <div className="order-meta-summary-card">
-            <div className="order-meta-info-group">
-              <div className="order-meta-unit">
-                <span className="meta-unit-label">Order Number</span>
-                <span className="meta-unit-value order-id">{orderNumber}</span>
-              </div>
-              <div className="order-meta-unit">
-                <span className="meta-unit-label">Date Placed</span>
-                <span className="meta-unit-value">{datePlaced}</span>
-              </div>
-              <div className="order-meta-unit">
-                <span className="meta-unit-label">Estimated Delivery</span>
-                <span className="meta-unit-value">{estimatedDelivery}</span>
-              </div>
-              <div className="order-meta-unit">
-                <span className="meta-unit-label">Shipment Method</span>
-                <span className="meta-unit-value">{shipmentMethod}</span>
+          {isLoading ? (
+            <div className="delivery-loading-box">
+              <div className="delivery-loading-spinner" />
+              <span>Retrieving your delivery details...</span>
+            </div>
+          ) : !currentOrder ? (
+            /* Requirement 4: Professional empty state when newly registered customer or no actual orders exist */
+            <div className="delivery-empty-container">
+              <div className="delivery-empty-card">
+                <div className="delivery-empty-icon-wrapper">
+                  <Package size={48} strokeWidth={1.5} className="delivery-empty-icon" />
+                </div>
+                <h2 className="delivery-empty-title">No Orders Yet</h2>
+                <p className="delivery-empty-subtitle">
+                  You haven't placed any orders yet. Start shopping to find your perfect pair!
+                </p>
+                <Link to="/catalogue" className="delivery-empty-btn">
+                  <span>Start Shopping</span>
+                  <ArrowRight size={18} />
+                </Link>
               </div>
             </div>
+          ) : (
+            /* Requirement 3 & 7: Display genuine order and shipment details */
+            <>
+              <div className="order-meta-summary-card">
+                <div className="order-meta-info-group">
+                  {orders.length > 1 && (
+                    <div className="order-picker-unit">
+                      <label htmlFor="order-switcher" className="meta-unit-label">
+                        Viewing Order
+                      </label>
+                      <select
+                        id="order-switcher"
+                        className="order-select-dropdown"
+                        value={currentOrder.id}
+                        onChange={(e) => navigate(`/delivery-details/${e.target.value}`)}
+                      >
+                        {orders.map((o) => (
+                          <option key={o.id} value={o.id}>
+                            #{o.orderNumber.replace('#', '')} ({o.dateFormatted})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
-            <Link to="/profile" className="btn-back-dashboard">
-              <ArrowLeft size={16} />
-              <span>Back to Account</span>
-            </Link>
-          </div>
+                  <div className="order-meta-unit">
+                    <span className="meta-unit-label">Order Number</span>
+                    <span className="meta-unit-value order-id">{orderNumber}</span>
+                  </div>
+                  <div className="order-meta-unit">
+                    <span className="meta-unit-label">Date Placed</span>
+                    <span className="meta-unit-value">{datePlaced}</span>
+                  </div>
+                  <div className="order-meta-unit">
+                    <span className="meta-unit-label">Estimated Delivery</span>
+                    <span className="meta-unit-value">{estimatedDelivery}</span>
+                  </div>
+                  <div className="order-meta-unit">
+                    <span className="meta-unit-label">Shipment Method</span>
+                    <span className="meta-unit-value">{shipmentMethod}</span>
+                  </div>
+                </div>
 
-          <TrackingStatus />
+                <Link to="/profile" className="btn-back-dashboard">
+                  <ArrowLeft size={16} />
+                  <span>Back to Account</span>
+                </Link>
+              </div>
 
-          <div className="delivery-two-col-grid">
-            <DeliveryAddress deliveryData={backendDelivery || undefined} />
-            <CarrierDetails deliveryData={backendDelivery || undefined} />
-          </div>
+              <TrackingStatus order={currentOrder} deliveryData={backendDelivery} />
 
-          <ShipmentItems />
+              <div className="delivery-two-col-grid">
+                <DeliveryAddress order={currentOrder} deliveryData={backendDelivery} />
+                <CarrierDetails
+                  order={currentOrder}
+                  deliveryData={backendDelivery}
+                  onRefresh={handleRefresh}
+                />
+              </div>
 
-          <DeliveryDetailsCard />
+              <ShipmentItems order={currentOrder} />
+
+              <DeliveryDetailsCard />
+            </>
+          )}
         </div>
       </main>
     </div>
