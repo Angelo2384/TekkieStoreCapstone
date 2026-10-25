@@ -35,6 +35,7 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -242,5 +243,27 @@ class OrderServiceTest {
         System.out.println("Order JSON: " + json);
         assertFalse(json.contains("SecretPassword123!"), "Password hash or value must never appear in JSON");
         assertFalse(json.contains("\"password\""), "Password property should not be serialized");
+    }
+
+    @Test
+    void g_updateStatusChangesOnlyTheStatus() {
+        Order shipped = new Order.Builder().copy(order).setStatus(OrderStatus.SHIPPED).build();
+        when(repo.updateStatus("ORD001", OrderStatus.SHIPPED)).thenReturn(1);
+        when(repo.findById("ORD001")).thenReturn(Optional.of(shipped));
+
+        Order updated = service.updateStatus("ORD001", OrderStatus.SHIPPED);
+
+        assertEquals(OrderStatus.SHIPPED, updated.getStatus());
+        assertEquals(order.getTotalAmount(), updated.getTotalAmount());
+        // The whole order is never re-saved, so its items and customer can't be changed by accident
+        verify(repo, never()).save(any());
+    }
+
+    @Test
+    void h_updateStatusForUnknownOrderReturnsNull() {
+        when(repo.updateStatus("NOPE", OrderStatus.PAID)).thenReturn(0);
+
+        assertNull(service.updateStatus("NOPE", OrderStatus.PAID));
+        verify(repo, never()).findById(any());
     }
 }

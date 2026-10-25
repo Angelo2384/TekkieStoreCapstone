@@ -14,7 +14,7 @@ export const DeliveryDetails: React.FC = () => {
   const { orderId } = useParams<{ orderId?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { orders, activeOrder, getOrderById, fetchOrderById, refreshOrders } = useOrder();
+  const { orders, activeOrder, fetchOrderById, refreshOrders } = useOrder();
 
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [backendDelivery, setBackendDelivery] = useState<BackendDeliveryDetailsResponse | null>(null);
@@ -37,22 +37,18 @@ export const DeliveryDetails: React.FC = () => {
 
       let resolvedOrder: Order | null = null;
 
+      // Always the latest from the backend, so a status an admin just changed shows straight away
+      const liveOrders = await refreshOrders();
+      const knownOrders = liveOrders.length > 0 ? liveOrders : orders;
+
       if (orderId) {
         const cleanId = orderId.replace('#', '').trim();
-        const existing = getOrderById(cleanId);
-        if (existing) {
-          resolvedOrder = existing;
-        } else {
-          const fetched = await fetchOrderById(cleanId);
-          resolvedOrder = fetched || null;
-        }
+        resolvedOrder =
+          knownOrders.find((o) => o.id.toUpperCase() === cleanId.toUpperCase()) ||
+          (await fetchOrderById(cleanId)) ||
+          null;
       } else {
-        if (orders.length > 0) {
-          resolvedOrder = activeOrder || orders[0];
-        } else {
-          const liveOrders = await refreshOrders();
-          resolvedOrder = liveOrders.length > 0 ? liveOrders[0] : null;
-        }
+        resolvedOrder = knownOrders.find((o) => o.id === activeOrder?.id) || knownOrders[0] || null;
       }
       if (cancelled) return;
 

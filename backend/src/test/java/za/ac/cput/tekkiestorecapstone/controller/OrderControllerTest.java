@@ -14,12 +14,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import za.ac.cput.tekkiestorecapstone.domain.Order;
+import za.ac.cput.tekkiestorecapstone.domain.OrderStatus;
 import za.ac.cput.tekkiestorecapstone.factory.OrderFactory;
 import za.ac.cput.tekkiestorecapstone.service.OrderService;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -121,5 +125,27 @@ class OrderControllerTest {
         assertEquals(1, orders.size());
 
         System.out.println("Customer Orders: " + orders);
+    }
+
+    @Test
+    void g_updateStatus() {
+        when(service.updateStatus("ORD001", OrderStatus.SHIPPED)).thenReturn(order);
+
+        ResponseEntity<Order> response = controller.updateStatus("ORD001", Map.of("status", OrderStatus.SHIPPED));
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(order, response.getBody());
+    }
+
+    @Test
+    void h_updateStatusWithoutStatusIsRefused() {
+        assertEquals(HttpStatus.BAD_REQUEST, controller.updateStatus("ORD001", Map.of()).getStatusCode());
+    }
+
+    @Test
+    void i_updateStatusForUnknownOrderIs404() {
+        when(service.updateStatus("NOPE", OrderStatus.PAID)).thenReturn(null);
+
+        assertEquals(HttpStatus.NOT_FOUND, controller.updateStatus("NOPE", Map.of("status", OrderStatus.PAID)).getStatusCode());
     }
 }
