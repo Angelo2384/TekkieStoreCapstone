@@ -9,6 +9,7 @@ import { OrderFilters, OrderSortOption } from '../../../components/admin/orders/
 import { OrdersTable } from '../../../components/admin/orders/OrdersTable';
 import { OrderPagination } from '../../../components/admin/orders/OrderPagination';
 import { OrderDetailsDrawer } from '../../../components/admin/orders/OrderDetailsDrawer';
+import { clearAdminOrdersCache } from '../../../hooks/useAdminOrders';
 import { RefreshCw, Download } from 'lucide-react';
 import './Orders.css';
 
@@ -215,6 +216,8 @@ export const Orders: React.FC = () => {
   ): Promise<boolean> => {
     try {
       const updatedOrder = await orderService.updateOrderStatus(orderToUpdate, newStatus);
+      // The dashboard keeps its own copy of all orders, so it reloads next time
+      clearAdminOrdersCache();
 
       // Immediately update local orders list
       setOrders((prev) =>

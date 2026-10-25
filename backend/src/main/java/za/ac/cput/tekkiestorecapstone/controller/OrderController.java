@@ -7,11 +7,14 @@ Date: 19 July 2026
 */
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import za.ac.cput.tekkiestorecapstone.domain.Order;
+import za.ac.cput.tekkiestorecapstone.domain.OrderStatus;
 import za.ac.cput.tekkiestorecapstone.service.OrderService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/order")
@@ -37,6 +40,17 @@ public class OrderController {
     @PutMapping("/update")
     public Order update(@RequestBody Order order) {
         return service.update(order);
+    }
+
+    // Changes only the status, e.g. {"status": "SHIPPED"}. Admin only (SecurityConfig).
+    @PutMapping("/{orderId}/status")
+    public ResponseEntity<Order> updateStatus(@PathVariable String orderId, @RequestBody Map<String, OrderStatus> body) {
+        OrderStatus status = body.get("status");
+        if (status == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        Order updated = service.updateStatus(orderId, status);
+        return updated == null ? ResponseEntity.notFound().build() : ResponseEntity.ok(updated);
     }
 
     @DeleteMapping("/delete/{id}")

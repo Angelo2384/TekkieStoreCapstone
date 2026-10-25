@@ -35,7 +35,7 @@ public class SecurityConfig {
                         // Paying and confirming a payment need a logged-in customer
                         .requestMatchers("/payments/**").authenticated()
                         // Only admins can create or change orders, so nobody can mark their own order as PAID
-                        .requestMatchers("/order/create", "/order/update", "/order/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/order/create", "/order/update", "/order/delete/**", "/order/*/status").hasRole("ADMIN")
                         .requestMatchers("/orderItem/create", "/orderItem/update", "/orderItem/delete/**").hasRole("ADMIN")
                         // Deleting a shoe also removes its sizes and cart lines
                         .requestMatchers("/shoe/delete/**").hasRole("ADMIN")
