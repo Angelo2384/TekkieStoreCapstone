@@ -351,7 +351,6 @@ export const Orders: React.FC = () => {
         paymentMethods={paymentMethods}
         hasActiveFilters={hasActiveFilters}
         onClearFilters={handleClearFilters}
-        totalFiltered={sortedOrders.length}
       />
 
       <div className="orders-table-card">
