@@ -9,7 +9,6 @@ import {
   Store,
   ExternalLink,
   ShieldCheck,
-  Bell,
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
