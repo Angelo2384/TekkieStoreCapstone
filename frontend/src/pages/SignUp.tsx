@@ -74,6 +74,11 @@ export const SignUp = () => {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    // The account needs a first and last name, so this is checked before a code is emailed
+    if (form.fullName.trim().split(/\s+/).length < 2) {
+      setError('Fields missing');
+      return;
+    }
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match');
       return;
