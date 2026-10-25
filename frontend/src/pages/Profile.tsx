@@ -5,12 +5,14 @@ import { ProfileSidebar, ProfileTab } from '../components/profile/ProfileSidebar
 import { PersonalInfoCard } from '../components/profile/PersonalInfoCard';
 import { RecentOrders } from '../components/profile/RecentOrders';
 import { DeliveryDetailsCard } from '../components/profile/DeliveryDetailsCard';
+import { LogoutDialog } from '../components/shared/LogoutDialog';
 import '../components/profile/Profile.css';
 
 export const Profile: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<ProfileTab>('profile');
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const isLoggingOut = useRef(false);
 
   // If a logged-out user visits /profile directly, redirect to /login
@@ -61,7 +63,7 @@ export const Profile: React.FC = () => {
               <ProfileSidebar
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
-                onLogout={handleLogout}
+                onLogout={() => setConfirmLogout(true)}
               />
             </div>
 
@@ -84,6 +86,8 @@ export const Profile: React.FC = () => {
           </div>
         </div>
       </main>
+
+      {confirmLogout && <LogoutDialog onCancel={() => setConfirmLogout(false)} onConfirm={handleLogout} />}
     </div>
   );
 };

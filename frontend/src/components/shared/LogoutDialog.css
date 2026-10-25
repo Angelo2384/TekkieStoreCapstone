@@ -1,0 +1,83 @@
+/* Logout confirmation popup, used on the Profile page and in the admin sidebar. Matches the delete-product popup. */
+
+.logout-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background-color: rgba(11, 13, 20, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.logout-dialog-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 1.5rem;
+  border-radius: 12px;
+  background-color: var(--pure-white);
+  box-shadow: 0 20px 40px rgba(11, 13, 20, 0.2);
+}
+
+.logout-dialog-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--obsidian);
+}
+
+.logout-dialog-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.logout-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.logout-dialog-cancel,
+.logout-dialog-confirm {
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.logout-dialog-cancel {
+  border: 1px solid #E4E4E7;
+  background-color: var(--pure-white);
+  color: var(--text-main);
+}
+
+.logout-dialog-cancel:hover {
+  background-color: #F4F4F5;
+  color: var(--obsidian);
+}
+
+.logout-dialog-confirm {
+  border: 1px solid var(--brand-orange);
+  background-color: var(--brand-orange);
+  color: var(--pure-white);
+}
+
+.logout-dialog-confirm:hover {
+  border-color: var(--brand-orange-hover);
+  background-color: var(--brand-orange-hover);
+}
+
+.logout-dialog-cancel:focus-visible,
+.logout-dialog-confirm:focus-visible {
+  outline: 2px solid var(--brand-orange);
+  outline-offset: 2px;
+}
