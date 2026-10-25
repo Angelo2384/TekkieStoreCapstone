@@ -1,10 +1,9 @@
 import React from 'react';
 import { Package, Tag, Shield } from 'lucide-react';
 import { formatPrice } from '../../utils/formatters';
+import { Order } from '../../context/OrderContext';
 import { useOrder } from '../../context/OrderContext';
 import { ProductImage } from '../shared/ProductImage';
-import airMax90 from '../../assets/Nike/Nike Air Max 90.jpg';
-import mr530 from '../../assets/New Balance/MR530 White_Grey.jpg';
 import './ShipmentItems.css';
 
 interface ShipmentItem {
@@ -19,51 +18,33 @@ interface ShipmentItem {
   tag?: string;
 }
 
-export const ShipmentItems: React.FC = () => {
+interface ShipmentItemsProps {
+  order?: Order | null;
+}
+
+export const ShipmentItems: React.FC<ShipmentItemsProps> = ({ order }) => {
   const { activeOrder } = useOrder();
+  const targetOrder = order || activeOrder;
 
-  const defaultItems: ShipmentItem[] = [
-    {
-      id: 'ship-item-1',
-      brand: 'Nike',
-      name: 'Air Max 90',
-      colour: 'Wolf Grey / White / Black',
-      size: 'UK 9',
-      quantity: 1,
-      price: 2499,
-      image: airMax90,
-      tag: 'JUST DROPPED',
-    },
-    {
-      id: 'ship-item-2',
-      brand: 'New Balance',
-      name: 'MR530 White & Grey',
-      colour: 'White / Silver / Grey',
-      size: 'UK 9',
-      quantity: 1,
-      price: 1999,
-      image: mr530,
-      tag: 'SELLING FAST',
-    },
-  ];
+  if (!targetOrder || !targetOrder.items || targetOrder.items.length === 0) {
+    return null;
+  }
 
-  const items: ShipmentItem[] = activeOrder && activeOrder.items.length > 0
-    ? activeOrder.items.map((item, idx) => ({
-        id: item.id || `order-item-${idx}`,
-        brand: item.brand,
-        name: item.name,
-        colour: 'Original Authenticated',
-        size: item.size,
-        quantity: item.quantity,
-        price: item.price,
-        image: item.image,
-        tag: idx === 0 ? 'ORDER CONFIRMED' : undefined,
-      }))
-    : defaultItems;
+  const items: ShipmentItem[] = targetOrder.items.map((item, idx) => ({
+    id: item.id || `order-item-${idx}`,
+    brand: item.brand,
+    name: item.name,
+    colour: 'Original Authenticated',
+    size: item.size,
+    quantity: item.quantity,
+    price: item.price,
+    image: item.image,
+    tag: idx === 0 ? 'ORDER CONFIRMED' : undefined,
+  }));
 
-  const subtotal = activeOrder ? activeOrder.subtotal : items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const shippingFee = activeOrder ? activeOrder.shippingFee : 0;
-  const grandTotal = activeOrder ? activeOrder.total : subtotal + shippingFee;
+  const subtotal = targetOrder.subtotal;
+  const shippingFee = targetOrder.shippingFee;
+  const grandTotal = targetOrder.total;
 
   return (
     <div className="shipment-items-card">
@@ -132,7 +113,9 @@ export const ShipmentItems: React.FC = () => {
             <Tag size={13} className="summary-icon" />
             <span>Express Courier Shipping:</span>
           </span>
-          <span className="summary-val free-badge">FREE (Promotional)</span>
+          <span className={`summary-val ${shippingFee === 0 ? 'free-badge' : ''}`}>
+            {shippingFee === 0 ? 'FREE' : formatPrice(shippingFee)}
+          </span>
         </div>
         <div className="summary-row total-row">
           <span className="total-label">Total Paid:</span>

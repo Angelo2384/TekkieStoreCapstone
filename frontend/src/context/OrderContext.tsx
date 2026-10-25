@@ -54,11 +54,13 @@ interface OrderContextType {
   getOrderById: (orderId: string) => Order | undefined;
   fetchOrderById: (orderId: string) => Promise<Order | undefined>;
   setActiveOrderById: (orderId: string) => void;
-  refreshOrders: () => Promise<void>;
+  refreshOrders: () => Promise<Order[]>;
 }
 
-const ORDERS_STORAGE_KEY = 'tekkie_store_orders';
-const ACTIVE_ORDER_ID_KEY = 'tekkie_store_active_order_id';
+const getUserOrdersStorageKey = (customerId?: string) =>
+  customerId ? `tekkie_orders_${customerId}` : null;
+const getUserActiveOrderStorageKey = (customerId?: string) =>
+  customerId ? `tekkie_active_order_${customerId}` : null;
 
 const OrderContext = createContext<OrderContextType | undefined>(undefined);
 
@@ -121,17 +123,17 @@ const mapBackendOrderToOrder = (
 
   const recipientName = bo.customer?.name
     ? `${bo.customer.name.firstName || ''} ${bo.customer.name.lastName || ''}`.trim()
-    : 'Valued Customer';
+    : '';
 
   const defaultAddress: OrderShippingAddress = fallbackShipping || {
-    recipientName: recipientName || 'Valued Customer',
-    streetNumber: '12',
-    streetName: 'Main Road',
-    suburb: 'Claremont',
-    city: 'Cape Town',
-    province: 'Western Cape',
-    postalCode: '7708',
-    fullAddress: '12 Main Road, Claremont, Cape Town, Western Cape, 7708',
+    recipientName: recipientName || '',
+    streetNumber: '',
+    streetName: '',
+    suburb: '',
+    city: '',
+    province: '',
+    postalCode: '',
+    fullAddress: '',
   };
 
   return {
@@ -157,10 +159,13 @@ const mapBackendOrderToOrder = (
 
 export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
+  const customerId = user?.customerId;
 
   const [orders, setOrders] = useState<Order[]>(() => {
+    if (!customerId) return [];
     try {
-      const saved = localStorage.getItem(ORDERS_STORAGE_KEY);
+      const key = getUserOrdersStorageKey(customerId);
+      const saved = key ? localStorage.getItem(key) : null;
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
       console.error('Failed to load orders from localStorage', e);
@@ -169,61 +174,100 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   });
 
   const [activeOrderId, setActiveOrderId] = useState<string | null>(() => {
+    if (!customerId) return null;
     try {
-      return localStorage.getItem(ACTIVE_ORDER_ID_KEY) || null;
+      const key = getUserActiveOrderStorageKey(customerId);
+      return key ? localStorage.getItem(key) : null;
     } catch {
       return null;
     }
   });
 
+  // Switch or clear orders whenever authenticated customer changes
   useEffect(() => {
+    // Clean up any legacy unspecced storage key
+    localStorage.removeItem('tekkie_store_orders');
+    localStorage.removeItem('tekkie_store_active_order_id');
+
+    if (!customerId) {
+      setOrders([]);
+      setActiveOrderId(null);
+      return;
+    }
+
+    const key = getUserOrdersStorageKey(customerId);
+    const activeKey = getUserActiveOrderStorageKey(customerId);
     try {
-      localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
+      const saved = key ? localStorage.getItem(key) : null;
+      setOrders(saved ? JSON.parse(saved) : []);
+      const savedActive = activeKey ? localStorage.getItem(activeKey) : null;
+      setActiveOrderId(savedActive || null);
+    } catch {
+      setOrders([]);
+      setActiveOrderId(null);
+    }
+
+    refreshOrders();
+  }, [customerId]);
+
+  // Persist customer-scoped orders
+  useEffect(() => {
+    if (!customerId) return;
+    const key = getUserOrdersStorageKey(customerId);
+    if (!key) return;
+    try {
+      localStorage.setItem(key, JSON.stringify(orders));
     } catch (e) {
       console.error('Failed to persist orders to localStorage', e);
     }
-  }, [orders]);
+  }, [orders, customerId]);
 
+  // Persist customer-scoped activeOrderId
   useEffect(() => {
+    if (!customerId) return;
+    const key = getUserActiveOrderStorageKey(customerId);
+    if (!key) return;
     try {
       if (activeOrderId) {
-        localStorage.setItem(ACTIVE_ORDER_ID_KEY, activeOrderId);
+        localStorage.setItem(key, activeOrderId);
       } else {
-        localStorage.removeItem(ACTIVE_ORDER_ID_KEY);
+        localStorage.removeItem(key);
       }
     } catch (e) {
       console.error('Failed to persist activeOrderId to localStorage', e);
     }
-  }, [activeOrderId]);
+  }, [activeOrderId, customerId]);
 
   const activeOrder = orders.find((o) => o.id === activeOrderId) || (orders.length > 0 ? orders[0] : null);
 
-  const refreshOrders = async () => {
-    if (!user || !user.customerId) return;
+  const refreshOrders = async (): Promise<Order[]> => {
+    if (!customerId) {
+      setOrders([]);
+      setActiveOrderId(null);
+      return [];
+    }
     try {
-      const backendOrders = await orderService.getOrdersByCustomerId(user.customerId);
+      const backendOrders = await orderService.getOrdersByCustomerId(customerId);
       if (Array.isArray(backendOrders)) {
-        setOrders((prevOrders) => {
-          return backendOrders.map((bo) => {
-            const existing = prevOrders.find((o) => o.id === bo.orderId);
-            return mapBackendOrderToOrder(
-              bo,
-              existing?.shippingAddress,
-              existing?.trackingNumber
-            );
-          });
+        const mappedList: Order[] = backendOrders.map((bo) => {
+          const existing = orders.find((o) => o.id === bo.orderId);
+          return mapBackendOrderToOrder(
+            bo,
+            existing?.shippingAddress,
+            existing?.trackingNumber
+          );
         });
+        setOrders(mappedList);
+        return mappedList;
+      } else {
+        setOrders([]);
+        return [];
       }
     } catch (err) {
       console.warn('[OrderContext] Failed to refresh orders from backend:', err);
+      return [];
     }
   };
-
-  useEffect(() => {
-    if (user?.customerId) {
-      refreshOrders();
-    }
-  }, [user?.customerId]);
 
   const getOrderById = (orderId: string): Order | undefined => {
     const cleanId = orderId.replace('#', '').trim().toUpperCase();
@@ -239,6 +283,7 @@ export const OrderProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const cleanId = orderId.replace('#', '').trim();
     const bo = await orderService.getOrderById(cleanId);
     if (bo) {
+      // Backend enforces ownership: only proceed if order is returned
       const mapped = mapBackendOrderToOrder(bo);
       setOrders((prev) => [mapped, ...prev.filter((o) => o.id !== mapped.id)]);
       setActiveOrderId(mapped.id);
