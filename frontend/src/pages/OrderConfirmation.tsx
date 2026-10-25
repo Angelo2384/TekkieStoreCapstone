@@ -16,7 +16,7 @@ import './OrderConfirmation.css';
 export const OrderConfirmation: React.FC = () => {
   const { orderId } = useParams<{ orderId?: string }>();
   const navigate = useNavigate();
-  const { activeOrder, getOrderById, fetchOrderById } = useOrder();
+  const { getOrderById, fetchOrderById } = useOrder();
   const [loadedOrder, setLoadedOrder] = React.useState<Order | null>(null);
 
   React.useEffect(() => {
@@ -33,50 +33,52 @@ export const OrderConfirmation: React.FC = () => {
   }, [orderId, getOrderById, fetchOrderById]);
 
   // Find order by param or activeOrder, or fallback to demo order if directly navigated
-  const order: Order = (orderId ? (loadedOrder || getOrderById(orderId)) : null) ||
-    activeOrder || {
-      id: 'TK-88291',
-      orderNumber: '#TK-88291',
-      createdAt: new Date().toISOString(),
-      dateFormatted: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-      estimatedArrival: 'Oct 28 - 30',
-      status: 'Order Confirmed',
-      items: [
-        {
-          id: 'item-demo-1',
-          productId: 'shoe-1',
-          name: 'Air Max 90 Obsidian',
-          brand: 'Nike',
-          price: 2499,
-          size: 'UK 9',
-          quantity: 1,
-          image: '/hero.png',
-        },
-      ],
-      itemsCount: 1,
-      subtotal: 2499,
-      shippingFee: 0,
-      shippingMethod: 'DSV EXPRESS AIR',
-      vat: 326,
-      total: 2499,
-      shippingAddress: {
-        recipientName: 'Marcus Redelinghuys',
-        streetNumber: '42',
-        streetName: 'Sneakerhead Ave',
-        suburb: 'Rosebank',
-        city: 'Johannesburg',
-        province: 'Gauteng',
-        postalCode: '2196',
-        fullAddress: '42 Sneakerhead Ave, Rosebank, Johannesburg, Gauteng, 2196',
-      },
-      paymentMethod: 'card',
-      paymentReference: 'VISA-4921',
-      trackingNumber: 'DSV-ZA-99482710',
-    };
+  const [isLoading, setIsLoading] = React.useState(true);
+  // Resolve order based on URL param
+  const resolveOrder = async () => {
+    if (!orderId) {
+      // No orderId in URL – redirect to cart
+      navigate('/cart');
+      return;
+    }
+    // Try to get from context first
+let ord = getOrderById(orderId) || loadedOrder;
+if (!ord) {
+  // Fetch from backend if not present in context
+  ord = (await fetchOrderById(orderId)) ?? null;
+}
+if (!ord) {
+  // Invalid or not yet created – redirect
+  navigate('/cart');
+  return;
+}
+setLoadedOrder(ord as Order);
+setIsLoading(false);
+  };
+
+  React.useEffect(() => {
+    resolveOrder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [orderId]);
+
+  // While loading, show a simple indicator
+  if (isLoading) {
+    return (
+      <div className="order-confirmation-page">
+        <section className="confirmation-hero-section">
+          <div className="confirmation-container">
+            <div className="confirmation-hero-content">
+              <h2>Loading order details...</h2>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // At this point we have a valid order
+  const order = loadedOrder as Order;
+
 
   // Printable / downloadable clean invoice
   const handleDownloadInvoice = () => {
