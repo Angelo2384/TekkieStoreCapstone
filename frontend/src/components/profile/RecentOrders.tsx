@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Package, ExternalLink, RefreshCw, Truck } from 'lucide-react';
 import { Order, OrderStatus } from '../../types/profile';
-import { MOCK_ORDERS } from '../../data/mockOrders';
 import { useAuth } from '../../context/AuthContext';
 import { orderService, formatOrderStatus } from '../../services/orderService';
 import { useOrder } from '../../context/OrderContext';
@@ -91,8 +90,7 @@ export const RecentOrders: React.FC<RecentOrdersProps> = ({ orders: propOrders }
     }));
 
     if (!customerOrders) {
-      if (convertedContextOrders.length > 0) return convertedContextOrders;
-      return user?.customerId ? [] : MOCK_ORDERS;
+      return convertedContextOrders;
     }
 
     const orderMap = new Map<string, Order>();
