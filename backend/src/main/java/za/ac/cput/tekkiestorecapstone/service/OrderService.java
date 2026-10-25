@@ -9,6 +9,7 @@ Date: 19 july 2026
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import za.ac.cput.tekkiestorecapstone.domain.Customer;
 import za.ac.cput.tekkiestorecapstone.domain.Order;
 import za.ac.cput.tekkiestorecapstone.domain.OrderItem;
@@ -133,6 +134,15 @@ public class OrderService implements IOrderService {
             return null;
         }
         return this.repo.save(order);
+    }
+
+    // Admin status change for one customer's order; returns null if there's no such order
+    @Transactional
+    public Order updateStatus(String orderId, OrderStatus status) {
+        if (orderId == null || status == null || this.repo.updateStatus(orderId, status) == 0) {
+            return null;
+        }
+        return this.repo.findById(orderId).orElse(null);
     }
 
     @Override
