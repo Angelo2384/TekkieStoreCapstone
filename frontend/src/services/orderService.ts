@@ -28,6 +28,7 @@ export interface BackendOrder {
   orderDate: string | number;
   subtotal: number;
   shippingFee: number;
+  discount?: number;
   vat?: number;
   totalAmount: number;
   paymentMethod: string;

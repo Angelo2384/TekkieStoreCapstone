@@ -9,6 +9,8 @@ interface CheckoutOrderSummaryProps {
   cart: CartItem[];
   cartCount: number;
   subtotal: number;
+  discount: number;
+  promoCode: string | null;
   shippingFee: number;
   finalTotal: number;
   isSubmitting: boolean;
@@ -19,6 +21,8 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
   cart,
   cartCount,
   subtotal,
+  discount,
+  promoCode,
   shippingFee,
   finalTotal,
   isSubmitting,
@@ -90,6 +94,13 @@ export const CheckoutOrderSummary: React.FC<CheckoutOrderSummaryProps> = ({
           <span className="fin-label">Subtotal</span>
           <span className="fin-value">{formatPrice(subtotal)}</span>
         </div>
+
+        {discount > 0 && (
+          <div className="checkout-financial-row">
+            <span className="fin-label">Discount ({promoCode})</span>
+            <span className="fin-value">-{formatPrice(discount)}</span>
+          </div>
+        )}
 
         <div className="checkout-financial-row">
           <span className="fin-label">Shipping</span>

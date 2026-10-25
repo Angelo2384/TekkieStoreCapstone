@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, ShieldCheck, Truck, RotateCcw, Tag, Check, ShoppingBag } from 'lucide-react';
 import { formatPrice } from '../../utils/formatters';
+import { PROMO_CODE, getAppliedPromo, setAppliedPromo, promoDiscount } from '../../utils/checkoutUtils';
 import './OrderSummary.css';
 
 interface OrderSummaryProps {
@@ -15,13 +16,13 @@ const STANDARD_SHIPPING_FEE = 150;
 export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount }) => {
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState('');
-  const [discountPercent, setDiscountPercent] = useState(0);
-  const [promoApplied, setPromoApplied] = useState(false);
+  // Remembered so the checkout page charges the same discount
+  const [promoApplied, setPromoApplied] = useState(() => getAppliedPromo() !== null);
   const [promoError, setPromoError] = useState('');
 
   const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0;
   const shippingFee = isFreeShipping ? 0 : STANDARD_SHIPPING_FEE;
-  const discountAmount = Math.round(subtotal * discountPercent);
+  const discountAmount = promoDiscount(subtotal, promoApplied ? PROMO_CODE : null);
   const finalTotal = Math.max(0, subtotal - discountAmount + shippingFee);
 
   const amountToFreeShipping = Math.max(0, FREE_SHIPPING_THRESHOLD - subtotal);
@@ -32,14 +33,21 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
     const cleanCode = promoCode.trim().toUpperCase();
     if (!cleanCode) return;
 
-    if (cleanCode === 'TEKKIE10') {
-      setDiscountPercent(0.1);
+    if (cleanCode === PROMO_CODE) {
+      setAppliedPromo(PROMO_CODE);
       setPromoApplied(true);
       setPromoError('');
     } else {
+      setAppliedPromo(null);
       setPromoError('Invalid promo code. Try "TEKKIE10"');
       setPromoApplied(false);
     }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoApplied(false);
+    setPromoCode('');
   };
 
   const handleProceedToCheckout = () => {
@@ -86,7 +94,7 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
           <div className="financial-row discount-row">
             <span className="financial-label">
               <Tag size={13} />
-              <span>Discount ({Math.round(discountPercent * 100)}%)</span>
+              <span>Discount ({PROMO_CODE}, 10%)</span>
             </span>
             <span className="financial-val discount-val">-{formatPrice(discountAmount)}</span>
           </div>
@@ -135,7 +143,10 @@ export const OrderSummary: React.FC<OrderSummaryProps> = ({ subtotal, itemCount 
           {promoError && <p className="promo-error-msg">{promoError}</p>}
           {promoApplied && (
             <p className="promo-success-msg">
-              <Check size={12} /> Promo code applied successfully!
+              <Check size={12} /> Promo code applied successfully!{' '}
+              <button type="button" className="promo-remove-btn" onClick={handleRemovePromo}>
+                Remove
+              </button>
             </p>
           )}
         </form>

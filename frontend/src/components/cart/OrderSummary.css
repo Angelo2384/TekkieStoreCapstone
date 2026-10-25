@@ -405,3 +405,19 @@
     font-size: 1.7rem;
   }
 }
+
+.promo-remove-btn {
+  margin-left: 0.35rem;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.promo-remove-btn:hover {
+  color: var(--obsidian);
+}
