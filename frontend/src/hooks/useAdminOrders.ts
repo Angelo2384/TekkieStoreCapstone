@@ -19,6 +19,11 @@ export const loadAdminOrders = (): Promise<BackendOrder[]> => {
   return inFlight;
 };
 
+// For pages that change orders without this hook (e.g. the Orders page changing a status)
+export const clearAdminOrdersCache = (): void => {
+  cache = null;
+};
+
 export const useAdminOrders = () => {
   const [orders, setOrders] = useState<BackendOrder[]>(cache || []);
   const [loading, setLoading] = useState<boolean>(!cache);

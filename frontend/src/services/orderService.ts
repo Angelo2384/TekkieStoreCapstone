@@ -170,18 +170,18 @@ export const orderService = {
   },
 
   /**
-   * Updates an order's status while strictly preserving all other properties.
-   * Endpoint: PUT /order/update
+   * Changes only an order's status; the backend leaves its items, totals and customer untouched.
+   * Endpoint: PUT /order/{orderId}/status (admin only)
    */
   updateOrderStatus: async (
     order: BackendOrder,
     status: BackendOrderStatus | string
   ): Promise<BackendOrder> => {
-    const updatedPayload: BackendOrder = {
-      ...order,
-      status,
-    };
-    return orderService.updateOrder(updatedPayload);
+    const response = await api.put<BackendOrder>(
+      `/order/${encodeURIComponent(order.orderId)}/status`,
+      { status }
+    );
+    return response.data;
   },
 };
 
