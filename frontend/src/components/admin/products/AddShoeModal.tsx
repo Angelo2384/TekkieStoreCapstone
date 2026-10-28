@@ -285,6 +285,9 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
     const basePriceNum = parseFloat(formData.basePrice);
     if (!formData.basePrice || isNaN(basePriceNum) || basePriceNum <= 0) {
       errors.basePrice = 'Base price is required and must be greater than 0.';
+    } else if (!Number.isInteger(basePriceNum)) {
+      // Prices are whole rands, so what customers see is exactly what they're charged
+      errors.basePrice = 'Use whole rands, no cents.';
     }
 
     if (formData.salePercentage.trim() !== '') {
@@ -566,9 +569,9 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
                   id="basePrice"
                   name="basePrice"
                   type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="2499.00"
+                  step="1"
+                  min="1"
+                  placeholder="2499"
                   value={formData.basePrice}
                   onChange={handleInputChange}
                   className={fieldErrors.basePrice ? 'input-error' : ''}

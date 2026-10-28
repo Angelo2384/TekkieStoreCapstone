@@ -13,11 +13,12 @@ export interface PaymentResult {
 
 export const paymentService = {
   /**
-   * Starts a Paystack payment for the logged-in user's cart; the backend decides the price.
+   * Starts a Paystack payment for the logged-in user's cart; the backend decides the price,
+   * including the promo discount after checking the code itself.
    * Endpoint: POST /payments/paystack/checkout
    */
-  startCheckout: async (): Promise<PaystackCheckout> => {
-    const response = await api.post<PaystackCheckout>('/payments/paystack/checkout');
+  startCheckout: async (promoCode: string | null = null): Promise<PaystackCheckout> => {
+    const response = await api.post<PaystackCheckout>('/payments/paystack/checkout', { promoCode });
     return response.data;
   },
 

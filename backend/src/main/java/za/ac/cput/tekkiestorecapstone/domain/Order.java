@@ -31,6 +31,8 @@ public class Order {
     private Date orderDate;
     private BigDecimal subtotal;
     private BigDecimal shippingFee;
+    // Promo code discount taken off the subtotal (0 when no code was used)
+    private BigDecimal discount;
     private BigDecimal totalAmount;
     private String paymentMethod;
     private String paymentReference;
@@ -56,6 +58,7 @@ public class Order {
         this.orderDate = builder.orderDate;
         this.subtotal = builder.subtotal;
         this.shippingFee = builder.shippingFee;
+        this.discount = builder.discount;
         this.totalAmount = builder.totalAmount;
         this.paymentMethod = builder.paymentMethod;
         this.paymentReference = builder.paymentReference;
@@ -79,6 +82,10 @@ public class Order {
 
     public BigDecimal getShippingFee() {
         return shippingFee;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
     }
 
     public BigDecimal getTotalAmount() {
@@ -113,6 +120,7 @@ public class Order {
                 ", orderDate=" + orderDate +
                 ", subtotal=" + subtotal +
                 ", shippingFee=" + shippingFee +
+                ", discount=" + discount +
                 ", totalAmount=" + totalAmount +
                 ", paymentMethod='" + paymentMethod + '\'' +
                 ", paymentReference='" + paymentReference + '\'' +
@@ -128,6 +136,7 @@ public class Order {
         private Date orderDate;
         private BigDecimal subtotal;
         private BigDecimal shippingFee;
+        private BigDecimal discount;
         private BigDecimal totalAmount;
         private String paymentMethod;
         private String paymentReference;
@@ -152,6 +161,11 @@ public class Order {
 
         public Builder setShippingFee(BigDecimal shippingFee) {
             this.shippingFee = shippingFee;
+            return this;
+        }
+
+        public Builder setDiscount(BigDecimal discount) {
+            this.discount = discount;
             return this;
         }
 
@@ -190,6 +204,7 @@ public class Order {
             this.orderDate = order.orderDate;
             this.subtotal = order.subtotal;
             this.shippingFee = order.shippingFee;
+            this.discount = order.discount;
             this.totalAmount = order.totalAmount;
             this.paymentMethod = order.paymentMethod;
             this.paymentReference = order.paymentReference;

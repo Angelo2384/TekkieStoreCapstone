@@ -83,7 +83,7 @@ class ShoeFactoryTest {
         assertNotNull(saleShoe);
         assertEquals("S002", saleShoe.getShoeId());
         assertEquals(BigDecimal.valueOf(2000.00), saleShoe.getBasePrice());
-        assertEquals(new BigDecimal("1600.00"), saleShoe.getSalePrice());
+        assertEquals(new BigDecimal("1600"), saleShoe.getSalePrice());
         assertEquals(BigDecimal.valueOf(20.0), saleShoe.getSalePercentage());
         assertTrue(saleShoe.isOnSale());
         System.out.println("Sale shoe created: " + saleShoe);
@@ -137,7 +137,7 @@ class ShoeFactoryTest {
                 sampleImages
         );
         assertNotNull(shoe);
-        assertEquals(new BigDecimal("1350.00"), shoe.getSalePrice());
+        assertEquals(new BigDecimal("1350"), shoe.getSalePrice());
         assertEquals(BigDecimal.valueOf(10.0), shoe.getSalePercentage());
         assertTrue(shoe.isOnSale());
     }

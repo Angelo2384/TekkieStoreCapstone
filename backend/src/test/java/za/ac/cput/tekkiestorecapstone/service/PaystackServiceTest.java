@@ -49,6 +49,7 @@ class PaystackServiceTest {
 
     private PaystackService service;
     private long chargedCents;
+    private String startedWithPromo;
     private PaystackService.PaystackData paystackSays;
     private Customer customer;
     private List<CartItem> cart;
@@ -59,8 +60,9 @@ class PaystackServiceTest {
         service = new PaystackService(customerRepo, cartItemRepo, orderRepo, deliveryRepo, orderService,
                 "sk_test_dummy", "http://localhost:5173") {
             @Override
-            String startTransaction(String email, long amountInCents, String orderId) {
+            String startTransaction(String email, long amountInCents, String orderId, String promo) {
                 chargedCents = amountInCents;
+                startedWithPromo = promo;
                 return "https://checkout.paystack.com/test123";
             }
 
@@ -92,7 +94,7 @@ class PaystackServiceTest {
         when(customerRepo.findByEmail("shopper@test.com")).thenReturn(Optional.of(customer));
         when(cartItemRepo.findByCart_CartId("C1")).thenReturn(cart);
 
-        PaystackService.Checkout checkout = service.createCheckout("shopper@test.com");
+        PaystackService.Checkout checkout = service.createCheckout("shopper@test.com", null);
 
         assertEquals(120000, chargedCents);
         assertEquals("https://checkout.paystack.com/test123", checkout.authorizationUrl());
@@ -106,7 +108,7 @@ class PaystackServiceTest {
         when(customerRepo.findByEmail("shopper@test.com")).thenReturn(Optional.of(customer));
         when(cartItemRepo.findByCart_CartId("C1")).thenReturn(List.of());
 
-        assertThrows(IllegalArgumentException.class, () -> service.createCheckout("shopper@test.com"));
+        assertThrows(IllegalArgumentException.class, () -> service.createCheckout("shopper@test.com", null));
     }
 
     @Test
@@ -181,6 +183,45 @@ class PaystackServiceTest {
 
     private PaystackService.PaystackData transaction(String status, Long amount, String email) {
         return new PaystackService.PaystackData(null, status, amount, "ZAR", 555L,
-                new PaystackService.PaystackCustomer(email));
+                new PaystackService.PaystackCustomer(email), "");
+    }
+
+    @Test
+    void h_checkout_withPromo_chargesTenPercentLessInWholeRands() {
+        when(customerRepo.findByEmail("shopper@test.com")).thenReturn(Optional.of(customer));
+        when(cartItemRepo.findByCart_CartId("C1")).thenReturn(cart);
+
+        service.createCheckout("shopper@test.com", "tekkie10");
+
+        // R1200 - R120 (10%) = R1080, still free shipping
+        assertEquals(108000, chargedCents);
+        assertEquals("TEKKIE10", startedWithPromo);
+    }
+
+    @Test
+    void i_checkout_unknownPromo_isRejected() {
+        when(customerRepo.findByEmail("shopper@test.com")).thenReturn(Optional.of(customer));
+        when(cartItemRepo.findByCart_CartId("C1")).thenReturn(cart);
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> service.createCheckout("shopper@test.com", "FREESHOES"));
+        assertEquals("That promo code isn't valid", e.getMessage());
+    }
+
+    @Test
+    void j_confirm_promoFromPaystack_savesDiscountedOrder() {
+        when(orderRepo.findById("TK-TEST1")).thenReturn(Optional.empty());
+        when(customerRepo.findByEmail("shopper@test.com")).thenReturn(Optional.of(customer));
+        when(cartItemRepo.findByCart_CartId("C1")).thenReturn(cart);
+        when(orderRepo.save(any())).thenAnswer(call -> call.getArgument(0));
+        paystackSays = new PaystackService.PaystackData(null, "success", 108000L, "ZAR", 555L,
+                new PaystackService.PaystackCustomer("shopper@test.com"), Map.of("promo_code", "TEKKIE10"));
+
+        assertEquals("PAID", service.confirmPayment("TK-TEST1", "shopper@test.com", SHIPPING).status());
+
+        ArgumentCaptor<Order> order = ArgumentCaptor.forClass(Order.class);
+        verify(orderRepo).save(order.capture());
+        assertEquals(0, new BigDecimal("120").compareTo(order.getValue().getDiscount()));
+        assertEquals(0, new BigDecimal("1080").compareTo(order.getValue().getTotalAmount()));
     }
 }

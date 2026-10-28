@@ -197,7 +197,8 @@ public class Shoe {
             this.salePercentage = salePercentage;
             if (salePercentage != null && salePercentage.compareTo(BigDecimal.ZERO) > 0 && this.basePrice != null && this.basePrice.compareTo(BigDecimal.ZERO) > 0) {
                 BigDecimal discountFactor = BigDecimal.ONE.subtract(salePercentage.divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP));
-                this.salePrice = this.basePrice.multiply(discountFactor).setScale(2, RoundingMode.HALF_UP);
+                // Whole rands, so the price shown is exactly the price charged
+                this.salePrice = this.basePrice.multiply(discountFactor).setScale(0, RoundingMode.HALF_UP);
             } else {
                 this.salePrice = BigDecimal.ZERO;
             }
