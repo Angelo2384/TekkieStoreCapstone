@@ -163,8 +163,9 @@ setIsLoading(false);
           </table>
           <div class="totals">
             <div class="totals-row"><span>Subtotal:</span><span>${formatPrice(order.subtotal)}</span></div>
+            ${(order.discount || 0) > 0 ? `<div class="totals-row"><span>Discount:</span><span>-${formatPrice(order.discount)}</span></div>` : ''}
             <div class="totals-row"><span>Shipping:</span><span>${order.shippingFee === 0 ? 'FREE' : formatPrice(order.shippingFee)}</span></div>
-            <div class="totals-row grand-total"><span>TOTAL:</span><span>${formatPrice(order.subtotal + order.shippingFee)}</span></div>
+            <div class="totals-row grand-total"><span>TOTAL:</span><span>${formatPrice(order.total)}</span></div>
           </div>
           <div class="footer">Thank you for shopping with TekkieStore. For support, contact support@tekkiestore.co.za</div>
           <script>window.onload = function() { window.print(); };</script>
@@ -231,7 +232,7 @@ setIsLoading(false);
             <div className="order-info-divider" />
             <div className="order-info-unit">
               <span className="info-unit-label">TOTAL AMOUNT</span>
-              <span className="info-unit-value total-amount-val">{formatPrice(order.subtotal + order.shippingFee)}</span>
+              <span className="info-unit-value total-amount-val">{formatPrice(order.total)}</span>
             </div>
           </div>
 
@@ -285,6 +286,13 @@ setIsLoading(false);
                     <span className="fin-data">{formatPrice(order.subtotal)}</span>
                   </div>
 
+                  {(order.discount || 0) > 0 && (
+                    <div className="fin-row">
+                      <span className="fin-title">Discount</span>
+                      <span className="fin-data">-{formatPrice(order.discount)}</span>
+                    </div>
+                  )}
+
                   <div className="fin-row">
                     <span className="fin-title">Shipping</span>
                     <span className="fin-data">
@@ -300,7 +308,7 @@ setIsLoading(false);
 
                   <div className="fin-row total-highlight-row">
                     <span className="final-total-label">TOTAL</span>
-                    <span className="final-total-val">{formatPrice(order.subtotal + order.shippingFee)}</span>
+                    <span className="final-total-val">{formatPrice(order.total)}</span>
                   </div>
                 </div>
               </div>

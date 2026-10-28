@@ -39,6 +39,7 @@ export interface Order {
   itemsCount: number;
   subtotal: number;
   shippingFee: number;
+  discount: number;
   shippingMethod: string;
   vat: number; // 15% VAT included portion
   total: number;
@@ -147,6 +148,7 @@ const mapBackendOrderToOrder = (
     itemsCount: totalQuantity,
     subtotal: bo.subtotal,
     shippingFee: bo.shippingFee,
+    discount: bo.discount ?? 0,
     shippingMethod: 'DSV EXPRESS AIR',
     vat: bo.vat ?? Math.round((bo.subtotal || 0) * 0.15),
     total: bo.totalAmount,

@@ -11,7 +11,7 @@ import { PaymentMethodSection } from '../components/checkout/PaymentMethodSectio
 import { ShipmentMethodCard } from '../components/checkout/ShipmentMethodCard';
 import { CheckoutOrderSummary } from '../components/checkout/CheckoutOrderSummary';
 import { paymentService } from '../services/paymentService';
-import { SAVED_SHIPPING_KEY } from '../utils/checkoutUtils';
+import { SAVED_SHIPPING_KEY, getAppliedPromo, promoDiscount } from '../utils/checkoutUtils';
 import './CheckoutPage.css';
 
 const FREE_SHIPPING_THRESHOLD = 1000;
@@ -85,7 +85,10 @@ export const CheckoutPage: React.FC = () => {
   const subtotal = cartTotal;
   const isFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0;
   const shippingFee = isFreeShipping ? 0 : STANDARD_SHIPPING_FEE;
-  const finalTotal = subtotal + shippingFee;
+  // Promo code applied in the cart; the backend checks it and charges exactly this discount
+  const promoCode = getAppliedPromo();
+  const discount = promoDiscount(subtotal, promoCode);
+  const finalTotal = subtotal - discount + shippingFee;
 
   // Real-time Shipping Validation Logic
   const validateShippingField = (
@@ -209,7 +212,7 @@ export const CheckoutPage: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      const checkout = await paymentService.startCheckout();
+      const checkout = await paymentService.startCheckout(promoCode);
       window.location.href = checkout.authorizationUrl;
     } catch (err: any) {
       console.error('[CheckoutPage] Checkout submission error:', err);
@@ -276,6 +279,8 @@ export const CheckoutPage: React.FC = () => {
                 cart={cart}
                 cartCount={cartCount}
                 subtotal={subtotal}
+                discount={discount}
+                promoCode={promoCode}
                 shippingFee={shippingFee}
                 finalTotal={finalTotal}
                 isSubmitting={isSubmitting}

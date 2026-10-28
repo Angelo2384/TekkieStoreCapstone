@@ -330,6 +330,13 @@ const OrderDetailsContent: React.FC<{
                 </span>
               </div>
 
+              {(order.discount || 0) > 0 && (
+                <div className="financial-row">
+                  <span className="financial-label">Discount</span>
+                  <span className="financial-value">-{formatPrice(order.discount || 0)}</span>
+                </div>
+              )}
+
               <div className="financial-row">
                 <span className="financial-label">Shipping Fee</span>
                 <span className="financial-value">

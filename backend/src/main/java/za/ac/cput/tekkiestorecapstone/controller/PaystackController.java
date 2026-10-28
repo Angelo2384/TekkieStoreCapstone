@@ -24,9 +24,11 @@ public class PaystackController {
     }
 
     // The customer comes from their login token, so they can only ever pay for their own cart
+    // Optional body {"promoCode": "TEKKIE10"}; the backend checks the code and works out the discount itself
     @PostMapping("/checkout")
-    public PaystackService.Checkout checkout(Authentication authentication) {
-        return service.createCheckout(authentication.getName());
+    public PaystackService.Checkout checkout(Authentication authentication,
+                                             @RequestBody(required = false) PaystackService.CheckoutRequest request) {
+        return service.createCheckout(authentication.getName(), request == null ? null : request.promoCode());
     }
 
     // Creates the order (with its delivery address) only if Paystack confirms the payment
