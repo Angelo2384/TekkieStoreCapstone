@@ -1,3 +1,0 @@
-# CartItemController
-**Author:** Angelo Adams
-
