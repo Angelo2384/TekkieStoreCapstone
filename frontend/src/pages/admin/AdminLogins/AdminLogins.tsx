@@ -1,6 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Skeleton from '@mui/material/Skeleton';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, UserPlus } from 'lucide-react';
 import { useAdminAccounts } from '../../../hooks/useAdminAccounts';
 import './AdminLogins.css';
 
@@ -21,11 +22,15 @@ export const AdminLogins: React.FC = () => {
 
   return (
     <div className="admin-page-container">
-      <div className="admin-page-header">
+      <div className="admin-page-header admin-logins-header">
         <div>
           <h1 className="admin-page-title">Admin Logins</h1>
           <p className="admin-page-subtitle">Every admin account, its last login and who's active right now.</p>
         </div>
+        <Link to="/admin/signup" className="adm-create-btn">
+          <UserPlus size={16} />
+          <span>New Admin</span>
+        </Link>
       </div>
 
       <div className="admin-logins-table-card">

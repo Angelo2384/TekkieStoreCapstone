@@ -28,6 +28,8 @@ import { Inventory } from '../pages/admin/Inventory/Inventory';
 import { Orders } from '../pages/admin/Orders/Orders';
 import { Customers } from '../pages/admin/Customers/Customers';
 import { AdminLogins } from '../pages/admin/AdminLogins/AdminLogins';
+import { AdminLogin } from '../pages/admin/AdminLogin';
+import { AdminSignUp } from '../pages/admin/AdminSignUp';
 
 export const router = createBrowserRouter([
   {
@@ -126,6 +128,14 @@ export const router = createBrowserRouter([
         element: <AboutUs />,
       },
     ],
+  },
+  {
+    path: '/admin/login',
+    element: <AdminLogin />,
+  },
+  {
+    path: '/admin/signup',
+    element: <AdminSignUp />,
   },
   {
     path: '/admin',

@@ -9,6 +9,7 @@ import {
   Store,
   ExternalLink,
   ShieldCheck,
+  UserPlus,
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -121,6 +122,16 @@ export const AdminLayout: React.FC = () => {
           >
             <ShieldCheck size={20} className="admin-nav-icon" />
             <span>Admin Logins</span>
+          </NavLink>
+
+          <NavLink
+            to="/admin/signup"
+            className={({ isActive }) =>
+              `admin-nav-link ${isActive ? 'active' : ''}`
+            }
+          >
+            <UserPlus size={20} className="admin-nav-icon" />
+            <span>Create Admin</span>
           </NavLink>
 
           <div className="admin-nav-divider" />

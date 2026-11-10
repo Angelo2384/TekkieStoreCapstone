@@ -34,12 +34,15 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         // Paying and confirming a payment need a logged-in customer
                         .requestMatchers("/payments/**").authenticated()
-                        // Only admins can create or change orders, so nobody can mark their own order as PAID
-                        .requestMatchers("/order/create", "/order/update", "/order/delete/**", "/order/*/status").hasRole("ADMIN")
+                        // Order administration (only admins can create, change, or view all customer orders)
+                        .requestMatchers("/order/create", "/order/update", "/order/delete/**", "/order/*/status", "/order/getAll").hasRole("ADMIN")
                         .requestMatchers("/orderItem/create", "/orderItem/update", "/orderItem/delete/**").hasRole("ADMIN")
-                        // Deleting a shoe also removes its sizes and cart lines
-                        .requestMatchers("/shoe/delete/**").hasRole("ADMIN")
-                        // Admin account list and admin check-ins
+                        // Product and inventory catalog administration
+                        .requestMatchers("/shoe/create", "/shoe/update", "/shoe/delete/**", "/shoe/upload-image").hasRole("ADMIN")
+                        .requestMatchers("/shoeVariant/create", "/shoeVariant/update", "/shoeVariant/delete/**").hasRole("ADMIN")
+                        // Customer directory administration
+                        .requestMatchers("/customer/getAll", "/customer/delete/**").hasRole("ADMIN")
+                        // Admin endpoints (including admin registration, accounts list, and activity check-ins)
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import './AuthContainer.css';
 
 interface AuthContainerProps {
@@ -21,8 +22,8 @@ export const AuthContainer = ({
 }: AuthContainerProps) => {
   return (
     <div className="authPageWrapper">
-      <Link to="/" className="authBackLink">
-        Back to store
+      <Link to="/" className="authBackLink" aria-label="Back to store" title="Back to store">
+        <ArrowLeft size={20} />
       </Link>
 
       <div className="authCard">
