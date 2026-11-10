@@ -13,13 +13,15 @@
   position: absolute;
   top: 1.5rem;
   left: 1.75rem;
-  padding: 0.6rem 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
   border: 1px solid var(--obsidian);
-  border-radius: 8px;
+  border-radius: 10px;
   background-color: var(--obsidian);
   color: var(--pure-white);
-  font-size: 0.85rem;
-  font-weight: 600;
   transition: all 0.2s ease;
 }
 
@@ -28,6 +30,7 @@
   background-color: var(--brand-orange);
   border-color: var(--brand-orange);
   color: var(--pure-white);
+  transform: translateX(-2px);
 }
 
 .authCard {

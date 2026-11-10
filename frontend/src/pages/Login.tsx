@@ -93,6 +93,12 @@ export const Login = () => {
         <button type="submit" className="authSubmitBtn" disabled={loading}>
           {loading ? 'SIGNING IN...' : 'LOGIN'}
         </button>
+
+        <div style={{ textAlign: 'center', marginTop: '0.35rem' }}>
+          <Link to="/admin/login" className="forgotPasswordLink" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none' }}>
+            Store Administrator? Admin Portal Login
+          </Link>
+        </div>
       </form>
     </AuthContainer>
   );

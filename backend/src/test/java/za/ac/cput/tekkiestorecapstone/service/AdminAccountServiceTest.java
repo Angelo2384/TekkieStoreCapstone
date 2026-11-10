@@ -6,8 +6,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import za.ac.cput.tekkiestorecapstone.domain.Customer;
 import za.ac.cput.tekkiestorecapstone.dto.AdminAccountResponse;
+import za.ac.cput.tekkiestorecapstone.dto.CreateAdminRequest;
 import za.ac.cput.tekkiestorecapstone.repository.CustomerRepository;
 
 import java.time.Duration;
@@ -26,6 +28,9 @@ class AdminAccountServiceTest {
 
     @Mock
     private CustomerRepository customerRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private AdminAccountService service;
@@ -100,5 +105,63 @@ class AdminAccountServiceTest {
         service.markActive("ghost@tekkies.com");
 
         verify(customerRepository, never()).save(any());
+    }
+
+    @Test
+    void testCreateAdminSuccess() {
+        CreateAdminRequest req = new CreateAdminRequest("newadmin@tekkies.com", "pass123", "New Administrator", null, null, "0821234567");
+        when(customerRepository.findByEmail("newadmin@tekkies.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("pass123")).thenReturn("encoded-pass");
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        AdminAccountResponse resp = service.createAdmin(req);
+
+        assertNotNull(resp);
+        assertEquals("newadmin@tekkies.com", resp.getEmail());
+        assertFalse(resp.isActive());
+
+        ArgumentCaptor<Customer> captor = ArgumentCaptor.forClass(Customer.class);
+        verify(customerRepository).save(captor.capture());
+        Customer saved = captor.getValue();
+        assertEquals("newadmin@tekkies.com", saved.getEmail());
+        assertEquals("encoded-pass", saved.getPassword());
+        assertEquals("ADMIN", saved.getRole());
+        assertEquals("New", saved.getName().getFirstName());
+        assertEquals("Administrator", saved.getName().getLastName());
+    }
+
+    @Test
+    void testCreateAdminRejectsNonTekkiesEmail() {
+        CreateAdminRequest req = new CreateAdminRequest("hacker@gmail.com", "pass123", "Fake Admin", null, null, "0821234567");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.createAdmin(req));
+        assertEquals("Admin accounts must use an @tekkies.com email address", ex.getMessage());
+        verify(customerRepository, never()).save(any());
+    }
+
+    @Test
+    void testCreateAdminRejectsDuplicateEmail() {
+        CreateAdminRequest req = new CreateAdminRequest("exists@tekkies.com", "pass123", "Existing Admin", null, null, "0821234567");
+        when(customerRepository.findByEmail("exists@tekkies.com")).thenReturn(Optional.of(admin("exists@tekkies.com", null)));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.createAdmin(req));
+        assertEquals("An account with this email already exists", ex.getMessage());
+        verify(customerRepository, never()).save(any());
+    }
+
+    @Test
+    void testCreateAdminRejectsShortPassword() {
+        CreateAdminRequest req = new CreateAdminRequest("valid@tekkies.com", "123", "Admin Valid", null, null, "0821234567");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.createAdmin(req));
+        assertEquals("Password must be at least 6 characters", ex.getMessage());
+    }
+
+    @Test
+    void testCreateAdminRejectsMissingName() {
+        CreateAdminRequest req = new CreateAdminRequest("valid@tekkies.com", "pass123", "   ", null, null, "0821234567");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.createAdmin(req));
+        assertEquals("First name and last name are required", ex.getMessage());
     }
 }

@@ -7,10 +7,24 @@ export interface AdminAccount {
   active: boolean;
 }
 
+export interface CreateAdminPayload {
+  email: string;
+  password: string;
+  fullName?: string;
+  firstName?: string;
+  lastName?: string;
+  mobileNumber?: string;
+}
+
 export const adminService = {
   getAdminAccounts: async (): Promise<AdminAccount[]> => {
     const res = await api.get('/admin/accounts');
     return Array.isArray(res.data) ? res.data : [];
+  },
+
+  createAdminAccount: async (payload: CreateAdminPayload): Promise<AdminAccount> => {
+    const res = await api.post<AdminAccount>('/admin/register', payload);
+    return res.data;
   },
 
   heartbeat: async (): Promise<void> => {
