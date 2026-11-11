@@ -29,12 +29,15 @@ public class OrderService implements IOrderService {
     private final OrderRepository repo;
     private final CustomerRepository customerRepo;
     private final ShoeVariantRepository shoeVariantRepo;
+    private final ActivityLogService activityLog;
 
     @Autowired
-    public OrderService(OrderRepository repo, CustomerRepository customerRepo, ShoeVariantRepository shoeVariantRepo) {
+    public OrderService(OrderRepository repo, CustomerRepository customerRepo, ShoeVariantRepository shoeVariantRepo,
+                        ActivityLogService activityLog) {
         this.repo = repo;
         this.customerRepo = customerRepo;
         this.shoeVariantRepo = shoeVariantRepo;
+        this.activityLog = activityLog;
     }
 
     // Finds the ShoeVariant matching an order item's shoeId + size (e.g. "UK 10")
@@ -139,9 +142,16 @@ public class OrderService implements IOrderService {
     // Admin status change for one customer's order; returns null if there's no such order
     @Transactional
     public Order updateStatus(String orderId, OrderStatus status) {
-        if (orderId == null || status == null || this.repo.updateStatus(orderId, status) == 0) {
+        if (orderId == null || status == null) {
             return null;
         }
+        // Read before the update, so the log can show what the status was changed from
+        OrderStatus before = this.repo.findStatusById(orderId).orElse(null);
+        if (this.repo.updateStatus(orderId, status) == 0) {
+            return null;
+        }
+        this.activityLog.record("Order " + orderId + " status changed"
+                + (before == null ? "" : " from " + before) + " to " + status);
         return this.repo.findById(orderId).orElse(null);
     }
 

@@ -7,7 +7,6 @@ public class CreateAdminRequest {
     private String firstName;
     private String lastName;
     private String mobileNumber;
-    private String role;
 
     public CreateAdminRequest() {}
 
@@ -66,14 +65,6 @@ public class CreateAdminRequest {
 
     public void setMobileNumber(String mobileNumber) {
         this.mobileNumber = mobileNumber;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 }
 

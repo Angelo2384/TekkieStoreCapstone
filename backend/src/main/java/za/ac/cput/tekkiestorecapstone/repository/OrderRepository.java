@@ -15,6 +15,7 @@ import za.ac.cput.tekkiestorecapstone.domain.Order;
 import za.ac.cput.tekkiestorecapstone.domain.OrderStatus;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String> {
@@ -24,4 +25,8 @@ public interface OrderRepository extends JpaRepository<Order, String> {
     @Modifying(clearAutomatically = true)
     @Query("UPDATE Order o SET o.status = :status WHERE o.orderId = :orderId")
     int updateStatus(@Param("orderId") String orderId, @Param("status") OrderStatus status);
+
+    // Only the status, read before a status change so the activity log can show the old one
+    @Query("SELECT o.status FROM Order o WHERE o.orderId = :orderId")
+    Optional<OrderStatus> findStatusById(@Param("orderId") String orderId);
 }

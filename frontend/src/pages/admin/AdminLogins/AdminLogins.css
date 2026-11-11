@@ -1,6 +1,6 @@
 /* Admin Logins page. Table styled to match the Customers page; status colours match Orders' badges. */
 
-/* Shown after a new account is created */
+/* Shown after an account is created or deleted */
 .adm-alert-success {
   display: flex;
   align-items: center;
@@ -19,6 +19,10 @@
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.adm-actions-cell {
+  text-align: right;
 }
 
 .adm-table-responsive {

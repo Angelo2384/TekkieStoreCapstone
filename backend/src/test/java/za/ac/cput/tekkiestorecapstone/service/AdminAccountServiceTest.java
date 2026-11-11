@@ -7,9 +7,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import za.ac.cput.tekkiestorecapstone.domain.Cart;
 import za.ac.cput.tekkiestorecapstone.domain.Customer;
 import za.ac.cput.tekkiestorecapstone.dto.AdminAccountResponse;
 import za.ac.cput.tekkiestorecapstone.dto.CreateAdminRequest;
+import za.ac.cput.tekkiestorecapstone.repository.CartRepository;
 import za.ac.cput.tekkiestorecapstone.repository.CustomerRepository;
 
 import java.time.Duration;
@@ -30,7 +32,13 @@ class AdminAccountServiceTest {
     private CustomerRepository customerRepository;
 
     @Mock
+    private CartRepository cartRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private ActivityLogService activityLog;
 
     @InjectMocks
     private AdminAccountService service;
@@ -125,7 +133,7 @@ class AdminAccountServiceTest {
         Customer saved = captor.getValue();
         assertEquals("newadmin@tekkies.com", saved.getEmail());
         assertEquals("encoded-pass", saved.getPassword());
-        // No role chosen, so the account is staff
+        // Accounts created here are always staff
         assertEquals("STAFF", saved.getRole());
         assertTrue(saved.isMustChangePassword());
         assertEquals("New", saved.getName().getFirstName());
@@ -133,25 +141,44 @@ class AdminAccountServiceTest {
     }
 
     @Test
-    void testCreateAdminWithMainAdminRole() {
-        CreateAdminRequest req = new CreateAdminRequest("owner@tekkies.com", "pass123", "Store Owner", null, null, "0821234567");
-        req.setRole("ADMIN");
-        when(customerRepository.findByEmail("owner@tekkies.com")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("pass123")).thenReturn("encoded-pass");
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    void testDeleteStaffRemovesTheAccount() {
+        Customer staff = new Customer.Builder().setCustomerId("S001").setEmail("staff@tekkies.com").setRole("STAFF").build();
+        when(customerRepository.findByEmail("staff@tekkies.com")).thenReturn(Optional.of(staff));
 
-        assertEquals("ADMIN", service.createAdmin(req).getRole());
+        service.deleteStaff("staff@tekkies.com");
+
+        verify(customerRepository).delete(staff);
+        verify(activityLog).record("Deleted staff account staff@tekkies.com");
     }
 
     @Test
-    void testCreateAdminIgnoresUnknownRole() {
-        CreateAdminRequest req = new CreateAdminRequest("temp@tekkies.com", "pass123", "Temp Worker", null, null, "0821234567");
-        req.setRole("SUPERUSER");
-        when(customerRepository.findByEmail("temp@tekkies.com")).thenReturn(Optional.empty());
-        when(passwordEncoder.encode("pass123")).thenReturn("encoded-pass");
-        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    void testDeleteStaffAlsoRemovesTheirCart() {
+        Customer staff = new Customer.Builder().setCustomerId("S001").setEmail("staff@tekkies.com").setRole("STAFF").build();
+        List<Cart> carts = List.of(new Cart.Builder().setCartId("S001").setCustomer(staff).build());
+        when(customerRepository.findByEmail("staff@tekkies.com")).thenReturn(Optional.of(staff));
+        when(cartRepository.findByCustomer_CustomerId("S001")).thenReturn(carts);
 
-        assertEquals("STAFF", service.createAdmin(req).getRole());
+        service.deleteStaff("staff@tekkies.com");
+
+        verify(cartRepository).deleteAll(carts);
+        verify(customerRepository).delete(staff);
+    }
+
+    @Test
+    void testDeleteStaffRefusesTheOwnerAccount() {
+        when(customerRepository.findByEmail("soletown@tekkies.com"))
+                .thenReturn(Optional.of(admin("soletown@tekkies.com", null)));
+
+        assertThrows(IllegalArgumentException.class, () -> service.deleteStaff("soletown@tekkies.com"));
+        verify(customerRepository, never()).delete(any());
+    }
+
+    @Test
+    void testDeleteStaffRejectsUnknownEmail() {
+        when(customerRepository.findByEmail("ghost@tekkies.com")).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class, () -> service.deleteStaff("ghost@tekkies.com"));
+        verify(customerRepository, never()).delete(any());
     }
 
     @Test
