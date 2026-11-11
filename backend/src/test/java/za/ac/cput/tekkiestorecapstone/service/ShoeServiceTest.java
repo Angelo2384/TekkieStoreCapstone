@@ -28,6 +28,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -41,6 +42,8 @@ class ShoeServiceTest {
     ShoeVariantRepository variantRepo;
     @Mock
     CartItemRepository cartItemRepo;
+    @Mock
+    ActivityLogService activityLog;
 
     @InjectMocks
     ShoeService service;
@@ -145,5 +148,17 @@ class ShoeServiceTest {
         verify(repo, never()).deleteById(any());
         verify(variantRepo, never()).deleteAll(any());
         verify(cartItemRepo, never()).deleteAll(any());
+    }
+
+    @Test
+    void h_updateRecordsThePriceChangeInTheActivityLog() {
+        Shoe before = new Shoe.Builder().copy(shoe).setBasePrice(new BigDecimal("1499")).build();
+        Shoe after = new Shoe.Builder().copy(shoe).setBasePrice(new BigDecimal("100")).build();
+        when(repo.findById(shoe.getShoeId())).thenReturn(Optional.of(before));
+        when(repo.save(any(Shoe.class))).thenReturn(after);
+
+        service.update(after);
+
+        verify(activityLog).record(contains("price R1499 to R100"));
     }
 }

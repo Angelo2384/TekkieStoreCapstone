@@ -1,0 +1,137 @@
+/* Activity page. The table and buttons come from AdminLayout.css. */
+
+/* Search and filters, laid out like the Orders page toolbar */
+.activity-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.85rem 1.15rem;
+  background-color: var(--pure-white);
+  border: 1px solid #E4E4E7;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.activity-search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 240px;
+  max-width: 380px;
+  padding: 0.5rem 0.75rem;
+  background-color: #F4F4F5;
+  border: 1px solid #E4E4E7;
+  border-radius: 7px;
+  color: var(--text-muted);
+}
+
+.activity-search:focus-within {
+  border-color: var(--brand-orange);
+  background-color: var(--pure-white);
+}
+
+.activity-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--obsidian);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.activity-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.activity-filter {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #E4E4E7;
+  border-radius: 7px;
+  background-color: var(--pure-white);
+  color: var(--obsidian);
+  font-family: inherit;
+  font-size: 0.825rem;
+  font-weight: 500;
+  outline: none;
+  cursor: pointer;
+}
+
+.activity-filter:focus {
+  border-color: var(--brand-orange);
+}
+
+.activity-date {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.activity-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid #FED7AA;
+  border-radius: 7px;
+  background-color: #FFF7ED;
+  color: var(--brand-orange);
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.activity-clear:hover {
+  background-color: #FFEDD5;
+}
+
+.activity-table-card {
+  background-color: var(--pure-white);
+  border: 1px solid #E4E4E7;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.activity-when {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.activity-who {
+  font-weight: 600;
+  color: var(--obsidian);
+  white-space: nowrap;
+}
+
+.activity-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--text-muted);
+}
+
+.activity-empty-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #B91C1C;
+}
+
+.activity-count {
+  padding: 0.75rem 1.15rem;
+  border-top: 1px solid #E4E4E7;
+  background-color: #FAFAFA;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}

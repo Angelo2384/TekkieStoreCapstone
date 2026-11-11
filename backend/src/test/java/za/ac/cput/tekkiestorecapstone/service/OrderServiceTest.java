@@ -51,6 +51,9 @@ class OrderServiceTest {
     @Mock
     ShoeVariantRepository shoeVariantRepo;
 
+    @Mock
+    ActivityLogService activityLog;
+
     @InjectMocks
     OrderService service;
 

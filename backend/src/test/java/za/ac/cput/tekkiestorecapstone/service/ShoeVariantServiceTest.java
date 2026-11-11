@@ -39,6 +39,9 @@ class ShoeVariantServiceTest {
     @Mock
     ShoeVariantRepository repo;
 
+    @Mock
+    ActivityLogService activityLog;
+
     @InjectMocks
     ShoeVariantService service;
 

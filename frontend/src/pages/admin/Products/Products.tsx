@@ -20,7 +20,7 @@ export const Products: React.FC = () => {
   const [editingShoe, setEditingShoe] = useState<ShoeProduct | null>(null);
   const [deletingShoe, setDeletingShoe] = useState<ShoeProduct | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
-  // Only the main admin can delete products
+  // Only the owner can delete products
   const { user } = useAuth();
   const canDelete = user?.role === 'ADMIN';
 
@@ -267,7 +267,7 @@ export const Products: React.FC = () => {
                       {canDelete && (
                         <button
                           type="button"
-                          className="product-delete-btn"
+                          className="admin-row-delete-btn"
                           onClick={(e) => {
                             // The row itself opens the edit modal
                             e.stopPropagation();

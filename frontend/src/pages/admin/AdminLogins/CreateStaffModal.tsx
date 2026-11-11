@@ -1,26 +1,25 @@
 import React, { useState, type FormEvent, type ChangeEvent } from 'react';
 import { X, AlertCircle, UserPlus } from 'lucide-react';
-import { adminService, type AdminRole } from '../../../services/adminService';
+import { adminService } from '../../../services/adminService';
 import '../../../components/admin/products/AddShoeModal.css';
 
-interface CreateAdminModalProps {
+interface CreateStaffModalProps {
   onClose: () => void;
   onCreated: (email: string) => void;
 }
 
-export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onCreated }) => {
+export const CreateStaffModal: React.FC<CreateStaffModalProps> = ({ onClose, onCreated }) => {
   const [form, setForm] = useState({
     fullName: '',
     email: '',
     mobileNumber: '',
-    role: 'STAFF' as AdminRole,
     password: '',
     confirmPassword: '',
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     const sanitized = name === 'mobileNumber' ? value.replace(/\D/g, '').slice(0, 10) : value;
     setForm((prev) => ({ ...prev, [name]: sanitized }));
@@ -37,7 +36,7 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
 
     const email = form.email.trim().toLowerCase();
     if (!email.endsWith('@tekkies.com')) {
-      setError('Admin accounts must use an official @tekkies.com email address.');
+      setError('Staff accounts must use an official @tekkies.com email address.');
       return;
     }
 
@@ -55,11 +54,10 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
     setLoading(true);
 
     try {
-      const created = await adminService.createAdminAccount({
+      const created = await adminService.createStaffAccount({
         fullName: form.fullName.trim(),
         email,
         mobileNumber: form.mobileNumber.trim() || '0000000000',
-        role: form.role,
         password: form.password,
       });
       onCreated(created.email || email);
@@ -76,13 +74,13 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
       onClick={loading ? undefined : onClose}
       role="dialog"
       aria-modal="true"
-      aria-labelledby="create-admin-modal-title"
+      aria-labelledby="create-staff-modal-title"
     >
       <div className="admin-modal-card add-shoe-modal-card" onClick={(e) => e.stopPropagation()}>
         <div className="admin-modal-header">
           <div className="modal-header-text">
-            <h2 id="create-admin-modal-title" className="modal-title">
-              New Admin
+            <h2 id="create-staff-modal-title" className="modal-title">
+              New Staff
             </h2>
             <p className="modal-subtitle">They choose their own password the first time they log in.</p>
           </div>
@@ -102,9 +100,9 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
           <div className="modal-form-scrollable">
             <div className="form-grid-row">
               <div className="form-group">
-                <label htmlFor="new-admin-name">Full Name</label>
+                <label htmlFor="new-staff-name">Full Name</label>
                 <input
-                  id="new-admin-name"
+                  id="new-staff-name"
                   name="fullName"
                   type="text"
                   placeholder="First and last name"
@@ -115,24 +113,9 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
               </div>
 
               <div className="form-group">
-                <label htmlFor="new-admin-email">Email Address</label>
+                <label htmlFor="new-staff-phone">Mobile Number</label>
                 <input
-                  id="new-admin-email"
-                  name="email"
-                  type="email"
-                  placeholder="name@tekkies.com"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="form-grid-row">
-              <div className="form-group">
-                <label htmlFor="new-admin-phone">Mobile Number</label>
-                <input
-                  id="new-admin-phone"
+                  id="new-staff-phone"
                   name="mobileNumber"
                   type="tel"
                   inputMode="numeric"
@@ -142,21 +125,26 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
                   onChange={handleChange}
                 />
               </div>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="new-admin-role">Role</label>
-                <select id="new-admin-role" name="role" value={form.role} onChange={handleChange}>
-                  <option value="STAFF">Staff - products, inventory and orders</option>
-                  <option value="ADMIN">Main admin - also manages admin accounts</option>
-                </select>
-              </div>
+            <div className="form-group">
+              <label htmlFor="new-staff-email">Email Address</label>
+              <input
+                id="new-staff-email"
+                name="email"
+                type="email"
+                placeholder="name@tekkies.com"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
             </div>
 
             <div className="form-grid-row">
               <div className="form-group">
-                <label htmlFor="new-admin-password">Temporary Password</label>
+                <label htmlFor="new-staff-password">Temporary Password</label>
                 <input
-                  id="new-admin-password"
+                  id="new-staff-password"
                   name="password"
                   type="password"
                   autoComplete="new-password"
@@ -168,9 +156,9 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
               </div>
 
               <div className="form-group">
-                <label htmlFor="new-admin-confirm">Confirm Password</label>
+                <label htmlFor="new-staff-confirm">Confirm Password</label>
                 <input
-                  id="new-admin-confirm"
+                  id="new-staff-confirm"
                   name="confirmPassword"
                   type="password"
                   autoComplete="new-password"
@@ -189,7 +177,7 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
             </button>
             <button type="submit" className="admin-btn-primary submit-btn" disabled={loading}>
               <UserPlus size={16} />
-              <span>{loading ? 'Creating...' : 'Create Admin'}</span>
+              <span>{loading ? 'Creating...' : 'Create Staff'}</span>
             </button>
           </div>
         </form>
@@ -198,4 +186,4 @@ export const CreateAdminModal: React.FC<CreateAdminModalProps> = ({ onClose, onC
   );
 };
 
-export default CreateAdminModal;
+export default CreateStaffModal;

@@ -1,6 +1,6 @@
 /*
  * AdminController.java
- * Admin portal endpoints (locked in SecurityConfig): admin accounts for the main admin, check-ins for all portal users
+ * Admin portal endpoints (locked in SecurityConfig): staff accounts for the owner, check-ins for all portal users
  */
 package za.ac.cput.tekkiestorecapstone.controller;
 
@@ -39,6 +39,12 @@ public class AdminController {
         }
         AdminAccountResponse created = service.createAdmin(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @DeleteMapping("/accounts")
+    public ResponseEntity<Void> deleteStaff(@RequestParam String email) {
+        service.deleteStaff(email);
+        return ResponseEntity.noContent().build();
     }
 
     // Sent every minute while an admin is logged in

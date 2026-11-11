@@ -16,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import za.ac.cput.tekkiestorecapstone.repository.CustomerRepository;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,7 +26,8 @@ import java.util.List;
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil,
+                                                   CustomerRepository customerRepository) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
@@ -36,11 +38,11 @@ public class SecurityConfig {
                         .requestMatchers("/auth/**").permitAll()
                         // Only customers can pay; admin and staff accounts can't buy from the store
                         .requestMatchers("/payments/**").hasRole("CUSTOMER")
-                        // Main admin only: admin accounts, deleting products, and changing customer records
-                        .requestMatchers("/admin/accounts", "/admin/register").hasRole("ADMIN")
+                        // Owner only: staff accounts, the activity log, deleting products, and changing customer records
+                        .requestMatchers("/admin/accounts", "/admin/register", "/admin/activity").hasRole("ADMIN")
                         .requestMatchers("/shoe/delete/**").hasRole("ADMIN")
                         .requestMatchers("/customer/create", "/customer/update", "/customer/read/**", "/customer/delete/**").hasRole("ADMIN")
-                        // Staff and main admin: orders, products, inventory, the customer list, and activity check-ins
+                        // Staff and the owner: orders, products, inventory, the customer list, and activity check-ins
                         .requestMatchers("/order/create", "/order/update", "/order/delete/**", "/order/*/status", "/order/getAll").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers("/orderItem/create", "/orderItem/update", "/orderItem/delete/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers("/shoe/create", "/shoe/update", "/shoe/upload-image").hasAnyRole("ADMIN", "STAFF")
@@ -49,7 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "STAFF")
                         .anyRequest().permitAll()
                 )
-                .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthFilter(jwtUtil, customerRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

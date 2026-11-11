@@ -29,6 +29,7 @@ import { Inventory } from '../pages/admin/Inventory/Inventory';
 import { Orders } from '../pages/admin/Orders/Orders';
 import { Customers } from '../pages/admin/Customers/Customers';
 import { AdminLogins } from '../pages/admin/AdminLogins/AdminLogins';
+import { Activity } from '../pages/admin/Activity/Activity';
 
 export const router = createBrowserRouter([
   {
@@ -144,8 +145,16 @@ export const router = createBrowserRouter([
       {
         path: 'logins',
         element: (
-          <AdminProtectedRoute mainAdminOnly>
+          <AdminProtectedRoute ownerOnly>
             <AdminLogins />
+          </AdminProtectedRoute>
+        ),
+      },
+      {
+        path: 'activity',
+        element: (
+          <AdminProtectedRoute ownerOnly>
+            <Activity />
           </AdminProtectedRoute>
         ),
       },

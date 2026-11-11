@@ -8,6 +8,7 @@ import {
   Users,
   Store,
   ShieldCheck,
+  History,
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -16,12 +17,13 @@ import './AdminLayout.css';
 
 // Sidebar links; the breadcrumb reads its label from the same list
 const NAV_ITEMS = [
-  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, mainAdminOnly: false },
-  { to: '/admin/products', label: 'Products', icon: Package, end: false, mainAdminOnly: false },
-  { to: '/admin/inventory', label: 'Inventory', icon: Boxes, end: false, mainAdminOnly: false },
-  { to: '/admin/orders', label: 'Orders', icon: ShoppingBag, end: false, mainAdminOnly: false },
-  { to: '/admin/customers', label: 'Customers', icon: Users, end: false, mainAdminOnly: false },
-  { to: '/admin/logins', label: 'Admin Logins', icon: ShieldCheck, end: false, mainAdminOnly: true },
+  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, ownerOnly: false },
+  { to: '/admin/products', label: 'Products', icon: Package, end: false, ownerOnly: false },
+  { to: '/admin/inventory', label: 'Inventory', icon: Boxes, end: false, ownerOnly: false },
+  { to: '/admin/orders', label: 'Orders', icon: ShoppingBag, end: false, ownerOnly: false },
+  { to: '/admin/customers', label: 'Customers', icon: Users, end: false, ownerOnly: false },
+  { to: '/admin/logins', label: 'Admin Logins', icon: ShieldCheck, end: false, ownerOnly: true },
+  { to: '/admin/activity', label: 'Activity', icon: History, end: false, ownerOnly: true },
 ];
 
 export const AdminLayout: React.FC = () => {
@@ -45,8 +47,8 @@ export const AdminLayout: React.FC = () => {
     (user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')
   ).toUpperCase() || 'AD';
 
-  // Staff don't see the pages only the main admin can open
-  const navItems = NAV_ITEMS.filter((item) => !item.mainAdminOnly || user?.role === 'ADMIN');
+  // Staff don't see the pages only the owner can open
+  const navItems = NAV_ITEMS.filter((item) => !item.ownerOnly || user?.role === 'ADMIN');
 
   const path = location.pathname;
   const section = NAV_ITEMS.find((item) => !item.end && path.startsWith(item.to)) ?? NAV_ITEMS[0];

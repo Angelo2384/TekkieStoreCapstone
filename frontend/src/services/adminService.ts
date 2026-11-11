@@ -10,14 +10,21 @@ export interface AdminAccount {
   active: boolean;
 }
 
-export interface CreateAdminPayload {
+// One row on the owner's Activity page
+export interface ActivityEntry {
+  id: string;
+  actor: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface CreateStaffPayload {
   email: string;
   password: string;
   fullName?: string;
   firstName?: string;
   lastName?: string;
   mobileNumber?: string;
-  role: AdminRole;
 }
 
 export const adminService = {
@@ -26,9 +33,19 @@ export const adminService = {
     return Array.isArray(res.data) ? res.data : [];
   },
 
-  createAdminAccount: async (payload: CreateAdminPayload): Promise<AdminAccount> => {
+  // Accounts created here are always staff
+  createStaffAccount: async (payload: CreateStaffPayload): Promise<AdminAccount> => {
     const res = await api.post<AdminAccount>('/admin/register', payload);
     return res.data;
+  },
+
+  deleteStaff: async (email: string): Promise<void> => {
+    await api.delete('/admin/accounts', { params: { email } });
+  },
+
+  getActivity: async (): Promise<ActivityEntry[]> => {
+    const res = await api.get('/admin/activity');
+    return Array.isArray(res.data) ? res.data : [];
   },
 
   heartbeat: async (): Promise<void> => {

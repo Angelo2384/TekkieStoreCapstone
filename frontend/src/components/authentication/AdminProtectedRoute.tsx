@@ -5,11 +5,11 @@ import { canUseAdminPortal } from '../../utils/roles';
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
-  // Pages only the main admin may open, such as Admin Logins
-  mainAdminOnly?: boolean;
+  // Pages only the owner may open, such as Admin Logins
+  ownerOnly?: boolean;
 }
 
-export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children, mainAdminOnly = false }) => {
+export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children, ownerOnly = false }) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
@@ -28,7 +28,7 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
     return <Navigate to="/change-password" replace />;
   }
 
-  if (mainAdminOnly && user?.role !== 'ADMIN') {
+  if (ownerOnly && user?.role !== 'ADMIN') {
     // Logged in as STAFF -> back to the dashboard
     return <Navigate to="/admin" replace />;
   }
