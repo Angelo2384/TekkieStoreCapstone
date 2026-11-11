@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 @Service
 public class AdminAccountService {
@@ -33,10 +34,12 @@ public class AdminAccountService {
 
     public List<AdminAccountResponse> getAdmins() {
         Instant cutoff = Instant.now().minus(ACTIVE_WINDOW);
-        return customerRepository.findByRoleIgnoreCase("ADMIN").stream()
+        return Stream.concat(
+                        customerRepository.findByRoleIgnoreCase("ADMIN").stream(),
+                        customerRepository.findByRoleIgnoreCase("STAFF").stream())
                 .sorted((a, b) -> a.getEmail().compareToIgnoreCase(b.getEmail()))
-                .map(admin -> new AdminAccountResponse(admin.getEmail(), admin.getCreatedAt(), admin.getLastLoginAt(),
-                        admin.getLastSeenAt() != null && admin.getLastSeenAt().isAfter(cutoff)))
+                .map(admin -> new AdminAccountResponse(admin.getEmail(), admin.getRole().toUpperCase(), admin.getCreatedAt(),
+                        admin.getLastLoginAt(), admin.getLastSeenAt() != null && admin.getLastSeenAt().isAfter(cutoff)))
                 .toList();
     }
 
@@ -73,18 +76,23 @@ public class AdminAccountService {
                 ? request.getMobileNumber().trim()
                 : "0000000000";
 
+        // Staff unless the main admin chooses ADMIN
+        String role = "ADMIN".equalsIgnoreCase(request.getRole()) ? "ADMIN" : "STAFF";
+
         Customer newAdmin = new Customer.Builder()
                 .setCustomerId(UUID.randomUUID().toString())
                 .setEmail(email)
                 .setPassword(passwordEncoder.encode(request.getPassword()))
                 .setName(new Name.Builder().setFirstName(first).setLastName(last).build())
                 .setMobileNumber(mobile)
-                .setRole("ADMIN")
+                .setRole(role)
+                // The password above is temporary; they choose their own on first login
+                .setMustChangePassword(true)
                 .setCreatedAt(Instant.now())
                 .build();
 
         Customer saved = customerRepository.save(newAdmin);
-        return new AdminAccountResponse(saved.getEmail(), saved.getCreatedAt(), null, false);
+        return new AdminAccountResponse(saved.getEmail(), saved.getRole(), saved.getCreatedAt(), null, false);
     }
 
     public void markActive(String email) {

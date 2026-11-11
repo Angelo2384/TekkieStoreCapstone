@@ -31,19 +31,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Changing your own password needs a login; the rest of /auth is public
+                        .requestMatchers("/auth/change-password").authenticated()
                         .requestMatchers("/auth/**").permitAll()
-                        // Paying and confirming a payment need a logged-in customer
-                        .requestMatchers("/payments/**").authenticated()
-                        // Order administration (only admins can create, change, or view all customer orders)
-                        .requestMatchers("/order/create", "/order/update", "/order/delete/**", "/order/*/status", "/order/getAll").hasRole("ADMIN")
-                        .requestMatchers("/orderItem/create", "/orderItem/update", "/orderItem/delete/**").hasRole("ADMIN")
-                        // Product and inventory catalog administration
-                        .requestMatchers("/shoe/create", "/shoe/update", "/shoe/delete/**", "/shoe/upload-image").hasRole("ADMIN")
-                        .requestMatchers("/shoeVariant/create", "/shoeVariant/update", "/shoeVariant/delete/**").hasRole("ADMIN")
-                        // Customer directory administration
-                        .requestMatchers("/customer/getAll", "/customer/delete/**").hasRole("ADMIN")
-                        // Admin endpoints (including admin registration, accounts list, and activity check-ins)
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        // Only customers can pay; admin and staff accounts can't buy from the store
+                        .requestMatchers("/payments/**").hasRole("CUSTOMER")
+                        // Main admin only: admin accounts, deleting products, and changing customer records
+                        .requestMatchers("/admin/accounts", "/admin/register").hasRole("ADMIN")
+                        .requestMatchers("/shoe/delete/**").hasRole("ADMIN")
+                        .requestMatchers("/customer/create", "/customer/update", "/customer/read/**", "/customer/delete/**").hasRole("ADMIN")
+                        // Staff and main admin: orders, products, inventory, the customer list, and activity check-ins
+                        .requestMatchers("/order/create", "/order/update", "/order/delete/**", "/order/*/status", "/order/getAll").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/orderItem/create", "/orderItem/update", "/orderItem/delete/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/shoe/create", "/shoe/update", "/shoe/upload-image").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/shoeVariant/create", "/shoeVariant/update", "/shoeVariant/delete/**").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/customer/getAll").hasAnyRole("ADMIN", "STAFF")
+                        .requestMatchers("/admin/**").hasAnyRole("ADMIN", "STAFF")
                         .anyRequest().permitAll()
                 )
                 .addFilterBefore(new JwtAuthFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);

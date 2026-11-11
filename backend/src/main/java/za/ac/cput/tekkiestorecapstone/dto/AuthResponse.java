@@ -11,6 +11,7 @@ public class AuthResponse {
     private String name;
     private String token;
     private String role;
+    private boolean mustChangePassword;
 
     public AuthResponse() {}
 
@@ -64,5 +65,13 @@ public class AuthResponse {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public boolean isMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 }

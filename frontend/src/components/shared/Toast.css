@@ -1,0 +1,41 @@
+/* Floating message, styled like the profile page's saved notice */
+.store-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: max-content;
+  max-width: calc(100vw - 2rem);
+  padding: 0.9rem 1.25rem;
+  background-color: var(--obsidian);
+  color: var(--pure-white);
+  border-left: 4px solid var(--brand-orange);
+  border-radius: 8px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.store-toast-icon {
+  color: var(--brand-orange);
+  flex-shrink: 0;
+}
+
+.store-toast-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2rem;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+
+.store-toast-close:hover {
+  color: var(--pure-white);
+}

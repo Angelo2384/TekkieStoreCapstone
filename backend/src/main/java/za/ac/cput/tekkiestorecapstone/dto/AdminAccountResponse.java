@@ -8,14 +8,16 @@ import java.time.Instant;
 
 public class AdminAccountResponse {
     private String email;
+    private String role;
     private Instant createdAt;
     private Instant lastLoginAt;
     private boolean active;
 
     public AdminAccountResponse() {}
 
-    public AdminAccountResponse(String email, Instant createdAt, Instant lastLoginAt, boolean active) {
+    public AdminAccountResponse(String email, String role, Instant createdAt, Instant lastLoginAt, boolean active) {
         this.email = email;
+        this.role = role;
         this.createdAt = createdAt;
         this.lastLoginAt = lastLoginAt;
         this.active = active;
@@ -23,6 +25,10 @@ public class AdminAccountResponse {
 
     public String getEmail() {
         return email;
+    }
+
+    public String getRole() {
+        return role;
     }
 
     public Instant getCreatedAt() {

@@ -39,8 +39,8 @@ export const Customers: React.FC = () => {
     <div className="admin-page-container">
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Registered Customers</h1>
-          <p className="admin-page-subtitle">View TekkieStore's registered customer accounts.</p>
+          <h1 className="admin-page-title">Customers</h1>
+          <p className="admin-page-subtitle">View registered customer accounts.</p>
         </div>
       </div>
 

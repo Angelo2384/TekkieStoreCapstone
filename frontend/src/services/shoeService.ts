@@ -13,6 +13,7 @@ export interface BackendShoe {
   basePrice: number;
   salePrice?: number;
   salePercentage?: number;
+  newDrop?: boolean | null;
   imageUrls: string[];
 }
 
@@ -57,9 +58,9 @@ export const mapBackendShoeToProduct = (shoe: BackendShoe): ShoeProduct => {
   if (cleanGender === 'men') gender = 'Men';
   else if (cleanGender === 'women') gender = 'Women';
 
-  // Highlight specific hot shoes as new drops
-  const newDropIds = ['ADI-001', 'ADI-002', 'ADI-007', 'ADI-008', 'NIKE-001', 'NIKE-006', 'NIKE-011', 'NIKE-014', 'PUM-004', 'PUM-007', 'PUM-008', 'PUM-012'];
-  const isNewDrop = newDropIds.includes(shoe.shoeId);
+  // New Drops is the admin's tick; shoes never saved with a tick fall back to the launch list
+  const launchDropIds = ['ADI-001', 'ADI-002', 'ADI-007', 'ADI-008', 'NIKE-001', 'NIKE-006', 'NIKE-011', 'NIKE-014', 'PUM-004', 'PUM-007', 'PUM-008', 'PUM-012'];
+  const isNewDrop = shoe.newDrop ?? launchDropIds.includes(shoe.shoeId);
 
   // Check if shoe is discounted
   const isOnSale = Boolean(

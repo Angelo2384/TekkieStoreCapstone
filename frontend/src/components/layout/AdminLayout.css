@@ -106,7 +106,6 @@
 .admin-nav-link.active {
   color: var(--pure-white);
   background-color: var(--brand-orange);
-  box-shadow: 0 2px 8px rgba(253, 103, 1, 0.3);
 }
 
 .admin-nav-link.active .admin-nav-icon {
@@ -117,25 +116,6 @@
   flex-shrink: 0;
 }
 
-.admin-nav-divider {
-  height: 1px;
-  background-color: #1E2330;
-  margin: 0.85rem 0.5rem;
-}
-
-.exit-link {
-  color: #8E97A6;
-}
-
-.exit-link:hover {
-  color: var(--brand-orange);
-}
-
-.external-badge-icon {
-  margin-left: auto;
-  opacity: 0.6;
-}
-
 /* Sidebar logout — danger-red override on the dark obsidian background */
 .admin-nav-link.logout-link {
   color: #FCA5A5;
@@ -144,7 +124,7 @@
   cursor: pointer;
   width: 100%;
   text-align: left;
-  margin-bottom: 0.5rem;
+  font-family: inherit;
 }
 
 .admin-nav-link.logout-link:hover {
@@ -153,21 +133,8 @@
 }
 
 .admin-sidebar-footer {
-  padding: 1.25rem 1rem;
+  padding: 0.85rem;
   border-top: 1px solid #1E2330;
-}
-
-.admin-security-pill {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #717A8C;
-}
-
-.security-icon {
-  color: #10B981;
 }
 
 /* --------------------------------------------------------------------------
@@ -200,9 +167,14 @@
   font-size: 0.875rem;
 }
 
-.breadcrumb-root {
+.breadcrumb-link {
   color: var(--text-muted);
   font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb-link:hover {
+  color: var(--obsidian);
 }
 
 .breadcrumb-separator {
@@ -303,6 +275,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .admin-page-title {
@@ -310,6 +284,7 @@
   font-weight: 800;
   color: var(--obsidian);
   margin: 0;
+  line-height: 1.2;
 }
 
 .admin-page-subtitle {
@@ -318,56 +293,169 @@
   margin: 0.25rem 0 0 0;
 }
 
-.admin-toolbar-card {
-  background-color: var(--pure-white);
-  border: 1px solid #E4E4E7;
-  border-radius: 10px;
-  padding: 1rem 1.25rem;
+.admin-page-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
-.admin-search-box {
-  display: flex;
+/* Buttons */
+.admin-btn-primary {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  background-color: #F4F4F5;
+  background-color: var(--brand-orange);
+  color: var(--pure-white);
+  border: 1px solid var(--brand-orange);
+  padding: 0.6rem 1.15rem;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  text-decoration: none;
+}
+
+.admin-btn-primary:hover {
+  background-color: var(--brand-orange-hover);
+  border-color: var(--brand-orange-hover);
+}
+
+.admin-btn-primary:active {
+  transform: translateY(1px);
+}
+
+.admin-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  background-color: var(--pure-white);
+  color: var(--text-main);
   border: 1px solid #E4E4E7;
-  padding: 0.5rem 0.85rem;
-  border-radius: 6px;
-  width: 100%;
-  max-width: 380px;
-}
-
-.admin-search-box input {
-  background: none;
-  border: none;
-  outline: none;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  font-family: inherit;
   font-size: 0.85rem;
-  width: 100%;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.admin-search-box .search-icon {
+.admin-btn-secondary:hover {
+  background-color: #F4F4F5;
+  border-color: #D1D5DB;
+  color: var(--obsidian);
+}
+
+.admin-btn-primary:disabled,
+.admin-btn-secondary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Tables */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  padding: 0.85rem 1rem;
+  background-color: #FAFAFA;
+  border-bottom: 1px solid #E4E4E7;
+  font-size: 0.725rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 0.95rem 1rem;
+  border-bottom: 1px solid #F4F4F5;
+  font-size: 0.875rem;
+  color: var(--text-main);
+  vertical-align: middle;
+}
+
+.admin-table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr {
+  transition: background-color 0.15s ease;
+}
+
+.admin-table tbody tr:hover {
+  background-color: #F8FAFC;
+}
+
+.customer-cell {
+  display: flex;
+  flex-direction: column;
+  max-width: 220px;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: var(--obsidian);
+  font-size: 0.875rem;
+}
+
+.customer-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Status pill shape; each page sets its own colours */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+  flex-shrink: 0;
+}
+
+/* Text helpers */
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-obsidian {
+  color: var(--obsidian);
+}
+
+.text-muted {
   color: var(--text-muted);
 }
 
-.admin-filter-group {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-main);
-}
-
-.admin-filter-group select {
-  padding: 0.45rem 0.75rem;
-  border: 1px solid #E4E4E7;
-  border-radius: 6px;
-  background-color: var(--pure-white);
-  font-size: 0.85rem;
+.text-sm {
+  font-size: 0.78rem;
 }
 
 .admin-prod-cell {
@@ -377,9 +465,9 @@
 }
 
 .admin-prod-img-box {
-  width: 44px;
-  height: 44px;
-  border-radius: 6px;
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
   background-color: #F4F4F5;
   border: 1px solid #E4E4E7;
   overflow: hidden;
@@ -400,3 +488,37 @@
   flex-direction: column;
 }
 
+
+/* --------------------------------------------------------------------------
+   5. RESPONSIVE
+   -------------------------------------------------------------------------- */
+/* Narrow screens: sidebar collapses to icons */
+@media (max-width: 900px) {
+  .admin-sidebar {
+    width: 72px;
+  }
+
+  .admin-sidebar-header {
+    padding: 1.25rem 0;
+  }
+
+  .admin-logo-link,
+  .admin-nav-link {
+    justify-content: center;
+  }
+
+  .admin-logo-text,
+  .admin-nav-section-label,
+  .admin-nav-link span,
+  .admin-user-info {
+    display: none;
+  }
+
+  .admin-top-navbar {
+    padding: 0 1rem;
+  }
+
+  .admin-content-area {
+    padding: 1.25rem 1rem;
+  }
+}

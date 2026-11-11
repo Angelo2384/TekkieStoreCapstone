@@ -38,7 +38,7 @@ class AdminControllerTest {
 
     @Test
     void testGetAdmins() {
-        List<AdminAccountResponse> admins = List.of(new AdminAccountResponse("soletown@tekkies.com", null, null, true));
+        List<AdminAccountResponse> admins = List.of(new AdminAccountResponse("soletown@tekkies.com", "ADMIN", null, null, true));
         when(service.getAdmins()).thenReturn(admins);
 
         assertEquals(admins, controller.getAdmins());
@@ -47,7 +47,7 @@ class AdminControllerTest {
     @Test
     void testCreateAdminByAuthenticatedAdmin() {
         CreateAdminRequest req = new CreateAdminRequest("newadmin@tekkies.com", "pass123", "New Admin", "New", "Admin", "0821234567");
-        AdminAccountResponse resp = new AdminAccountResponse("newadmin@tekkies.com", Instant.now(), null, false);
+        AdminAccountResponse resp = new AdminAccountResponse("newadmin@tekkies.com", "STAFF", Instant.now(), null, false);
         when(service.createAdmin(req)).thenReturn(resp);
 
         ResponseEntity<AdminAccountResponse> result = controller.createAdmin(req, admin);

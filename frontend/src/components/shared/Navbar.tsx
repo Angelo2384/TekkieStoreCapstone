@@ -4,6 +4,7 @@ import { Search, Heart, ShoppingBag, User } from 'lucide-react';
 import { useWishlist } from '../../context/WishlistContext';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { canUseAdminPortal } from '../../utils/roles';
 import './Navbar.css';
 
 export const Navbar = () => {
@@ -136,7 +137,7 @@ export const Navbar = () => {
               </div>
             </Link>
 
-            {user?.role === 'ADMIN' && (
+            {canUseAdminPortal(user?.role) && (
               <Link to="/admin" className="navAdminBtn" title="Back to Admin Dashboard">
                 Admin
               </Link>

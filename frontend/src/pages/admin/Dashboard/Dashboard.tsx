@@ -35,7 +35,7 @@ export const Dashboard: React.FC = () => {
   const totalRevenue = orders.filter((o) => o.status !== 'CANCELLED').reduce((sum, o) => sum + (o.totalAmount || 0), 0);
 
   return (
-    <div className="admin-dashboard-page">
+    <div className="admin-page-container admin-dashboard-page">
       <DashboardHeader />
 
       <KpiCards

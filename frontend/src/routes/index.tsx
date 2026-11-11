@@ -6,6 +6,7 @@ import { Wishlist } from '../pages/Wishlist';
 import { Login } from '../pages/Login';
 import { SignUp } from '../pages/SignUp';
 import { ForgotPassword } from '../pages/ForgotPassword';
+import { ChangePassword } from '../pages/ChangePassword';
 
 import { Profile } from '../pages/Profile';
 import { DeliveryDetails } from '../pages/DeliveryDetails';
@@ -28,8 +29,6 @@ import { Inventory } from '../pages/admin/Inventory/Inventory';
 import { Orders } from '../pages/admin/Orders/Orders';
 import { Customers } from '../pages/admin/Customers/Customers';
 import { AdminLogins } from '../pages/admin/AdminLogins/AdminLogins';
-import { AdminLogin } from '../pages/admin/AdminLogin';
-import { AdminSignUp } from '../pages/admin/AdminSignUp';
 
 export const router = createBrowserRouter([
   {
@@ -130,14 +129,6 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: '/admin/login',
-    element: <AdminLogin />,
-  },
-  {
-    path: '/admin/signup',
-    element: <AdminSignUp />,
-  },
-  {
     path: '/admin',
     element: (
       <AdminProtectedRoute>
@@ -150,7 +141,14 @@ export const router = createBrowserRouter([
       { path: 'inventory', element: <Inventory /> },
       { path: 'orders', element: <Orders /> },
       { path: 'customers', element: <Customers /> },
-      { path: 'logins', element: <AdminLogins /> },
+      {
+        path: 'logins',
+        element: (
+          <AdminProtectedRoute mainAdminOnly>
+            <AdminLogins />
+          </AdminProtectedRoute>
+        ),
+      },
     ],
   },
   {
@@ -164,5 +162,9 @@ export const router = createBrowserRouter([
   {
     path: '/forgot-password',
     element: <ForgotPassword />,
+  },
+  {
+    path: '/change-password',
+    element: <ChangePassword />,
   },
 ]);

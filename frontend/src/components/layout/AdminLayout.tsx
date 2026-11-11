@@ -7,14 +7,22 @@ import {
   ShoppingBag,
   Users,
   Store,
-  ExternalLink,
   ShieldCheck,
-  UserPlus,
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { LogoutDialog } from '../shared/LogoutDialog';
 import './AdminLayout.css';
+
+// Sidebar links; the breadcrumb reads its label from the same list
+const NAV_ITEMS = [
+  { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true, mainAdminOnly: false },
+  { to: '/admin/products', label: 'Products', icon: Package, end: false, mainAdminOnly: false },
+  { to: '/admin/inventory', label: 'Inventory', icon: Boxes, end: false, mainAdminOnly: false },
+  { to: '/admin/orders', label: 'Orders', icon: ShoppingBag, end: false, mainAdminOnly: false },
+  { to: '/admin/customers', label: 'Customers', icon: Users, end: false, mainAdminOnly: false },
+  { to: '/admin/logins', label: 'Admin Logins', icon: ShieldCheck, end: false, mainAdminOnly: true },
+];
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -37,16 +45,11 @@ export const AdminLayout: React.FC = () => {
     (user?.firstName?.[0] || '') + (user?.lastName?.[0] || '')
   ).toUpperCase() || 'AD';
 
-  // Helper to determine active section for breadcrumbs
-  const getPageTitle = () => {
-    const path = location.pathname;
-    if (path.includes('/admin/products')) return 'Products Management';
-    if (path.includes('/admin/inventory')) return 'Inventory Management';
-    if (path.includes('/admin/orders')) return 'Customer Orders';
-    if (path.includes('/admin/customers')) return 'Customers Directory';
-    if (path.includes('/admin/logins')) return 'Admin Logins';
-    return 'Dashboard';
-  };
+  // Staff don't see the pages only the main admin can open
+  const navItems = NAV_ITEMS.filter((item) => !item.mainAdminOnly || user?.role === 'ADMIN');
+
+  const path = location.pathname;
+  const section = NAV_ITEMS.find((item) => !item.end && path.startsWith(item.to)) ?? NAV_ITEMS[0];
 
   return (
     <div className="admin-container">
@@ -63,88 +66,21 @@ export const AdminLayout: React.FC = () => {
 
         <nav className="admin-nav-menu">
           <div className="admin-nav-section-label">MAIN MENU</div>
-          <NavLink
-            to="/admin"
-            end
-            className={({ isActive }) =>
-              `admin-nav-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <LayoutDashboard size={20} className="admin-nav-icon" />
-            <span>Dashboard</span>
-          </NavLink>
+          {navItems.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              title={label}
+              className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
+            >
+              <Icon size={20} className="admin-nav-icon" />
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
 
-          <NavLink
-            to="/admin/products"
-            className={({ isActive }) =>
-              `admin-nav-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <Package size={20} className="admin-nav-icon" />
-            <span>Products</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/inventory"
-            className={({ isActive }) =>
-              `admin-nav-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <Boxes size={20} className="admin-nav-icon" />
-            <span>Inventory</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/orders"
-            className={({ isActive }) =>
-              `admin-nav-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <ShoppingBag size={20} className="admin-nav-icon" />
-            <span>Orders</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/customers"
-            className={({ isActive }) =>
-              `admin-nav-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <Users size={20} className="admin-nav-icon" />
-            <span>Customers</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/logins"
-            className={({ isActive }) =>
-              `admin-nav-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <ShieldCheck size={20} className="admin-nav-icon" />
-            <span>Admin Logins</span>
-          </NavLink>
-
-          <NavLink
-            to="/admin/signup"
-            className={({ isActive }) =>
-              `admin-nav-link ${isActive ? 'active' : ''}`
-            }
-          >
-            <UserPlus size={20} className="admin-nav-icon" />
-            <span>Create Admin</span>
-          </NavLink>
-
-          <div className="admin-nav-divider" />
-
-          <div className="admin-nav-section-label">STOREFRONT</div>
-          <Link to="/" className="admin-nav-link exit-link">
-            <Store size={20} className="admin-nav-icon" />
-            <span>Live Storefront</span>
-            <ExternalLink size={14} className="external-badge-icon" />
-          </Link>
-
-          <div className="admin-nav-divider" />
-
+        <div className="admin-sidebar-footer">
           <button
             type="button"
             className="admin-nav-link logout-link"
@@ -155,17 +91,17 @@ export const AdminLayout: React.FC = () => {
             <LogOut size={20} className="admin-nav-icon" />
             <span>Logout</span>
           </button>
-        </nav>
+        </div>
       </aside>
 
       <div className="admin-main-wrapper">
         <header className="admin-top-navbar">
           <div className="admin-top-left">
-            <div className="admin-breadcrumbs">
-              <span className="breadcrumb-root">Admin</span>
+            <nav className="admin-breadcrumbs" aria-label="Breadcrumb">
+              <Link to="/admin" className="breadcrumb-link">Admin</Link>
               <span className="breadcrumb-separator">/</span>
-              <span className="breadcrumb-current">{getPageTitle()}</span>
-            </div>
+              <span className="breadcrumb-current">{section.label}</span>
+            </nav>
           </div>
 
           <div className="admin-top-right">

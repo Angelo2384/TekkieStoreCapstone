@@ -157,9 +157,8 @@ export const PersonalInfoCard: React.FC = () => {
                   name="email"
                   className="form-input"
                   value={formData.email}
-                  onChange={handleChange}
-                  placeholder="name@example.com"
-                  required
+                  title="Your email address can't be changed"
+                  disabled
                 />
               </div>
             </div>

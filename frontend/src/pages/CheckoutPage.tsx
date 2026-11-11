@@ -21,7 +21,7 @@ const OLD_SAVED_CARD_KEYS = ['tekkie_store_saved_payment', 'tekkie_store_saved_p
 
 export const CheckoutPage: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, cartCount, cartTotal } = useCart();
+  const { cart, cartCount, cartTotal, blockPurchase } = useCart();
   const { user } = useAuth();
 
   // Redirect to login if user is not authenticated
@@ -178,6 +178,10 @@ export const CheckoutPage: React.FC = () => {
 
   // Full Form Validation & Checkout Submission
   const handlePlaceOrder = async () => {
+    if (blockPurchase()) {
+      return;
+    }
+
     if (cart.length === 0) {
       alert('Your cart is empty. Please add items to your cart before checking out.');
       return;

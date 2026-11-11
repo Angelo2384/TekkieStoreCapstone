@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useShoes } from '../../../hooks/useShoes';
 import { useShoeVariants } from '../../../hooks/useShoeVariants';
+import { useAuth } from '../../../context/AuthContext';
 import { formatPrice } from '../../../utils/formatters';
 import { ProductImage } from '../../../components/shared/ProductImage';
 import { ProductToolbar } from '../../../components/admin/products/ProductToolbar';
@@ -19,6 +20,9 @@ export const Products: React.FC = () => {
   const [editingShoe, setEditingShoe] = useState<ShoeProduct | null>(null);
   const [deletingShoe, setDeletingShoe] = useState<ShoeProduct | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
+  // Only the main admin can delete products
+  const { user } = useAuth();
+  const canDelete = user?.role === 'ADMIN';
 
   // Auto-dismiss success notification after 4 seconds
   useEffect(() => {
@@ -103,7 +107,7 @@ export const Products: React.FC = () => {
       {/* Page Header */}
       <div className="admin-page-header">
         <div>
-          <h1 className="admin-page-title">Products Catalogue</h1>
+          <h1 className="admin-page-title">Products</h1>
           <p className="admin-page-subtitle">
             Manage sneaker listings, pricing and availability
           </p>
@@ -260,20 +264,22 @@ export const Products: React.FC = () => {
                       )}
                     </td>
                     <td className="product-actions-cell">
-                      <button
-                        type="button"
-                        className="product-delete-btn"
-                        onClick={(e) => {
-                          // The row itself opens the edit modal
-                          e.stopPropagation();
-                          setDeletingShoe(shoe);
-                        }}
-                        onKeyDown={(e) => e.stopPropagation()}
-                        aria-label={`Delete ${shoe.name}`}
-                      >
-                        <Trash2 size={15} />
-                        <span>Delete</span>
-                      </button>
+                      {canDelete && (
+                        <button
+                          type="button"
+                          className="product-delete-btn"
+                          onClick={(e) => {
+                            // The row itself opens the edit modal
+                            e.stopPropagation();
+                            setDeletingShoe(shoe);
+                          }}
+                          onKeyDown={(e) => e.stopPropagation()}
+                          aria-label={`Delete ${shoe.name}`}
+                        >
+                          <Trash2 size={15} />
+                          <span>Delete</span>
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}

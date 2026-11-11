@@ -3,6 +3,7 @@ package za.ac.cput.tekkiestorecapstone.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -222,5 +223,63 @@ class AuthServiceTest {
         authService.login("ethan@example.com", rawPassword);
 
         verify(customerRepository).save(argThat(saved -> saved.getLastLoginAt() != null));
+    }
+
+    @Test
+    void testLoginFlagsAccountThatMustChangeItsPassword() {
+        Customer staff = new Customer.Builder()
+                .setCustomerId("S001")
+                .setEmail("staff@tekkies.com")
+                .setPassword(passwordEncoder.encode("temp123"))
+                .setRole("STAFF")
+                .setMustChangePassword(true)
+                .build();
+        when(customerRepository.findByEmail("staff@tekkies.com")).thenReturn(Optional.of(staff));
+
+        AuthResponse response = authService.login("staff@tekkies.com", "temp123");
+
+        assertEquals("STAFF", response.getRole());
+        assertTrue(response.isMustChangePassword());
+    }
+
+    @Test
+    void testChangePasswordSavesNewPasswordAndClearsFlag() {
+        Customer staff = new Customer.Builder()
+                .setCustomerId("S001")
+                .setEmail("staff@tekkies.com")
+                .setPassword(passwordEncoder.encode("temp123"))
+                .setRole("STAFF")
+                .setMustChangePassword(true)
+                .build();
+        when(customerRepository.findByEmail("staff@tekkies.com")).thenReturn(Optional.of(staff));
+
+        authService.changePassword("staff@tekkies.com", "myOwnPass1");
+
+        ArgumentCaptor<Customer> saved = ArgumentCaptor.forClass(Customer.class);
+        verify(customerRepository).save(saved.capture());
+        assertTrue(passwordEncoder.matches("myOwnPass1", saved.getValue().getPassword()));
+        assertFalse(saved.getValue().isMustChangePassword());
+        assertEquals("STAFF", saved.getValue().getRole());
+    }
+
+    @Test
+    void testChangePasswordRejectsTheTemporaryPassword() {
+        Customer staff = new Customer.Builder()
+                .setCustomerId("S001")
+                .setEmail("staff@tekkies.com")
+                .setPassword(passwordEncoder.encode("temp123"))
+                .setRole("STAFF")
+                .setMustChangePassword(true)
+                .build();
+        when(customerRepository.findByEmail("staff@tekkies.com")).thenReturn(Optional.of(staff));
+
+        assertThrows(IllegalArgumentException.class, () -> authService.changePassword("staff@tekkies.com", "temp123"));
+        verify(customerRepository, never()).save(any());
+    }
+
+    @Test
+    void testChangePasswordRejectsShortPassword() {
+        assertThrows(IllegalArgumentException.class, () -> authService.changePassword("staff@tekkies.com", "123"));
+        verify(customerRepository, never()).save(any());
     }
 }

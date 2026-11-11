@@ -229,6 +229,57 @@
   font-weight: 600;
 }
 
+/* Tick box with its label beside it */
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: fit-content;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--obsidian);
+  cursor: pointer;
+}
+
+.form-check input {
+  appearance: none;
+  -webkit-appearance: none;
+  display: grid;
+  place-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1.5px solid #D1D5DB;
+  border-radius: 4px;
+  background-color: var(--pure-white);
+  cursor: pointer;
+}
+
+/* Ticked: orange box with a white tick */
+.form-check input:checked {
+  border-color: var(--brand-orange);
+  background-color: var(--brand-orange);
+}
+
+.form-check input:checked::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid var(--pure-white);
+  border-width: 0 2px 2px 0;
+  transform: translateY(-1px) rotate(45deg);
+}
+
+.form-check input:focus-visible {
+  outline: 2px solid var(--brand-orange);
+  outline-offset: 2px;
+}
+
+.form-check input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Image URLs Section */
 .form-images-section {
   background-color: #F8F9FA;

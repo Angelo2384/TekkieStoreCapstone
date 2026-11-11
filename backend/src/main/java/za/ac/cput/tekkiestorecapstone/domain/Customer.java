@@ -57,6 +57,10 @@ public class Customer {
     @JsonIgnore
     private Instant lastSeenAt;
 
+    // True until an account created by an admin sets its own password
+    @JsonIgnore
+    private Boolean mustChangePassword;
+
     protected Customer(){}
 
     private Customer(Builder builder){
@@ -70,6 +74,7 @@ public class Customer {
         this.createdAt = builder.createdAt;
         this.lastLoginAt = builder.lastLoginAt;
         this.lastSeenAt = builder.lastSeenAt;
+        this.mustChangePassword = builder.mustChangePassword;
     }
 
     @PrePersist
@@ -119,6 +124,10 @@ public class Customer {
         return lastSeenAt;
     }
 
+    public boolean isMustChangePassword() {
+        return Boolean.TRUE.equals(mustChangePassword);
+    }
+
     @Override
     public String toString() {
         return "Customer{" +
@@ -142,6 +151,7 @@ public class Customer {
        private Instant createdAt;
        private Instant lastLoginAt;
        private Instant lastSeenAt;
+       private Boolean mustChangePassword;
 
        public Builder setCustomerId(String customerId) {
            this.customerId = customerId;
@@ -193,6 +203,11 @@ public class Customer {
            return this;
        }
 
+       public Builder setMustChangePassword(boolean mustChangePassword) {
+           this.mustChangePassword = mustChangePassword;
+           return this;
+       }
+
        public Builder copy(Customer customer){
            this.customerId= customer.customerId;
            this.email= customer.email;
@@ -204,6 +219,7 @@ public class Customer {
            this.createdAt=customer.createdAt;
            this.lastLoginAt=customer.lastLoginAt;
            this.lastSeenAt=customer.lastSeenAt;
+           this.mustChangePassword=customer.mustChangePassword;
            return this;
        }
        public Customer build(){return new Customer(this);}

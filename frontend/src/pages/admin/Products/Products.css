@@ -1,58 +1,4 @@
-/* Products.css - Admin Products Management Page Styles */
-
-/* Header Add Shoe Button */
-.admin-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background-color: var(--brand-orange);
-  color: var(--pure-white);
-  border: 1px solid var(--brand-orange);
-  padding: 0.6rem 1.15rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-  text-decoration: none;
-}
-
-.admin-btn-primary:hover {
-  background-color: var(--brand-orange-hover);
-  border-color: var(--brand-orange-hover);
-}
-
-.admin-btn-primary:active {
-  transform: translateY(1px);
-}
-
-.admin-btn-primary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.admin-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  background-color: var(--pure-white);
-  color: var(--text-main);
-  border: 1px solid #E4E4E7;
-  padding: 0.55rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.admin-btn-secondary:hover {
-  background-color: #F4F4F5;
-  border-color: #D1D5DB;
-  color: var(--obsidian);
-}
+/* Products page. Buttons, tables and status pills come from AdminLayout.css. */
 
 /* Toast Banners */
 .admin-toast-banner {
@@ -200,51 +146,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-/* Table Responsive Container */
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.admin-table th {
-  padding: 0.85rem 1rem;
-  background-color: #FAFAFA;
-  border-bottom: 1px solid #E4E4E7;
-  font-size: 0.725rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.admin-table td {
-  padding: 0.95rem 1rem;
-  border-bottom: 1px solid #F4F4F5;
-  font-size: 0.875rem;
-  color: var(--text-main);
-  vertical-align: middle;
-}
-
-.admin-table tr:last-child td {
-  border-bottom: none;
-}
-
-.admin-table tbody tr {
-  transition: background-color 0.15s ease;
-}
-
-.admin-table tbody tr:hover {
-  background-color: #F8FAFC;
-}
-
 .product-row {
   cursor: pointer;
 }
@@ -286,72 +187,7 @@
   outline-offset: 2px;
 }
 
-.admin-prod-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.admin-prod-img-box {
-  width: 46px;
-  height: 46px;
-  border-radius: 8px;
-  background-color: #F4F4F5;
-  border: 1px solid #E4E4E7;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.admin-prod-img-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.admin-prod-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.text-obsidian {
-  color: var(--obsidian);
-}
-
-.text-muted {
-  color: var(--text-muted);
-}
-
-.text-sm {
-  font-size: 0.78rem;
-}
-
-.font-semibold {
-  font-weight: 600;
-}
-
-/* Status Badges — same dot-badge shape as the Orders page's OrderStatusBadge */
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.65rem;
-  border-radius: 99px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.status-pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: currentColor;
-  flex-shrink: 0;
-}
-
+/* Status badge colours */
 .status-badge-processing {
   background-color: #FFFBEB;
   color: #B45309;

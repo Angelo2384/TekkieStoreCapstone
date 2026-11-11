@@ -125,9 +125,33 @@ class AdminAccountServiceTest {
         Customer saved = captor.getValue();
         assertEquals("newadmin@tekkies.com", saved.getEmail());
         assertEquals("encoded-pass", saved.getPassword());
-        assertEquals("ADMIN", saved.getRole());
+        // No role chosen, so the account is staff
+        assertEquals("STAFF", saved.getRole());
+        assertTrue(saved.isMustChangePassword());
         assertEquals("New", saved.getName().getFirstName());
         assertEquals("Administrator", saved.getName().getLastName());
+    }
+
+    @Test
+    void testCreateAdminWithMainAdminRole() {
+        CreateAdminRequest req = new CreateAdminRequest("owner@tekkies.com", "pass123", "Store Owner", null, null, "0821234567");
+        req.setRole("ADMIN");
+        when(customerRepository.findByEmail("owner@tekkies.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("pass123")).thenReturn("encoded-pass");
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertEquals("ADMIN", service.createAdmin(req).getRole());
+    }
+
+    @Test
+    void testCreateAdminIgnoresUnknownRole() {
+        CreateAdminRequest req = new CreateAdminRequest("temp@tekkies.com", "pass123", "Temp Worker", null, null, "0821234567");
+        req.setRole("SUPERUSER");
+        when(customerRepository.findByEmail("temp@tekkies.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("pass123")).thenReturn("encoded-pass");
+        when(customerRepository.save(any(Customer.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        assertEquals("STAFF", service.createAdmin(req).getRole());
     }
 
     @Test
