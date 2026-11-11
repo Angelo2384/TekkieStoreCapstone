@@ -19,10 +19,10 @@ interface KpiCardsProps {
 
 export const KpiCards: React.FC<KpiCardsProps> = ({ shoes, orders, revenue, customers }) => {
   const cards = [
-    { id: 'shoes', label: 'Catalogue Size', icon: Package, metric: shoes, format: (v: number) => v.toString() },
-    { id: 'orders', label: 'Total Orders', icon: ShoppingBag, metric: orders, format: (v: number) => v.toString() },
     { id: 'revenue', label: 'Total Revenue', icon: TrendingUp, metric: revenue, format: formatPrice },
+    { id: 'orders', label: 'Total Orders', icon: ShoppingBag, metric: orders, format: (v: number) => v.toString() },
     { id: 'customers', label: 'Registered Customers', icon: Users, metric: customers, format: (v: number) => v.toString() },
+    { id: 'shoes', label: 'Catalogue Size', icon: Package, metric: shoes, format: (v: number) => v.toString() },
   ];
 
   return (

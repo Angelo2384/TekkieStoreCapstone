@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import za.ac.cput.tekkiestorecapstone.domain.Customer;
 import za.ac.cput.tekkiestorecapstone.dto.AuthResponse;
+import za.ac.cput.tekkiestorecapstone.dto.ChangePasswordRequest;
 import za.ac.cput.tekkiestorecapstone.dto.LoginRequest;
 import za.ac.cput.tekkiestorecapstone.dto.RegisterRequest;
 import za.ac.cput.tekkiestorecapstone.dto.ResetPasswordRequest;
@@ -87,6 +89,14 @@ public class AuthController {
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request.getEmail(), request.getPassword());
         return ResponseEntity.ok(response);
+    }
+
+    // Needs a logged-in user (see SecurityConfig), so no emailed code is asked for
+    @PostMapping("/change-password")
+    public ResponseEntity<Map<String, String>> changePassword(@RequestBody ChangePasswordRequest request,
+                                                              Authentication authentication) {
+        authService.changePassword(authentication.getName(), request.getPassword());
+        return ResponseEntity.ok(Map.of("message", "Password updated"));
     }
 
     @ExceptionHandler(BadCredentialsException.class)

@@ -6,6 +6,8 @@ import cartService, { BackendCartItem } from '../services/cartService';
 import { mapBackendShoeToProduct, fetchShoeById } from '../services/shoeService';
 import { loadShoes } from '../hooks/useShoes';
 import { ShoeVariant, ShoeSize } from '../types/shoeVariant';
+import { canUseAdminPortal } from '../utils/roles';
+import { Toast } from '../components/shared/Toast';
 
 export interface CartItem {
   cartId: string; // Composite key: `${product.id}-${variantId || size}` (frontend line identity)
@@ -49,6 +51,7 @@ interface CartContextType {
   updateQuantity: (cartId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
   refreshCart: () => Promise<void>;
+  blockPurchase: () => boolean;
   cartCount: number;
   cartTotal: number;
   isLoading: boolean;
@@ -61,6 +64,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { isAuthenticated, user, logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // The toast closes itself after 4 seconds
+  useEffect(() => {
+    if (!toast) return;
+    const timer = setTimeout(() => setToast(null), 4000);
+    return () => clearTimeout(timer);
+  }, [toast]);
+
+  // Admin and staff accounts can't buy: shows why and returns true when the purchase is blocked
+  const blockPurchase = (): boolean => {
+    if (!canUseAdminPortal(user?.role)) return false;
+    setToast("Admin and staff accounts can't buy from the store. Log in with a customer account to shop.");
+    return true;
+  };
 
   // Derive stable cart identifier for authenticated user
   const userCartId = useMemo(() => {
@@ -208,6 +226,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   ): Promise<boolean> => {
     if (!isAuthenticated || !userCartId) {
       router.navigate('/login');
+      return false;
+    }
+
+    if (blockPurchase()) {
       return false;
     }
 
@@ -454,13 +476,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     updateQuantity,
     clearCart,
     refreshCart,
+    blockPurchase,
     cartCount,
     cartTotal,
     isLoading,
     error,
   };
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+    </CartContext.Provider>
+  );
 };
 
 export const useCart = (): CartContextType => {

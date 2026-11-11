@@ -1,6 +1,6 @@
 /*
  * AdminController.java
- * Admin-only endpoints (locked to ADMIN in SecurityConfig): the admin account list and admin check-ins
+ * Admin portal endpoints (locked in SecurityConfig): admin accounts for the main admin, check-ins for all portal users
  */
 package za.ac.cput.tekkiestorecapstone.controller;
 

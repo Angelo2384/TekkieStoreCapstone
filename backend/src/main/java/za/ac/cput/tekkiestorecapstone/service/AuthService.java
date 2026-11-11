@@ -97,7 +97,7 @@ public class AuthService {
         }
 
         String role = customer.getRole();
-        if ("ADMIN".equalsIgnoreCase(role)) {
+        if ("ADMIN".equalsIgnoreCase(role) || "STAFF".equalsIgnoreCase(role)) {
             if (!email.trim().toLowerCase().endsWith("@tekkies.com")) {
                 throw new BadCredentialsException("Admin accounts must have an @tekkies.com email address");
             }
@@ -114,6 +114,26 @@ public class AuthService {
             name = (first + " " + last).trim();
         }
 
-        return new AuthResponse(customer.getCustomerId(), customer.getEmail(), name, token, role);
+        AuthResponse response = new AuthResponse(customer.getCustomerId(), customer.getEmail(), name, token, role);
+        response.setMustChangePassword(customer.isMustChangePassword());
+        return response;
+    }
+
+    // Replaces the temporary password an admin chose when creating the account
+    public void changePassword(String email, String newPassword) {
+        if (newPassword == null || newPassword.length() < 6) {
+            throw new IllegalArgumentException("Password must be at least 6 characters");
+        }
+        Customer customer = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("Account not found"));
+        if (passwordEncoder.matches(newPassword, customer.getPassword())) {
+            throw new IllegalArgumentException("Choose a password different from your temporary one");
+        }
+
+        customerRepository.save(new Customer.Builder()
+                .copy(customer)
+                .setPassword(passwordEncoder.encode(newPassword))
+                .setMustChangePassword(false)
+                .build());
     }
 }

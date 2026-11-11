@@ -47,9 +47,7 @@ export const Orders: React.FC = () => {
       setOrders(data);
     } catch (err: any) {
       console.warn('[Admin Orders] Failed to fetch orders from backend:', err);
-      setError(
-        'Could not load orders from the backend service. Please check that the Spring Boot server is running on port 8080.'
-      );
+      setError('Could not load orders. Please try again.');
       // NOTE: We do NOT set mock orders as fallback!
     } finally {
       setLoading(false);
@@ -302,22 +300,22 @@ export const Orders: React.FC = () => {
   };
 
   return (
-    <div className="admin-orders-page">
-      <header className="orders-page-header">
-        <div className="orders-title-wrap">
-          <h1 className="orders-page-title">Orders Management</h1>
-          <p className="orders-page-subtitle">
+    <div className="admin-page-container admin-orders-page">
+      <header className="admin-page-header">
+        <div>
+          <h1 className="admin-page-title">Orders</h1>
+          <p className="admin-page-subtitle">
             Manage customer sneaker orders, fulfilment lifecycle and courier delivery.
           </p>
         </div>
 
-        <div className="orders-header-actions">
+        <div className="admin-page-actions">
           <button
             type="button"
-            className="header-action-btn secondary"
+            className="admin-btn-secondary"
             onClick={() => loadOrders(true)}
             disabled={isRefreshing}
-            title="Refetch all orders from Spring Boot database"
+            title="Reload the orders list"
           >
             <RefreshCw size={15} className={isRefreshing ? 'spin-icon' : ''} />
             <span>{isRefreshing ? 'Refreshing...' : 'Refresh Orders'}</span>
@@ -325,7 +323,7 @@ export const Orders: React.FC = () => {
 
           <button
             type="button"
-            className="header-action-btn secondary"
+            className="admin-btn-secondary"
             onClick={handleExportCSV}
             disabled={sortedOrders.length === 0}
             title="Download CSV export of currently filtered orders"

@@ -5,7 +5,8 @@ export interface AuthResponse {
   email: string;
   name: string;
   token: string;
-  role?: 'CUSTOMER' | 'ADMIN';
+  role?: 'CUSTOMER' | 'ADMIN' | 'STAFF';
+  mustChangePassword?: boolean;
 }
 
 export interface RegisterPayload {
@@ -37,6 +38,11 @@ export const authService = {
 
   resetPassword: async (email: string, code: string, password: string): Promise<void> => {
     await api.post('/auth/forgot-password/reset', { email, code, password });
+  },
+
+  // First login for an account an admin created: the logged-in user replaces the temporary password
+  changePassword: async (password: string): Promise<void> => {
+    await api.post('/auth/change-password', { password });
   },
 
   login: async (email: string, password?: string): Promise<AuthResponse> => {

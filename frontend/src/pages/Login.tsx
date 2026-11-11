@@ -4,6 +4,7 @@ import { Mail, Lock } from 'lucide-react';
 import { AuthContainer } from '../components/authentication/AuthContainer';
 import { AuthField } from '../components/authentication/AuthField';
 import { useAuth } from '../context/AuthContext';
+import { canUseAdminPortal } from '../utils/roles';
 
 export const Login = () => {
   const navigate = useNavigate();
@@ -27,7 +28,9 @@ export const Login = () => {
     setLoading(true);
     try {
       const response = await login(form.email, form.password);
-      if (response?.role === 'ADMIN') {
+      if (response?.mustChangePassword) {
+        navigate('/change-password');
+      } else if (canUseAdminPortal(response?.role)) {
         navigate('/admin');
       } else {
         navigate('/catalogue');
@@ -93,12 +96,6 @@ export const Login = () => {
         <button type="submit" className="authSubmitBtn" disabled={loading}>
           {loading ? 'SIGNING IN...' : 'LOGIN'}
         </button>
-
-        <div style={{ textAlign: 'center', marginTop: '0.35rem' }}>
-          <Link to="/admin/login" className="forgotPasswordLink" style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textDecoration: 'none' }}>
-            Store Administrator? Admin Portal Login
-          </Link>
-        </div>
       </form>
     </AuthContainer>
   );

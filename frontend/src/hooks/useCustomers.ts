@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
+import { canUseAdminPortal } from '../utils/roles';
 
 export interface Customer {
   customerId: string;
@@ -23,8 +24,8 @@ const mapCustomer = (c: any): Customer => {
   };
 };
 
-// Admin accounts are staff, not customers, so they're left out of the list and the count
-const isCustomer = (c: any): boolean => String(c?.role || 'CUSTOMER').toUpperCase() !== 'ADMIN';
+// Admin and staff accounts aren't customers, so they're left out of the list and the count
+const isCustomer = (c: any): boolean => !canUseAdminPortal(String(c?.role || 'CUSTOMER').toUpperCase());
 
 const fetchCustomers = (): Promise<Customer[]> =>
   api

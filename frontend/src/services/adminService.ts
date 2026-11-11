@@ -1,7 +1,10 @@
 import api from './api';
 
+export type AdminRole = 'ADMIN' | 'STAFF';
+
 export interface AdminAccount {
   email: string;
+  role: AdminRole;
   createdAt: string | null;
   lastLoginAt: string | null;
   active: boolean;
@@ -14,6 +17,7 @@ export interface CreateAdminPayload {
   firstName?: string;
   lastName?: string;
   mobileNumber?: string;
+  role: AdminRole;
 }
 
 export const adminService = {

@@ -52,7 +52,6 @@ export const Footer = () => {
               <li><Link to="/about">About Us</Link></li>
               <li><Link to="/privacy">Privacy Policy</Link></li>
               <li><Link to="/terms">Terms of Service</Link></li>
-              <li><Link to="/admin/login">Admin Portal</Link></li>
             </ul>
           </div>
         </div>

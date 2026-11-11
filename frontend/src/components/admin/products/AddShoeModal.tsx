@@ -83,6 +83,7 @@ interface FormDataState {
   description: string;
   basePrice: string;
   salePercentage: string;
+  isNewDrop: boolean;
 }
 
 const INITIAL_FORM: FormDataState = {
@@ -94,6 +95,7 @@ const INITIAL_FORM: FormDataState = {
   description: '',
   basePrice: '',
   salePercentage: '',
+  isNewDrop: false,
 };
 
 interface ImageSlot {
@@ -112,6 +114,7 @@ const formDataFromShoe = (shoe: ShoeProduct): FormDataState => ({
   description: shoe.description,
   basePrice: String(shoe.price),
   salePercentage: shoe.salePercentage ? String(shoe.salePercentage) : '',
+  isNewDrop: Boolean(shoe.isNewDrop),
 });
 
 // Existing catalogue images are already hosted — they load into the same
@@ -340,6 +343,7 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
         basePrice: parsedBasePrice,
         salePrice: computedSalePrice,
         salePercentage: parsedSalePercentage,
+        newDrop: formData.isNewDrop,
         imageUrls: cleanedImageUrls,
       };
 
@@ -403,7 +407,7 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
             <p className="modal-subtitle">
               {editingShoe
                 ? `Update details for ${editingShoe.name}.`
-                : 'Create a new product listing for the TekkieStore catalogue.'}
+                : 'Create a new product listing for the catalogue.'}
             </p>
           </div>
           <button
@@ -621,6 +625,18 @@ export const AddShoeModal: React.FC<AddShoeModalProps> = ({
                 />
               </div>
             </div>
+
+            {/* Lists the shoe on the storefront's New Drops page */}
+            <label className="form-check" htmlFor="isNewDrop">
+              <input
+                id="isNewDrop"
+                type="checkbox"
+                checked={formData.isNewDrop}
+                onChange={(e) => setFormData((prev) => ({ ...prev, isNewDrop: e.target.checked }))}
+                disabled={isSubmitting}
+              />
+              <span>Show on the New Drops page</span>
+            </label>
 
             {/* Row 5: Product Images (real file upload, not URL pasting) */}
             <div className="form-group form-images-section">

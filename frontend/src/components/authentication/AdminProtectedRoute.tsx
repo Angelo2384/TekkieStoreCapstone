@@ -1,12 +1,15 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { canUseAdminPortal } from '../../utils/roles';
 
 interface AdminProtectedRouteProps {
   children: React.ReactNode;
+  // Pages only the main admin may open, such as Admin Logins
+  mainAdminOnly?: boolean;
 }
 
-export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children }) => {
+export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ children, mainAdminOnly = false }) => {
   const { isAuthenticated, user } = useAuth();
   const location = useLocation();
 
@@ -15,11 +18,21 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (user?.role !== 'ADMIN') {
+  if (!canUseAdminPortal(user?.role)) {
     // Logged in as CUSTOMER -> redirect away from /admin
     return <Navigate to="/" replace />;
   }
 
-  // Logged in as ADMIN -> allow access
+  if (user?.mustChangePassword) {
+    // Still on the temporary password -> set a new one first
+    return <Navigate to="/change-password" replace />;
+  }
+
+  if (mainAdminOnly && user?.role !== 'ADMIN') {
+    // Logged in as STAFF -> back to the dashboard
+    return <Navigate to="/admin" replace />;
+  }
+
+  // Logged in as ADMIN or STAFF -> allow access
   return <>{children}</>;
 };

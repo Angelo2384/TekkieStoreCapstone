@@ -48,6 +48,9 @@ public class Shoe {
     @PositiveOrZero(message = "Sale percentage cannot be negative")
     private BigDecimal salePercentage;
 
+    // Ticked by an admin to list the shoe on the New Drops page; null if never set
+    private Boolean newDrop;
+
     // Stores multiple Cloudinary image URLs in a separate child table (shoe_images).
     // EAGER means Hibernate loads this the moment a Shoe is loaded, via its own
     // SELECT — @BatchSize lets it batch that load across several Shoe rows in one
@@ -78,6 +81,7 @@ public class Shoe {
         this.basePrice = builder.basePrice;
         this.salePrice = builder.salePrice;
         this.salePercentage = builder.salePercentage;
+        this.newDrop = builder.newDrop;
         this.imageUrls = builder.imageUrls != null ? builder.imageUrls : new ArrayList<>();
     }
 
@@ -117,6 +121,9 @@ public class Shoe {
         return salePercentage != null && salePercentage.compareTo(BigDecimal.ZERO) > 0 
                 && salePrice != null && salePrice.compareTo(BigDecimal.ZERO) > 0;
     }
+    public Boolean getNewDrop() {
+        return newDrop;
+    }
     public List<String> getImageUrls() {
         return imageUrls;
     }
@@ -150,6 +157,7 @@ public class Shoe {
         private BigDecimal basePrice;
         private BigDecimal salePrice;
         private BigDecimal salePercentage;
+        private Boolean newDrop;
         private List<String> imageUrls = new ArrayList<>();
 
         public Builder setShoeId(String shoeId) {
@@ -204,6 +212,10 @@ public class Shoe {
             }
             return this;
         }
+        public Builder setNewDrop(Boolean newDrop) {
+            this.newDrop = newDrop;
+            return this;
+        }
         public Builder setImageUrls(List<String> imageUrls) {
             this.imageUrls = imageUrls != null ? imageUrls : new ArrayList<>();
             return this;
@@ -221,6 +233,7 @@ public class Shoe {
             this.basePrice = shoe.basePrice;
             this.salePrice = shoe.salePrice;
             this.salePercentage = shoe.salePercentage;
+            this.newDrop = shoe.newDrop;
             this.imageUrls = shoe.imageUrls != null ? new ArrayList<>(shoe.imageUrls) : new ArrayList<>();
             return this;
         }

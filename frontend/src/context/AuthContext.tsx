@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile } from '../types/profile';
 import { authService, AuthResponse, RegisterPayload } from '../services/authService';
 import { adminService } from '../services/adminService';
+import { canUseAdminPortal } from '../utils/roles';
 
 interface AuthState {
   isAuthenticated: boolean;
@@ -66,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [authState]);
 
   // Checks in every minute so the admin "Admin Logins" page can show who is active right now
-  const isAdmin = authState.isAuthenticated && authState.user?.role === 'ADMIN';
+  const isAdmin = authState.isAuthenticated && canUseAdminPortal(authState.user?.role);
   useEffect(() => {
     if (!isAdmin) return;
     const beat = () => adminService.heartbeat().catch(() => {});
@@ -96,6 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email: response.email,
       phone: '',
       role: userRole,
+      mustChangePassword: Boolean(response.mustChangePassword),
     };
 
     setAuthState({

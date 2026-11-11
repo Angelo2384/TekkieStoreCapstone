@@ -430,6 +430,14 @@
   box-shadow: 0 0 0 3px rgba(253, 103, 1, 0.15);
 }
 
+/* The email is the login, so it's shown but can't be edited */
+.profile-form .form-input:disabled {
+  border-color: #D8D8DC;
+  background-color: #F4F4F5;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
 .profile-form .form-actions {
   display: flex;
   justify-content: flex-end;

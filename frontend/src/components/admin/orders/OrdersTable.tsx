@@ -146,7 +146,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
         <Package size={40} className="empty-icon" />
         <h3 className="empty-title">No orders have been placed yet.</h3>
         <p className="empty-subtitle">
-          New purchases made on the TekkieStore live storefront will immediately appear here.
+          New purchases made on the storefront will appear here.
         </p>
       </div>
     );

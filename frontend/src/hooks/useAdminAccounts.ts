@@ -8,6 +8,8 @@ export const useAdminAccounts = () => {
   const [admins, setAdmins] = useState<AdminAccount[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<boolean>(false);
+  // Bumped to reload straight away, e.g. after a new account is created
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -33,7 +35,9 @@ export const useAdminAccounts = () => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, []);
+  }, [reloadKey]);
 
-  return { admins, loading, error };
+  const refresh = () => setReloadKey((key) => key + 1);
+
+  return { admins, loading, error, refresh };
 };

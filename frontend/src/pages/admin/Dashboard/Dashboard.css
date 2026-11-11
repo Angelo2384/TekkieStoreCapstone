@@ -1,73 +1,7 @@
-/* ==========================================================================
-   DASHBOARD PAGE STYLES - TekkieStore Admin
-
-   Shared primitives (card chrome, table, status pill, empty states) live
-   here since InventoryStatus/RecentOrders/SalesOverview/TopProducts all
-   render inside this page. Each component's own .css file only holds
-   styles unique to that component.
-   ========================================================================== */
+/* Dashboard page. Buttons, tables and status pills come from AdminLayout.css. */
 
 .admin-dashboard-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
   padding-bottom: 2.5rem;
-}
-
-/* --------------------------------------------------------------------------
-   ADMIN BUTTONS (used by DashboardHeader's Refresh action)
-   -------------------------------------------------------------------------- */
-.admin-btn-primary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background-color: var(--brand-orange);
-  color: var(--pure-white);
-  border: 1px solid var(--brand-orange);
-  padding: 0.6rem 1.15rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-
-.admin-btn-primary:hover {
-  background-color: var(--brand-orange-hover);
-  border-color: var(--brand-orange-hover);
-}
-
-.admin-btn-primary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-.admin-btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  background-color: var(--pure-white);
-  color: var(--text-main);
-  border: 1px solid #E4E4E7;
-  padding: 0.55rem 1rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.admin-btn-secondary:hover {
-  background-color: #F4F4F5;
-  border-color: #D1D5DB;
-  color: var(--obsidian);
-}
-
-.admin-btn-secondary:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
 }
 
 /* --------------------------------------------------------------------------
@@ -133,89 +67,20 @@
   color: var(--brand-orange);
 }
 
-/* --------------------------------------------------------------------------
-   SHARED TABLE STYLES
-   -------------------------------------------------------------------------- */
-.table-responsive {
-  overflow-x: auto;
-}
-
-.admin-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: left;
-}
-
-.admin-table th {
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 0.75rem 0.5rem;
-  border-bottom: 1px solid #E4E4E7;
-}
-
-.admin-table td {
-  padding: 0.85rem 0.5rem;
-  border-bottom: 1px solid #F4F4F5;
-  font-size: 0.85rem;
-  vertical-align: middle;
-}
-
-.admin-table tr:last-child td {
-  border-bottom: none;
-}
-
-.font-semibold {
-  font-weight: 600;
-}
-
-.text-obsidian {
-  color: var(--obsidian);
-}
-
-.text-muted {
-  color: var(--text-muted);
-}
-
-.text-sm {
-  font-size: 0.8rem;
-}
-
-.customer-cell,
 .shoe-cell {
   display: flex;
   flex-direction: column;
 }
 
-.customer-name,
 .shoe-name {
   font-weight: 600;
   color: var(--obsidian);
-}
-
-.customer-sub {
-  font-size: 0.75rem;
-  color: var(--text-muted);
 }
 
 .shoe-brand-tag {
   font-size: 0.72rem;
   color: var(--brand-orange);
   font-weight: 600;
-}
-
-/* --------------------------------------------------------------------------
-   SHARED STATUS PILL SHAPE (color variants live in each component's CSS)
-   -------------------------------------------------------------------------- */
-.status-pill {
-  display: inline-block;
-  padding: 0.25rem 0.65rem;
-  border-radius: 99px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-align: center;
 }
 
 /* --------------------------------------------------------------------------
